@@ -91,6 +91,10 @@ pokemon-battle-assistant/
 - 对战模拟：前期简化伤害和局面评估，后期可考虑对接成熟模拟器
 - bot 入口：先 CLI，后续扩展 Web API / 聊天机器人
 
+## 顶层架构思考
+
+项目已经记录了一份更长期的双层架构草案：[`docs/top-level-architecture-notes.md`](docs/top-level-architecture-notes.md)。该文档用于在正式深入开发前讨论 Battle Model、Game Theory Model、本地 Dex 数据、规则集、Replay 时间轴、博弈树、胜率估计和配队推荐等核心方向。
+
 ## 当前状态
 
 - [x] 初始化 Git 仓库

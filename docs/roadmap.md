@@ -7,6 +7,21 @@
 - [x] 编写架构规划
 - [x] 编写开发路线
 
+## Phase 0.5：顶层架构确认
+
+目标：在继续深入开发前，先确认项目的长期双层架构。
+
+参考文档：[`top-level-architecture-notes.md`](top-level-architecture-notes.md)
+
+任务：
+
+- [ ] 明确 Battle Model 和 Game Theory Model 的边界
+- [ ] 确认本地 Dex 数据策略
+- [ ] 确认首个正式支持的规则集
+- [ ] 确认 Replay / Timeline / Game Tree 的数据结构方向
+- [ ] 决定 MVP 代码是否需要重构到长期目录结构
+
+
 ## Phase 1：最小可用原型 MVP
 
 目标：实现一个命令行对战分析 demo。
