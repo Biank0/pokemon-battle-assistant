@@ -95,6 +95,8 @@ pokemon-battle-assistant/
 
 面向教授和同学的项目介绍与招募企划：[`docs/project-proposal.md`](docs/project-proposal.md)。
 
+Pokémon Showdown 源码导读笔记：[`docs/pokemon-showdown-code-reading-notes.md`](docs/pokemon-showdown-code-reading-notes.md)。
+
 ## 顶层架构思考
 
 补充方向：项目长期重心将优先考虑 **双打对战** 与 **《宝可梦：冠军》支持**，单打作为可支持模式之一，但后续 Battle Model / Game Theory Model 应以 doubles-ready、champions-ready 为核心约束。
