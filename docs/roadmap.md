@@ -11,7 +11,7 @@
 
 目标：在继续深入开发前，先确认项目的长期双层架构。
 
-参考文档：[`top-level-architecture-notes.md`](top-level-architecture-notes.md)
+参考文档：[`top-level-architecture-notes.md`](top-level-architecture-notes.md)、[`ml-and-game-theory-knowledge-map.md`](ml-and-game-theory-knowledge-map.md)
 
 任务：
 
