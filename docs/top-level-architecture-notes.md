@@ -46,6 +46,226 @@ Game Theory Model：时间轴、复盘、局部博弈树、胜率估计、配队
 Bot / API / UI：自然语言解释和交互
 ```
 
+
+## 重点方向补充：双打与《宝可梦：冠军》优先
+
+经过进一步思考，项目重心应优先放在：
+
+```text
+1. 双打对战 Doubles / VGC-like Battle
+2. 《宝可梦：冠军》Pokémon Champions 支持
+```
+
+原因：
+
+```text
+- 双打是官方竞技环境的核心形态之一，策略复杂度和博弈深度更高。
+- 双打包含位置、集火、保护、轮转、控速、场地、天气、联防等复杂决策，更能体现本项目的价值。
+- 《宝可梦：冠军》是面向对战的独立平台，未来可能承载官方竞技环境。
+- 如果 Gen 10 对战系统继续变化，围绕《宝可梦：冠军》建立可版本化、可适配的规则层具有实际价值。
+```
+
+因此，项目不应默认以传统单打作为长期核心，而应把单打视为可支持模式之一。长期架构应以“双打优先、冠军优先、规则可插拔”为设计原则。
+
+### 对 Battle Model 的影响
+
+Battle Model 在设计之初就要支持双打，而不是先写单打再硬改。
+
+需要优先建模：
+
+```text
+- 双方场上各 2 只宝可梦
+- 招式目标选择：单体、己方、全体、相邻、随机目标等
+- 保护、看穿、广域防守、快速防守等防守行动
+- 双打伤害修正，例如范围招式威力修正
+- 速度控制：顺风、戏法空间、电磁波、冰冻之风等
+- 行动顺序变化：击掌奇袭、优先度、恶作剧之心等
+- 集火与换人联动
+- 天气、场地、墙、钉子等全局效果
+- 队友之间的协同，例如威吓、帮助、交换场地、跟我来、愤怒粉等
+- 一回合内多个行动之间的事件顺序
+```
+
+状态结构也应从一开始支持：
+
+```python
+BattleState:
+    sides: tuple[SideState, SideState]
+    field: FieldState
+    ruleset: RuleSet
+    turn: int
+
+SideState:
+    active_slots: list[ActivePokemon]  # doubles 中通常为 2
+    bench: list[PokemonState]
+    side_conditions: list[Effect]
+
+Action:
+    actor_slot: SlotId
+    kind: move | switch | gimmick | pass
+    target_slot: SlotId | TargetPattern | None
+```
+
+### 对 Game Theory Model 的影响
+
+双打的博弈模型比单打更复杂，因为每回合不是简单的“我方一个行动 vs 对方一个行动”。
+
+双打一回合通常是：
+
+```text
+我方行动组合 = 宝可梦 A 行动 × 宝可梦 B 行动
+对方行动组合 = 对方宝可梦 C 行动 × 对方宝可梦 D 行动
+```
+
+因此，博弈树节点应支持 joint action：
+
+```python
+JointAction:
+    actions: tuple[Action, Action]
+
+GameTreeEdge:
+    p1_joint_action: JointAction
+    p2_joint_action: JointAction
+    probability: float
+    payoff: PayoffVector
+```
+
+双打博弈模型要特别关注：
+
+```text
+- 集火是否能击杀关键目标
+- 是否需要保护某只宝可梦
+- 是否要牺牲一只换取控速或展开
+- 对方是否会双集火我方核心
+- 是否存在安全 Protect 回合
+- 是否需要读对方 Protect
+- 是否可以通过换人触发威吓、天气、场地等资源
+- 是否能通过顺风、戏法空间等控制未来 3-5 回合节奏
+```
+
+### 对玩家风格模型的影响
+
+双打中的玩家风格也会更明显。
+
+需要增加或强化的风格维度：
+
+```python
+PlayerProfile:
+    protect_frequency: float          # 使用 Protect / 守住的频率
+    focus_fire_preference: float      # 集火偏好
+    speed_control_priority: float     # 控速优先级
+    positioning_awareness: float      # 站位和换人意识
+    support_move_preference: float    # 辅助招式偏好
+    tera_timing_style: float          # 太晶时机倾向
+    setup_vs_immediate_damage: float  # 展开和即时输出偏好
+```
+
+例如：
+
+```text
+- 保守型双打玩家更常 Protect、换人、保留关键宝可梦。
+- 激进型双打玩家更倾向双集火、提前太晶、抢节奏。
+- 高水平双打玩家会更重视未来数回合的速度控制和站位，而不是单回合伤害最大化。
+```
+
+### 《宝可梦：冠军》规则层
+
+《宝可梦：冠军》应作为独立规则族，而不是 Gen 9 或 Gen 10 的附属分支。
+
+建议规则结构：
+
+```text
+rulesets/
+├── champions/
+│   ├── base.py
+│   ├── season_001.py
+│   ├── roster.py
+│   ├── stat_system.py
+│   ├── legality.py
+│   ├── battle_format.py
+│   └── patches/
+├── gen9/
+└── gen10/
+```
+
+关键原则：
+
+```text
+- champions 不假设等同于主系列传统规则。
+- champions 规则应支持赛季化、补丁化和 roster 限制。
+- champions 数据应有版本号和来源记录。
+- 如果官方后续调整数值、招式、特性、可用宝可梦或比赛格式，系统应能新增规则快照，而不是覆盖旧规则。
+```
+
+规则集命名示例：
+
+```text
+champions_2026_s1
+champions_2026_s2
+champions_worlds_2026
+champions_experimental
+```
+
+### Gen 10 与未来规则变化
+
+如果 Gen 10 的对战系统发生变化，本项目应通过规则适配层吸收变化，而不是重写核心模型。
+
+设计目标：
+
+```text
+Battle Model 核心保持稳定
+  ↓
+RuleSet 描述不同规则
+  ↓
+Mechanics Plugin 覆盖差异机制
+  ↓
+Data Snapshot 固定具体赛季 / 世代数据
+```
+
+例如：
+
+```python
+RuleSet:
+    id: str
+    family: "gen9" | "gen10" | "champions" | "custom"
+    battle_mode: "singles" | "doubles"
+    roster_snapshot: str
+    stat_formula: str
+    damage_formula: str
+    gimmick_rules: list[GimmickRule]
+    patch_version: str
+```
+
+### 开发优先级调整
+
+新的优先级建议：
+
+```text
+P0：确认双打优先与 champions 优先的顶层方向
+P1：设计 doubles-ready 的 BattleState / Action / Target 模型
+P2：设计 champions RuleSet 与数据快照格式
+P3：实现最小双打回合模拟：两边各 2 只、出招、换人、目标选择、速度顺序
+P4：实现 Protect、范围招式、控速和事件日志
+P5：构建 champions 示例数据和示例规则集
+P6：在双打局面上做 joint action 博弈树
+P7：加入玩家风格：Protect 倾向、集火倾向、控速优先级
+```
+
+### 对当前 MVP 的影响
+
+当前 MVP 是单体行动评分器，可以保留作为早期 demo，但不应继续沿着“单打优先”的方向扩展太多。
+
+下一次代码重构时应考虑：
+
+```text
+- 将现有 models.py 拆分到 battle_model/state/
+- 将 Action 从单行动改为支持 actor_slot 和 target_slot
+- 将 evaluator 从单行动评分升级为 joint action 评分
+- 将 type_chart 保留为基础 mechanics
+- 将 CLI 示例从 singles simple_battle.json 增加 doubles/champions 示例
+```
+
+
 ## 关键原则
 
 1. **数据和规则分离**

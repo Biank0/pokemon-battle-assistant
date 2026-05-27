@@ -93,6 +93,8 @@ pokemon-battle-assistant/
 
 ## 顶层架构思考
 
+补充方向：项目长期重心将优先考虑 **双打对战** 与 **《宝可梦：冠军》支持**，单打作为可支持模式之一，但后续 Battle Model / Game Theory Model 应以 doubles-ready、champions-ready 为核心约束。
+
 项目已经记录了一份更长期的双层架构草案：[`docs/top-level-architecture-notes.md`](docs/top-level-architecture-notes.md)。该文档用于在正式深入开发前讨论 Battle Model、Game Theory Model、本地 Dex 数据、规则集、Replay 时间轴、博弈树、胜率估计和配队推荐等核心方向。
 
 ## 当前状态

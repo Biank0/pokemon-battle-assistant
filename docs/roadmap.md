@@ -18,6 +18,9 @@
 - [ ] 明确 Battle Model 和 Game Theory Model 的边界
 - [ ] 确认本地 Dex 数据策略
 - [ ] 确认首个正式支持的规则集
+- [ ] 确认项目长期重心是否明确为双打优先、冠军优先
+- [ ] 确认 BattleState / Action / Target 是否从一开始按双打建模
+- [ ] 确认 champions 规则集是否独立于 gen9 / gen10 规则族
 - [ ] 确认 Replay / Timeline / Game Tree 的数据结构方向
 - [ ] 确认玩家风格、风险偏好、心理压力和博弈论模块是否纳入第一版 Game Theory Model
 - [ ] 决定 MVP 代码是否需要重构到长期目录结构
