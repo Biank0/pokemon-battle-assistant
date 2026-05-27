@@ -1,0 +1,27 @@
+{
+  "rule_set": "gen9_singles_demo",
+  "notes": "MVP 示例：新叶喵/魔幻假面喵对水斗属性目标，演示属性克制、轮转和先制风险。",
+  "my_active": {
+    "name": "Meowscarada",
+    "types": ["Grass", "Dark"],
+    "hp_percent": 70,
+    "moves": [
+      {"name": "Flower Trick", "type": "Grass", "power": 70},
+      {"name": "Knock Off", "type": "Dark", "power": 65},
+      {"name": "U-turn", "type": "Bug", "power": 70, "tags": ["pivot"]},
+      {"name": "Sucker Punch", "type": "Dark", "power": 70, "tags": ["priority"]}
+    ]
+  },
+  "opponent_active": {
+    "name": "Quaquaval",
+    "types": ["Water", "Fighting"],
+    "hp_percent": 60
+  },
+  "available_actions": [
+    {"kind": "move", "name": "Flower Trick", "move_type": "Grass", "power": 70},
+    {"kind": "move", "name": "Knock Off", "move_type": "Dark", "power": 65},
+    {"kind": "move", "name": "U-turn", "move_type": "Bug", "power": 70, "tags": ["pivot"]},
+    {"kind": "move", "name": "Sucker Punch", "move_type": "Dark", "power": 70, "tags": ["priority"]},
+    {"kind": "switch", "name": "switch:Toxapex", "target": "Toxapex"}
+  ]
+}

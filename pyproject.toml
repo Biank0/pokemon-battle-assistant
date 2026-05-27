@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pokemon-battle-assistant"
+version = "0.1.0"
+description = "A lightweight MVP bot for Pokemon battle action evaluation and coaching."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Biank0" }
+]
+
+[project.scripts]
+pokemon-battle-assistant = "pokemon_battle_assistant.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

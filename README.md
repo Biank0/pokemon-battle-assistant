@@ -98,3 +98,30 @@ pokemon-battle-assistant/
 - [ ] 创建 Python 项目骨架
 - [ ] 实现基础数据模型
 - [ ] 实现第一个局面分析 demo
+
+## MVP 骨架运行方式
+
+当前已经具备一个最小命令行分析器，可以读取 `examples/simple_battle.json`，对候选操作进行启发式评分并输出中文解释。
+
+在仓库根目录运行：
+
+```bash
+PYTHONPATH=src python -m pokemon_battle_assistant.cli examples/simple_battle.json
+```
+
+可以通过 `--top` 控制展示几个候选操作：
+
+```bash
+PYTHONPATH=src python -m pokemon_battle_assistant.cli examples/simple_battle.json --top 5
+```
+
+当前 MVP 包含：
+
+- `models.py`：局面、宝可梦、行动和评分结果数据模型
+- `type_chart.py`：属性克制表和倍率计算
+- `evaluator.py`：透明的启发式行动评分器
+- `explanation.py`：将评分结果转成中文对战建议
+- `cli.py`：命令行入口
+- `examples/simple_battle.json`：示例局面
+
+当前评分仍然是简化版本，不包含完整伤害公式、速度判断、特性、道具和随机数区间。下一步可以继续补：速度线、真实伤害估算、队伍分析和 1-2 回合博弈树。
