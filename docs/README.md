@@ -2,6 +2,30 @@
 
 这个项目现在先保持最小可运行状态，避免过早搭太复杂的框架。
 
+
+## 外部依赖说明
+
+本项目自身只保存助手代码和中文名表。真实本地对战依赖：
+
+```text
+~/Bian-workspace/pokemon-showdown   # 本地对战服务器和规则裁判
+~/Bian-workspace/poke-env           # Python 侧 Showdown bot 客户端
+```
+
+本地对战时的数据和规则主要来自本地 Pokémon Showdown；poke-env 负责连接 server、读取局面、提交 bot 行动。
+
+启动顺序：
+
+```bash
+# 终端 1
+cd ~/Bian-workspace/pokemon-showdown
+node pokemon-showdown start --no-security
+
+# 终端 2
+cd ~/Bian-workspace/pokemon-battle-assistant
+.venv/bin/python scripts/poke_env_smoke_battle.py
+```
+
 ## 现在保留了什么
 
 ### 1. 简化对战分析 MVP

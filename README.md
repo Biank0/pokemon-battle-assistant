@@ -7,6 +7,82 @@
 
 复杂框架先不保留，后面真正需要时再加。
 
+
+## 外部依赖与本地运行环境
+
+本项目当前有两类运行方式，依赖不同。
+
+### 1. 离线命令行分析器
+
+只依赖本项目 Python 代码，不需要启动 Pokémon Showdown，也不需要联网。
+
+运行：
+
+```bash
+PYTHONPATH=src python -m pokemon_battle_assistant.cli examples/simple_battle.json --top 5
+```
+
+### 2. 本地真实对战模拟
+
+这个功能依赖两个外部项目：
+
+```text
+~/Bian-workspace/pokemon-showdown   # 本地 Pokémon Showdown server，负责真实对战结算
+~/Bian-workspace/poke-env           # Python 客户端，负责让 bot 连接 Showdown
+```
+
+当前对战链路是：
+
+```text
+本项目脚本
+  -> poke-env
+  -> 本地 Pokémon Showdown server
+  -> 本地完成对战结算
+```
+
+也就是说，对战运行时不连接官方服务器；只要依赖已经安装好，就可以离线在本机跑。
+
+### 首次准备 Pokémon Showdown
+
+```bash
+cd ~/Bian-workspace/pokemon-showdown
+npm install
+cp config/config-example.js config/config.js
+```
+
+启动本地 Showdown：
+
+```bash
+cd ~/Bian-workspace/pokemon-showdown
+node pokemon-showdown start --no-security
+```
+
+看到类似下面的输出就说明启动成功：
+
+```text
+Worker 1 now listening on 0.0.0.0:8000
+Test your server at http://localhost:8000
+```
+
+注意：`--no-security` 只适合本地开发，不要暴露到公网。
+
+### 首次准备 poke-env
+
+本机系统 Python 可能是 3.9，而 poke-env 需要 Python 3.10+。当前使用 Anaconda Python 3.13 创建虚拟环境：
+
+```bash
+cd ~/Bian-workspace/pokemon-battle-assistant
+/opt/homebrew/anaconda3/bin/python3.13 -m venv .venv
+.venv/bin/python -m pip install -e ~/Bian-workspace/poke-env
+```
+
+然后运行本地对战脚本：
+
+```bash
+cd ~/Bian-workspace/pokemon-battle-assistant
+.venv/bin/python scripts/poke_env_smoke_battle.py
+```
+
 ## 当前保留的功能
 
 ### 1. 命令行局面分析
