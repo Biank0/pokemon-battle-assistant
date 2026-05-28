@@ -25,3 +25,7 @@ htmlcov/
 .env
 .env.*
 !.env.example
+
+# Runtime artifacts
+replays/
+battle_outputs/
