@@ -156,3 +156,9 @@ PYTHONPATH=src python -m unittest discover -s tests
 ## 下一步
 
 > 实现最简单的 `AssistantPlayer`，让它在 poke-env 对战中根据简单规则选择行动，替代当前的 RandomPlayer。
+
+## Contributors
+
+- [Biank0](https://github.com/Biank0)
+- Claude (Anthropic) — Claude Opus 4.6
+- ChatGPT (OpenAI)
