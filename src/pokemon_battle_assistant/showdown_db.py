@@ -1,4 +1,7 @@
-"""Offline Showdown data lookup for trainer template creation."""
+"""Offline Showdown data lookup for trainer template creation.
+
+Supports both English and Chinese name search via the local translation table.
+"""
 
 from __future__ import annotations
 
@@ -7,6 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 DB_PATH = Path(__file__).resolve().parents[2] / "data" / "showdown_db.json"
+ZH_PATH = Path(__file__).resolve().parents[2] / "data" / "translations" / "zh_cn_names.json"
 
 
 @lru_cache(maxsize=1)
@@ -15,8 +19,63 @@ def load_db() -> dict:
         return json.load(f)
 
 
+@lru_cache(maxsize=1)
+def _load_zh_reverse() -> dict[str, dict[str, str]]:
+    """Build reverse lookup: category -> {chinese_name -> english_id}."""
+    if not ZH_PATH.exists():
+        return {}
+    with open(ZH_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+    reverse: dict[str, dict[str, str]] = {}
+    for category in ("pokemon", "moves", "items", "abilities"):
+        mapping = data.get(category, {})
+        rev: dict[str, str] = {}
+        for eng_id, zh_name in mapping.items():
+            rev[zh_name] = eng_id
+        reverse[category] = rev
+    return reverse
+
+
+@lru_cache(maxsize=1)
+def _load_zh_forward() -> dict[str, dict[str, str]]:
+    """Forward lookup: category -> {english_id -> chinese_name}."""
+    if not ZH_PATH.exists():
+        return {}
+    with open(ZH_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+    return {cat: data.get(cat, {}) for cat in ("pokemon", "moves", "items", "abilities")}
+
+
 def _normalize(text: str) -> str:
     return "".join(c for c in text.lower() if c.isalnum())
+
+
+def _is_cjk(text: str) -> bool:
+    return any("一" <= c <= "鿿" for c in text)
+
+
+def _zh_name(category: str, eng_id: str) -> str:
+    """Get the Chinese name for an English ID, or empty string."""
+    fwd = _load_zh_forward()
+    return fwd.get(category, {}).get(eng_id, "")
+
+
+def _zh_match(category: str, query: str, eng_id: str) -> bool:
+    """Check if the Chinese name for eng_id contains the query."""
+    zh = _zh_name(category, eng_id)
+    return bool(zh and query in zh)
+
+
+def _resolve_zh_query(category: str, query: str) -> str | None:
+    """If query is Chinese, try to resolve it to an English ID."""
+    reverse = _load_zh_reverse()
+    cat_rev = reverse.get(category, {})
+    if query in cat_rev:
+        return cat_rev[query]
+    for zh_name, eng_id in cat_rev.items():
+        if query in zh_name:
+            return eng_id
+    return None
 
 
 def get_pokemon(species_id: str) -> dict | None:
@@ -25,6 +84,7 @@ def get_pokemon(species_id: str) -> dict | None:
 
 def search_pokemon(query: str, limit: int = 10) -> list[dict]:
     q = _normalize(query)
+    is_zh = _is_cjk(query)
     pokedex = load_db()["pokedex"]
     results = []
     for pid, entry in pokedex.items():
@@ -32,8 +92,10 @@ def search_pokemon(query: str, limit: int = 10) -> list[dict]:
             continue
         if q in pid or q in _normalize(entry["name"]):
             results.append({"id": pid, **entry})
-            if len(results) >= limit:
-                break
+        elif is_zh and _zh_match("pokemon", query, pid):
+            results.append({"id": pid, **entry})
+        if len(results) >= limit:
+            break
     return results
 
 
@@ -65,13 +127,16 @@ def get_move(move_id: str) -> dict | None:
 
 def search_moves(query: str, limit: int = 10) -> list[dict]:
     q = _normalize(query)
+    is_zh = _is_cjk(query)
     moves = load_db()["moves"]
     results = []
     for mid, entry in moves.items():
         if q in mid or q in _normalize(entry["name"]):
             results.append({"id": mid, **entry})
-            if len(results) >= limit:
-                break
+        elif is_zh and _zh_match("moves", query, mid):
+            results.append({"id": mid, **entry})
+        if len(results) >= limit:
+            break
     return results
 
 
@@ -81,13 +146,16 @@ def get_item(item_id: str) -> dict | None:
 
 def search_items(query: str, limit: int = 10) -> list[dict]:
     q = _normalize(query)
+    is_zh = _is_cjk(query)
     items = load_db()["items"]
     results = []
     for iid, entry in items.items():
         if q in iid or q in _normalize(entry["name"]):
             results.append({"id": iid, **entry})
-            if len(results) >= limit:
-                break
+        elif is_zh and _zh_match("items", query, iid):
+            results.append({"id": iid, **entry})
+        if len(results) >= limit:
+            break
     return results
 
 

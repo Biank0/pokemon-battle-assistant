@@ -1,187 +1,158 @@
-# Pokémon Battle Assistant
+# Pokemon Battle Assistant
 
-一个宝可梦对战助手原型。现在先保持简单：
+宝可梦对战助手。支持自定义训练家队伍、本地模拟对战、离线局面分析，全程中文输出。
 
-1. 一个能跑的命令行局面分析器。
-2. 一个能验证 poke-env 本地对战的 smoke 脚本。
+## 快速开始
 
-复杂框架先不保留，后面真正需要时再加。
-
-
-## 外部依赖与本地运行环境
-
-本项目当前有两类运行方式，依赖不同。
-
-### 1. 离线命令行分析器
-
-只依赖本项目 Python 代码，不需要启动 Pokémon Showdown，也不需要联网。
-
-运行：
+所有功能通过统一入口 `pba` 调用。首次使用需要设置 alias：
 
 ```bash
-PYTHONPATH=src python -m pokemon_battle_assistant.cli examples/simple_battle.json --top 5
+echo 'alias pba="~/Bian-workspace/pokemon-battle-assistant/pba"' >> ~/.zshrc
+source ~/.zshrc
 ```
 
-### 2. 本地真实对战模拟
-
-这个功能依赖两个外部项目：
-
-```text
-~/path/to/pokemon-showdown   # 本地 Pokémon Showdown server，负责真实对战结算
-~/path/to/poke-env           # Python 客户端，负责让 bot 连接 Showdown
-```
-
-上面的 `~/path/to/...` 是示例路径，请替换成你自己 clone 仓库的位置。
-
-当前对战链路是：
-
-```text
-本项目脚本
-  -> poke-env
-  -> 本地 Pokémon Showdown server
-  -> 本地完成对战结算
-```
-
-也就是说，对战运行时不连接官方服务器；只要依赖已经安装好，就可以离线在本机跑。
-
-### 首次准备 Pokémon Showdown
+### 队伍管理
 
 ```bash
-cd ~/path/to/pokemon-showdown
+pba team list                    # 列出所有训练家模版
+pba team create                  # 交互式创建队伍（支持中文搜索）
+pba team show <名字>             # 查看队伍详情
+pba team preview <名字>          # 输出 Showdown 格式（可粘贴到 Showdown）
+pba team delete <名字>           # 删除队伍
+```
+
+队伍模版保存在 `data/trainers/*.json`，也可以直接编辑 JSON 文件。
+
+### 本地对战
+
+需要先启动本地 Pokemon Showdown（见下方「环境准备」）：
+
+```bash
+pba battle data/trainers/my_team.json                                       # 双方同队伍
+pba battle data/trainers/team_a.json --opponent data/trainers/team_b.json   # 不同队伍对战
+pba battle data/trainers/my_team.json --format gen9ou                       # 指定对战格式
+```
+
+对战结束后在 `battle_outputs/<battle_tag>/` 下生成：
+- `replay.html` — 可视化对战回放
+- `record.json` — 完整对战数据
+- `report.md` — 中文对战报告
+
+### 离线局面分析
+
+不需要 Showdown，纯本地运行：
+
+```bash
+pba analyze examples/simple_battle.json --top 5
+```
+
+输入一个对战局面 JSON，输出推荐操作、评分、理由和风险。
+
+## 功能概览
+
+| 功能 | 说明 | 需要 Showdown |
+|------|------|:---:|
+| 队伍创建/管理 | 从 Showdown 数据库选择宝可梦，配置招式/道具/特性/性格/EVs/IVs/太晶属性 | 否 |
+| 中文搜索 | 搜索宝可梦/招式/道具时支持中英文关键词 | 否 |
+| 模版对战 | 用自定义队伍进行本地对战，导出回放和中文报告 | 是 |
+| 随机对战 | RandomPlayer vs RandomPlayer 的烟雾测试 | 是 |
+| 局面分析 | 基于属性克制/STAB/威力等启发式规则的行动推荐 | 否 |
+
+## 环境准备
+
+### Python 环境
+
+需要 Python 3.10+：
+
+```bash
+cd ~/Bian-workspace/pokemon-battle-assistant
+python3.13 -m venv .venv
+.venv/bin/python -m pip install -e ~/Bian-workspace/poke-env
+```
+
+### 本地 Pokemon Showdown（对战功能需要）
+
+```bash
+cd ~/Bian-workspace/pokemon-showdown
 npm install
 cp config/config-example.js config/config.js
-```
-
-启动本地 Showdown：
-
-```bash
-cd ~/path/to/pokemon-showdown
 node pokemon-showdown start --no-security
 ```
 
-看到类似下面的输出就说明启动成功：
-
-```text
-Worker 1 now listening on 0.0.0.0:8000
-Test your server at http://localhost:8000
-```
+看到 `Worker 1 now listening on 0.0.0.0:8000` 即启动成功。
 
 注意：`--no-security` 只适合本地开发，不要暴露到公网。
 
-### 首次准备 poke-env
+## 训练家模版格式
 
-本机系统 Python 可能是 3.9，而 poke-env 需要 Python 3.10+。当前使用 Anaconda Python 3.13 创建虚拟环境：
+队伍以 JSON 文件存储在 `data/trainers/`，完整字段如下：
 
-```bash
-cd ~/path/to/pokemon-battle-assistant
-python3.13 -m venv .venv
-.venv/bin/python -m pip install -e ~/path/to/poke-env
+```json
+{
+  "name": "队伍名称",
+  "format": "gen9ou",
+  "team": [
+    {
+      "species": "Dragapult",
+      "nickname": "",
+      "item": "Choice Specs",
+      "ability": "Infiltrator",
+      "nature": "Timid",
+      "tera_type": "Dragon",
+      "level": 100,
+      "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 252, "spd": 4, "spe": 252},
+      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "moves": ["Shadow Ball", "Draco Meteor", "Flamethrower", "U-turn"]
+    }
+  ]
+}
 ```
 
-然后运行本地对战脚本：
+- `team` 包含 1-6 只宝可梦
+- `evs` 每项 0-252，总和不超过 510
+- `ivs` 每项 0-31，省略默认 31
+- `species`/`item`/`ability`/`moves` 使用 Showdown 英文名称
 
-```bash
-cd ~/path/to/pokemon-battle-assistant
-.venv/bin/python scripts/poke_env_smoke_battle.py
+## 数据来源
+
+- **宝可梦数据库** (`data/showdown_db.json`)：从本地 Pokemon Showdown 提取的 Gen 9 数据，包含 1517 宝可梦、718 招式、249 道具、310 特性、25 种性格。重新生成：`node scripts/extract_showdown_data.js`
+- **中文名翻译** (`data/translations/zh_cn_names.json`)：来自 PokeAPI，覆盖宝可梦/招式/道具/特性。重新生成：`.venv/bin/python scripts/build_zh_translation_file.py`
+
+## 项目结构
+
 ```
-
-## 当前保留的功能
-
-### 1. 命令行局面分析
-
-输入：`examples/simple_battle.json`  
-输出：推荐操作、评分、理由、风险。
-
-运行：
-
-```bash
-cd ~/path/to/pokemon-battle-assistant
-PYTHONPATH=src python -m pokemon_battle_assistant.cli examples/simple_battle.json --top 5
-```
-
-### 2. poke-env 本地对战验证
-
-先启动本地 Pokémon Showdown：
-
-```bash
-cd ~/path/to/pokemon-showdown
-node pokemon-showdown start --no-security
-```
-
-再运行：
-
-```bash
-cd ~/path/to/pokemon-battle-assistant
-.venv/bin/python scripts/poke_env_smoke_battle.py
-```
-
-这个脚本会让两个随机 bot 在本地打一场，并在 `battle_outputs/<battle_tag>/` 下导出：
-
-- `replay.html`：可打开查看的完整 replay
-- `record.json`：JSON 格式的对战配置、双方队伍、每回合观察快照和原始 replay events
-- `report.md`：中文 Markdown 报告，适合直接打开阅读
-
-## 当前项目结构
-
-```text
 pokemon-battle-assistant/
-├── docs/
-│   └── README.md
-├── examples/
-│   └── simple_battle.json
+├── pba                              # 统一 CLI 入口
+├── data/
+│   ├── showdown_db.json             # Showdown Gen9 离线数据库
+│   ├── trainers/                    # 训练家队伍模版
+│   └── translations/zh_cn_names.json
 ├── scripts/
-│   └── poke_env_smoke_battle.py
+│   ├── extract_showdown_data.js     # Showdown 数据提取脚本
+│   ├── trainer_cli.py               # 队伍管理 CLI
+│   ├── run_battle_with_trainer.py   # 模版对战脚本
+│   ├── poke_env_smoke_battle.py     # 随机对战烟雾测试
+│   └── build_zh_translation_file.py # 中文翻译表生成
 ├── src/pokemon_battle_assistant/
-│   ├── __init__.py
-│   ├── __main__.py
-│   ├── cli.py
-│   ├── evaluator.py
-│   ├── explanation.py
-│   ├── models.py
-│   └── type_chart.py
-└── tests/
-    └── test_mvp.py
+│   ├── battle_recorder.py           # 对战记录共享模块
+│   ├── showdown_db.py               # 数据库查询模块
+│   ├── team_converter.py            # 模版 → Showdown 格式转换
+│   ├── translation.py               # 中文翻译
+│   ├── evaluator.py                 # 启发式行动评分
+│   ├── explanation.py               # 中文解释生成
+│   ├── models.py                    # 数据模型
+│   ├── type_chart.py                # 属性克制表
+│   └── cli.py                       # 局面分析入口
+├── examples/simple_battle.json
+└── tests/test_mvp.py
 ```
 
 ## 测试
 
 ```bash
-cd ~/path/to/pokemon-battle-assistant
 PYTHONPATH=src python -m unittest discover -s tests
-```
-
-如果用 `.venv`：
-
-```bash
-PYTHONPATH=src .venv/bin/python -m unittest discover -s tests
-```
-
-
-## 中文名翻译
-
-项目现在有一份本地全量中文名文件：
-
-```text
-data/translations/zh_cn_names.json
-```
-
-来源是 PokéAPI，当前大小约 139 KB，包含：
-
-- 宝可梦：1025 条
-- 招式：915 条
-- 道具：1996 条
-- 特性：276 条
-
-运行报告时不会联网，只读取这个本地文件。需要重新生成时运行：
-
-```bash
-.venv/bin/python scripts/build_zh_translation_file.py
 ```
 
 ## 下一步
 
-只做一个小目标：
-
-> 实现最简单的 `AssistantPlayer`，让它能在 poke-env 对战中根据简单规则选择行动。
-
-等这个跑通后，再考虑博弈、双打、解释层等复杂功能。
+> 实现最简单的 `AssistantPlayer`，让它在 poke-env 对战中根据简单规则选择行动，替代当前的 RandomPlayer。

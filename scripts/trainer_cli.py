@@ -130,8 +130,10 @@ def input_with_default(prompt: str, default: str = "") -> str:
 
 
 def input_search_select(category: str, search_fn, prompt: str) -> str | None:
+    zh_category_map = {"宝可梦": "pokemon", "招式": "moves", "道具": "items"}
+    zh_cat = zh_category_map.get(category, "")
     while True:
-        query = input(f"{prompt}（输入关键词搜索，留空跳过）: ").strip()
+        query = input(f"{prompt}（输入中英文关键词搜索，留空跳过）: ").strip()
         if not query:
             return None
         results = search_fn(query, limit=10)
@@ -140,15 +142,23 @@ def input_search_select(category: str, search_fn, prompt: str) -> str | None:
             continue
         print(f"  搜索结果：")
         for idx, r in enumerate(results, 1):
+            zh_name = ""
+            if zh_cat == "pokemon":
+                zh_name = translate_pokemon(r.get("id", r["name"]))
+            elif zh_cat == "moves":
+                zh_name = translate_move(r.get("id", r["name"]))
+            elif zh_cat == "items":
+                zh_name = translate_item(r.get("id", r["name"]))
+            zh_label = f"（{zh_name}）" if zh_name and zh_name != r["name"] else ""
             extra = ""
             if category == "招式":
-                extra = f" ({r.get('type', '?')}, 威力:{r.get('basePower', '?')}, {r.get('category', '?')})"
+                extra = f" [{r.get('type', '?')}, 威力:{r.get('basePower', '?')}, {r.get('category', '?')}]"
             elif category == "宝可梦":
                 types = "/".join(r.get("types", []))
                 stats = r.get("baseStats", {})
                 bst = sum(stats.values()) if stats else 0
-                extra = f" ({types}, 种族值:{bst})"
-            print(f"    {idx}. {r['name']}{extra}")
+                extra = f" [{types}, 种族值:{bst}]"
+            print(f"    {idx}. {r['name']}{zh_label}{extra}")
         choice = input(f"  选择编号（1-{len(results)}），或直接输入名称: ").strip()
         if choice.isdigit():
             idx = int(choice) - 1
@@ -310,6 +320,24 @@ def cmd_create(args: argparse.Namespace) -> None:
     print(template_to_showdown_text(template))
 
 
+def cmd_delete(args: argparse.Namespace) -> None:
+    path = TRAINERS_DIR / f"{args.name}.json"
+    if not path.exists():
+        print(f"模版不存在：{path}")
+        return
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    team_name = data.get("name", args.name)
+    count = len(data.get("team", []))
+    print(f"即将删除：{team_name}（{count} 只宝可梦）")
+    confirm = input("确认删除？(y/n) [n]: ").strip().lower()
+    if confirm == "y":
+        path.unlink()
+        print(f"已删除：{path}")
+    else:
+        print("取消删除。")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="训练家模版管理工具")
     sub = parser.add_subparsers(dest="command")
@@ -324,6 +352,9 @@ def main() -> None:
 
     sub.add_parser("create", help="交互式创建新模版")
 
+    delete_p = sub.add_parser("delete", help="删除训练家模版")
+    delete_p.add_argument("name", help="模版文件名（不含 .json）")
+
     args = parser.parse_args()
     if args.command == "list":
         cmd_list(args)
@@ -333,6 +364,8 @@ def main() -> None:
         cmd_preview(args)
     elif args.command == "create":
         cmd_create(args)
+    elif args.command == "delete":
+        cmd_delete(args)
     else:
         parser.print_help()
 
