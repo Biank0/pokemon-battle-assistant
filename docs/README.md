@@ -8,9 +8,11 @@
 本项目自身只保存助手代码和中文名表。真实本地对战依赖：
 
 ```text
-~/Bian-workspace/pokemon-showdown   # 本地对战服务器和规则裁判
-~/Bian-workspace/poke-env           # Python 侧 Showdown bot 客户端
+~/path/to/pokemon-showdown   # 本地对战服务器和规则裁判
+~/path/to/poke-env           # Python 侧 Showdown bot 客户端
 ```
+
+上面的 `~/path/to/...` 是示例路径，请替换成你自己的本地目录。
 
 本地对战时的数据和规则主要来自本地 Pokémon Showdown；poke-env 负责连接 server、读取局面、提交 bot 行动。
 
@@ -18,11 +20,11 @@
 
 ```bash
 # 终端 1
-cd ~/Bian-workspace/pokemon-showdown
+cd ~/path/to/pokemon-showdown
 node pokemon-showdown start --no-security
 
 # 终端 2
-cd ~/Bian-workspace/pokemon-battle-assistant
+cd ~/path/to/pokemon-battle-assistant
 .venv/bin/python scripts/poke_env_smoke_battle.py
 ```
 
@@ -47,7 +49,7 @@ tests/test_mvp.py
 运行：
 
 ```bash
-cd ~/Bian-workspace/pokemon-battle-assistant
+cd ~/path/to/pokemon-battle-assistant
 PYTHONPATH=src python -m pokemon_battle_assistant.cli examples/simple_battle.json --top 5
 ```
 
@@ -64,14 +66,14 @@ scripts/poke_env_smoke_battle.py
 先启动 Showdown：
 
 ```bash
-cd ~/Bian-workspace/pokemon-showdown
+cd ~/path/to/pokemon-showdown
 node pokemon-showdown start --no-security
 ```
 
 再运行脚本：
 
 ```bash
-cd ~/Bian-workspace/pokemon-battle-assistant
+cd ~/path/to/pokemon-battle-assistant
 .venv/bin/python scripts/poke_env_smoke_battle.py
 ```
 

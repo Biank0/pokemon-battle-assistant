@@ -1,11 +1,11 @@
 """Run one local poke-env battle and export its configuration and record.
 
 Prerequisite:
-    cd ~/Bian-workspace/pokemon-showdown
+    cd ~/path/to/pokemon-showdown
     node pokemon-showdown start --no-security
 
 Run:
-    cd ~/Bian-workspace/pokemon-battle-assistant
+    cd ~/path/to/pokemon-battle-assistant
     .venv/bin/python scripts/poke_env_smoke_battle.py
 
 Output:

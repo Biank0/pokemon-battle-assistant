@@ -4,7 +4,7 @@ This script needs internet access only when rebuilding the cache.  Runtime repor
 generation reads the generated local file and does not call the network.
 
 Run:
-    cd ~/Bian-workspace/pokemon-battle-assistant
+    cd ~/path/to/pokemon-battle-assistant
     .venv/bin/python scripts/build_zh_translation_file.py
 """
 
