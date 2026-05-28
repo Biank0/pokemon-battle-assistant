@@ -1,0 +1,38 @@
+{
+  "name": "Example OU Team",
+  "format": "gen9ou",
+  "team": [
+    {
+      "species": "Dragapult",
+      "item": "Choice Specs",
+      "ability": "Infiltrator",
+      "nature": "Timid",
+      "tera_type": "Dragon",
+      "level": 100,
+      "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 252, "spd": 4, "spe": 252},
+      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "moves": ["Shadow Ball", "Draco Meteor", "Flamethrower", "U-turn"]
+    },
+    {
+      "species": "Great Tusk",
+      "item": "Leftovers",
+      "ability": "Protosynthesis",
+      "nature": "Jolly",
+      "tera_type": "Ground",
+      "level": 100,
+      "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 0, "spd": 0, "spe": 252},
+      "moves": ["Headlong Rush", "Rapid Spin", "Ice Spinner", "Knock Off"]
+    },
+    {
+      "species": "Gholdengo",
+      "item": "Air Balloon",
+      "ability": "Good as Gold",
+      "nature": "Timid",
+      "tera_type": "Flying",
+      "level": 100,
+      "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 252, "spd": 4, "spe": 252},
+      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "moves": ["Make It Rain", "Shadow Ball", "Nasty Plot", "Recover"]
+    }
+  ]
+}
