@@ -6,6 +6,8 @@ Usage:
     pba team create
     pba team preview <name>
     pba team delete <name>
+    pba team validate <name>
+    pba env check
     pba battle <template> [--opponent <template>] [--format <format>]
     pba random-battle [--format <format>]
     pba analyze <battle_state.json> [--top N]
@@ -22,6 +24,42 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 TRAINERS_DIR = PROJECT_ROOT / "data" / "trainers"
 TRAINERS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def resolve_trainer_path(name_or_path: str) -> Path:
+    candidate = Path(name_or_path)
+    if candidate.exists():
+        return candidate
+    if candidate.suffix == ".json":
+        return candidate
+    return TRAINERS_DIR / f"{name_or_path}.json"
+
+
+def print_validation_result(path: Path, result) -> None:
+    print(f"# 队伍模版校验：{path}")
+    if result.errors:
+        print("\n错误：")
+        for error in result.errors:
+            print(f"- {error}")
+    if result.warnings:
+        print("\n警告：")
+        for warning in result.warnings:
+            print(f"- {warning}")
+    if result.ok:
+        print("\n结果：本地基础校验通过。")
+        print("提示：Showdown 完整合法性仍会在实际对战时校验。")
+    else:
+        print("\n结果：校验失败，请先修正错误。")
+
+
+def cmd_env(args: argparse.Namespace) -> None:
+    from pokemon_battle_assistant.env_check import format_env_check, run_env_check
+
+    if args.env_action == "check":
+        result = run_env_check()
+        print(format_env_check(result, as_json=args.json))
+    else:
+        print("请使用：pba env check")
 
 
 def cmd_team(args: argparse.Namespace) -> None:
@@ -41,6 +79,38 @@ def cmd_team(args: argparse.Namespace) -> None:
         mod.cmd_create(args)
     elif args.team_action == "delete":
         mod.cmd_delete(args)
+    elif args.team_action == "validate":
+        from pokemon_battle_assistant.validators import validate_trainer_template
+
+        path = resolve_trainer_path(args.name)
+        result = validate_trainer_template(path)
+        print_validation_result(path, result)
+        if not result.ok:
+            raise SystemExit(1)
+
+
+
+def raise_battle_error(exc: Exception) -> None:
+    text = str(exc)
+    exc_name = exc.__class__.__name__
+    print("\n# 对战启动/运行失败")
+    if isinstance(exc, ModuleNotFoundError) and getattr(exc, "name", "") == "poke_env":
+        print("未找到 poke-env。")
+        print("请运行：")
+        print("  .venv/bin/python -m pip install -e ~/Bian-workspace/poke-env")
+    elif "ConnectionRefused" in text or "Connect call failed" in text or "Errno 61" in text or "Cannot connect" in text:
+        print("无法连接本地 Pokémon Showdown server。")
+        print("请先运行：")
+        print("  cd ~/Bian-workspace/pokemon-showdown")
+        print("  node pokemon-showdown start --no-security")
+    elif "Your team was rejected" in text or "team was rejected" in text:
+        print("队伍被 Showdown 拒绝。请查看上方 Showdown 返回的原因，并修改队伍模版。")
+        print("你也可以先运行：")
+        print("  pba team validate <队伍名>")
+    else:
+        print(f"{exc_name}: {text}")
+        print("如果不确定环境是否正常，请先运行：pba env check")
+    raise SystemExit(1)
 
 
 def cmd_battle(args: argparse.Namespace) -> None:
@@ -49,8 +119,16 @@ def cmd_battle(args: argparse.Namespace) -> None:
     from pokemon_battle_assistant.translation import translate_pokemon
 
     def load_template(path: str) -> dict:
-        with open(path, encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            print(f"队伍模版不存在：{path}")
+            print("可以运行 `pba team list` 查看已有队伍。")
+            raise SystemExit(1)
+        except json.JSONDecodeError as exc:
+            print(f"队伍模版 JSON 解析失败：{path}:{exc.lineno}:{exc.colno} {exc.msg}")
+            raise SystemExit(1)
 
     p1_template = load_template(args.template)
     p1_team_text = template_to_showdown_text(p1_template)
@@ -87,7 +165,10 @@ def cmd_battle(args: argparse.Namespace) -> None:
             player_2_control=args.player2_control,
             metadata={"entrypoint": "pba battle"},
         )
-        result = await BattleRunner().run(config)
+        try:
+            result = await BattleRunner().run(config)
+        except Exception as exc:
+            raise_battle_error(exc)
         battle = result.record["battle"]
 
         print("# 对战结束摘要")
@@ -132,7 +213,10 @@ def cmd_random_battle(args: argparse.Namespace) -> None:
             player_2_control=args.player2_control,
             metadata={"entrypoint": "pba random-battle"},
         )
-        result = await BattleRunner().run(config)
+        try:
+            result = await BattleRunner().run(config)
+        except Exception as exc:
+            raise_battle_error(exc)
         battle = result.record["battle"]
 
         print("# 对战结束摘要")
@@ -186,8 +270,17 @@ def main() -> None:
 
     team_sub.add_parser("create", help="交互式创建队伍")
 
+    validate_p = team_sub.add_parser("validate", help="本地基础校验队伍模版")
+    validate_p.add_argument("name", help="模版名（不含 .json）或 JSON 路径")
+
     delete_p = team_sub.add_parser("delete", help="删除队伍")
     delete_p.add_argument("name", help="模版名（不含 .json）")
+
+    # --- pba env ---
+    env_parser = sub.add_parser("env", help="环境检查工具")
+    env_sub = env_parser.add_subparsers(dest="env_action")
+    env_check = env_sub.add_parser("check", help="检查 Python、依赖、Showdown 和数据文件")
+    env_check.add_argument("--json", action="store_true", help="输出 JSON 格式")
 
     # --- pba battle ---
     battle_parser = sub.add_parser("battle", help="使用训练家模版进行对战")
@@ -219,7 +312,12 @@ def main() -> None:
     if getattr(args, "manual", False):
         args.player1_control = "manual"
 
-    if args.command == "team":
+    if args.command == "env":
+        if not args.env_action:
+            env_parser.print_help()
+        else:
+            cmd_env(args)
+    elif args.command == "team":
         if not args.team_action:
             team_parser.print_help()
         else:

@@ -11,6 +11,13 @@ echo 'alias pba="~/Bian-workspace/pokemon-battle-assistant/pba"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
+### 环境检查
+
+```bash
+pba env check                    # 检查 Python、poke-env、Showdown server 和数据文件
+pba env check --json             # JSON 格式输出
+```
+
 ### 队伍管理
 
 ```bash
@@ -19,6 +26,7 @@ pba team create                  # 交互式创建队伍（支持中文搜索）
 pba team show <名字>             # 查看队伍详情
 pba team preview <名字>          # 输出 Showdown 格式（可粘贴到 Showdown）
 pba team delete <名字>           # 删除队伍
+pba team validate <名字>         # 本地基础校验队伍模版
 ```
 
 队伍模版保存在 `data/trainers/*.json`，也可以直接编辑 JSON 文件。
@@ -75,7 +83,8 @@ pba analyze examples/simple_battle.json --top 5
 
 | 功能 | 说明 | 需要 Showdown |
 |------|------|:---:|
-| 队伍创建/管理 | 从 Showdown 数据库选择宝可梦，配置招式/道具/特性/性格/EVs/IVs/太晶属性 | 否 |
+| 环境检查 | 检查 Python、依赖、本地 Showdown server 和数据文件 | 否 |
+| 队伍创建/管理 | 从 Showdown 数据库选择宝可梦，配置招式/道具/特性/性格/EVs/IVs/太晶属性，并支持本地基础校验 | 否 |
 | 中文搜索 | 搜索宝可梦/招式/道具时支持中英文关键词 | 否 |
 | 模版对战 | 用自定义队伍进行本地对战，导出回放、环境 step 记录和中文报告 | 是 |
 | 随机对战 | 环境基线随机合法动作对战，支持单打/双打随机格式 | 是 |

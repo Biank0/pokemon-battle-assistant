@@ -91,3 +91,42 @@ class EnvironmentRecordTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TrainerValidationTest(unittest.TestCase):
+    def test_validate_xiaobian_template(self) -> None:
+        from pokemon_battle_assistant.validators import validate_trainer_template
+
+        result = validate_trainer_template("data/trainers/xiaobian.json")
+
+        self.assertTrue(result.ok, result.to_dict())
+
+    def test_validate_rejects_chinese_move_name(self) -> None:
+        import json
+        import tempfile
+        from pathlib import Path
+        from pokemon_battle_assistant.validators import validate_trainer_template
+
+        payload = {
+            "name": "bad",
+            "format": "gen9ou",
+            "team": [{"species": "Pikachu", "moves": ["十万伏特"]}],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "bad.json"
+            path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+            result = validate_trainer_template(path)
+
+        self.assertFalse(result.ok)
+        self.assertTrue(any("中文" in error for error in result.errors))
+
+
+class EnvCheckTest(unittest.TestCase):
+    def test_env_check_result_serializes(self) -> None:
+        from pokemon_battle_assistant.env_check import EnvCheckResult
+
+        result = EnvCheckResult()
+        result.add("unit", True, "ok")
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.to_dict()["items"][0]["name"], "unit")

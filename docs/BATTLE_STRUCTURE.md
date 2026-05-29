@@ -122,3 +122,22 @@ team_source_kind
 ```
 
 注意：当前 `BattleRunner` 是完整跑局并导出数据的 runner，不是交互式 `reset()/step()` RL 环境。
+
+
+## 用户友好命令
+
+环境检查：
+
+```bash
+pba env check
+pba env check --json
+```
+
+队伍基础校验：
+
+```bash
+pba team validate xiaobian
+pba team validate data/trainers/xiaobian.json
+```
+
+`team validate` 做本地基础检查，例如 JSON、宝可梦数量、招式数量、中文招式残留、EV/IV 范围等。Showdown 完整合法性仍以实际对战时的 server 校验为准。

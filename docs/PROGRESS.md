@@ -110,7 +110,7 @@ fff249f Add contributors section to README
 
 ## 测试
 
-当前测试：13 个，全部通过。
+当前测试：16 个，全部通过。
 
 运行：
 
@@ -121,7 +121,7 @@ PYTHONPATH=src python -m unittest discover -s tests
 最近一次本地验证结果：
 
 ```text
-Ran 13 tests in 0.002s
+Ran 16 tests in 0.007s
 OK
 ```
 
@@ -211,6 +211,12 @@ first observation game_type: doubles
    - `pba battle` 与 `pba random-battle` 均支持 `--manual`。
    - 也支持显式参数 `--player1-control manual --player2-control random`。
    - 手动模式会在终端列出 legal order messages，由用户输入编号。
+
+10. 用户友好命令与报错优化
+   - 新增 `pba env check`，检查 Python、项目 `.venv`、poke-env、websockets、Showdown localhost:8000 和数据文件。
+   - `pba env check --json` 支持 JSON 输出。
+   - 新增 `pba team validate <name-or-path>`，做本地基础队伍模版校验。
+   - `pba battle` / `pba random-battle` 对常见错误输出友好提示：poke-env 缺失、Showdown 未启动、队伍被 Showdown 拒绝。
 
 ## 当前缺口
 
