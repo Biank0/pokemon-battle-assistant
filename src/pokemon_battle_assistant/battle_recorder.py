@@ -13,7 +13,7 @@ from typing import Any
 
 from poke_env.battle import AbstractBattle
 from poke_env.player import RandomPlayer
-from poke_env.player.battle_order import BattleOrder
+from poke_env.player.battle_order import BattleOrder, DoubleBattleOrder
 
 from .translation import (
     translate_ability,
@@ -82,8 +82,111 @@ class RecordingRandomPlayer(RandomPlayer):
 
     def choose_move(self, battle: AbstractBattle) -> BattleOrder:
         history = self.observations.setdefault(battle.battle_tag, [])
-        history.append(snapshot_battle(battle, observer=self.label))
-        return super().choose_move(battle)
+        snapshot = snapshot_battle(battle, observer=self.label)
+        order = super().choose_move(battle)
+        snapshot["chosen_order_message"] = getattr(order, "message", str(order))
+        history.append(snapshot)
+        return order
+
+
+class RecordingManualPlayer(RandomPlayer):
+    """Player that asks the terminal user to choose from legal orders."""
+
+    def __init__(self, *args: Any, label: str, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.label = label
+        self.observations: dict[str, list[dict[str, Any]]] = {}
+
+    def choose_move(self, battle: AbstractBattle) -> BattleOrder:
+        history = self.observations.setdefault(battle.battle_tag, [])
+        snapshot = snapshot_battle(battle, observer=self.label)
+        orders = legal_orders(battle)
+        if not orders:
+            order = self.choose_default_move()
+            snapshot["chosen_order_message"] = getattr(order, "message", str(order))
+            history.append(snapshot)
+            return order
+
+        self._print_manual_prompt(snapshot, orders)
+        while True:
+            raw = input(f"请选择 {self.label} 的动作编号 (1-{len(orders)}): ").strip()
+            if raw.isdigit():
+                idx = int(raw) - 1
+                if 0 <= idx < len(orders):
+                    order = orders[idx]
+                    snapshot["chosen_order_message"] = getattr(order, "message", str(order))
+                    history.append(snapshot)
+                    return order
+            print("输入无效，请重新输入编号。")
+
+    def _print_manual_prompt(self, snapshot: dict[str, Any], orders: list[BattleOrder]) -> None:
+        active = snapshot.get("active_pokemon")
+        opponent = snapshot.get("opponent_active_pokemon")
+        print("\n# 手动操作决策点")
+        print(f"player: {self.label}")
+        print(f"battle_tag: {snapshot.get('battle_tag')}")
+        print(f"turn: {snapshot.get('turn')}")
+        print(f"game_type: {snapshot.get('game_type')}")
+        print(f"我方在场: {manual_pokemon_label(active)}")
+        print(f"对方在场: {manual_pokemon_label(opponent)}")
+        print("合法动作:")
+        for idx, order in enumerate(orders, 1):
+            print(f"  {idx:2}. {getattr(order, 'message', str(order))}")
+
+
+def manual_pokemon_label(value: Any) -> str:
+    if isinstance(value, list):
+        return " / ".join(manual_pokemon_label(item) for item in value if item) or "未知"
+    if isinstance(value, dict):
+        species = translate_pokemon(value.get("species"))
+        hp = percent(value.get("hp_fraction"))
+        status = value.get("status") or "正常"
+        return f"{species}(HP {hp}, {status})"
+    return "未知"
+
+
+def is_sequence(value: Any) -> bool:
+    return isinstance(value, (list, tuple))
+
+
+def pokemon_slot_to_record(value: Any) -> Any:
+    if is_sequence(value):
+        return [pokemon_to_dict(mon) for mon in value]
+    return pokemon_to_dict(value)
+
+
+def moves_slot_to_record(value: Any) -> list[Any]:
+    if not value:
+        return []
+    if is_sequence(value) and value and is_sequence(value[0]):
+        return [[move_to_dict(move) for move in slot] for slot in value]
+    return [move_to_dict(move) for move in value]
+
+
+def switches_slot_to_record(value: Any) -> list[Any]:
+    if not value:
+        return []
+    if is_sequence(value) and value and is_sequence(value[0]):
+        return [[pokemon_to_dict(mon) for mon in slot] for slot in value]
+    return [pokemon_to_dict(mon) for mon in value]
+
+
+def legal_orders(battle: AbstractBattle) -> list[BattleOrder]:
+    """Return legal complete battle orders for singles or doubles."""
+
+    orders = getattr(battle, "valid_orders", []) or []
+    if not orders:
+        return []
+    if is_sequence(orders) and orders and is_sequence(orders[0]):
+        try:
+            return list(DoubleBattleOrder.join_orders(*orders))
+        except Exception:
+            return [order for slot in orders for order in (slot or [])]
+    return list(orders)
+
+
+def legal_order_messages(battle: AbstractBattle) -> list[str]:
+    return [getattr(order, "message", str(order)) for order in legal_orders(battle)]
 
 
 def pokemon_to_dict(mon: Any) -> dict[str, Any] | None:
@@ -133,12 +236,15 @@ def snapshot_battle(battle: AbstractBattle, observer: str) -> dict[str, Any]:
         "format": battle.format,
         "player_username": battle.player_username,
         "opponent_username": battle.opponent_username,
-        "active_pokemon": pokemon_to_dict(getattr(battle, "active_pokemon", None)),
-        "opponent_active_pokemon": pokemon_to_dict(getattr(battle, "opponent_active_pokemon", None)),
+        "game_type": "doubles" if is_sequence(getattr(battle, "active_pokemon", None)) else "singles",
+        "active_pokemon": pokemon_slot_to_record(getattr(battle, "active_pokemon", None)),
+        "opponent_active_pokemon": pokemon_slot_to_record(getattr(battle, "opponent_active_pokemon", None)),
         "team": team_to_dict(battle.team),
         "opponent_team": team_to_dict(battle.opponent_team),
-        "available_moves": [move_to_dict(move) for move in (getattr(battle, "available_moves", []) or [])],
-        "available_switches": [pokemon_to_dict(mon) for mon in (getattr(battle, "available_switches", []) or [])],
+        "available_moves": moves_slot_to_record(getattr(battle, "available_moves", []) or []),
+        "available_switches": switches_slot_to_record(getattr(battle, "available_switches", []) or []),
+        "legal_order_messages": legal_order_messages(battle),
+        "chosen_order_message": None,
         "weather": [str(k) for k in battle.weather.keys()],
         "fields": [str(k) for k in battle.fields.keys()],
         "side_conditions": [str(k) for k in battle.side_conditions.keys()],
@@ -212,6 +318,29 @@ def pokemon_line(mon: dict[str, Any] | None) -> str:
     moves = ", ".join(translate_move(move) for move in (mon.get("moves") or [])) or "未知招式"
     fainted = "，已倒下" if mon.get("fainted") else ""
     return f"**{species}**（{types}，HP {hp}，道具：{item}，特性：{ability}，状态：{status}{fainted}）\n  - 招式：{moves}"
+
+
+def first_pokemon_record(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, list):
+        for item in value:
+            if isinstance(item, dict) and item.get("species"):
+                return item
+    return {}
+
+
+def flatten_move_records(value: Any) -> list[dict[str, Any]]:
+    if not value:
+        return []
+    flattened: list[dict[str, Any]] = []
+    if isinstance(value, list):
+        for item in value:
+            if isinstance(item, dict):
+                flattened.append(item)
+            elif isinstance(item, list):
+                flattened.extend(m for m in item if isinstance(m, dict))
+    return flattened
 
 
 def move_line(move: dict[str, Any]) -> str:
@@ -317,9 +446,9 @@ def build_markdown_report(record: dict[str, Any]) -> str:
     lines.append("下面展示玩家 1 视角前 10 个决策点，完整数据见 `record.json`。")
     lines.append("")
     for obs in record["player_1_observations"][:10]:
-        active = obs.get("active_pokemon") or {}
-        opp = obs.get("opponent_active_pokemon") or {}
-        moves = obs.get("available_moves") or []
+        active = first_pokemon_record(obs.get("active_pokemon"))
+        opp = first_pokemon_record(obs.get("opponent_active_pokemon"))
+        moves = flatten_move_records(obs.get("available_moves"))
         move_text = "；".join(move_line(m) for m in moves) or "无可用招式"
         lines.append(f"### 决策点：第 {obs.get('turn')} 回合")
         lines.append(f"- 我方在场：{translate_pokemon(active.get('species'))}（HP {percent(active.get('hp_fraction'))}）")

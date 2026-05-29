@@ -1,0 +1,96 @@
+{
+  "name": "xiaobian",
+  "format": "gen9ou",
+  "team": [
+    {
+      "species": "Ninetales",
+      "item": "Heat Rock",
+      "ability": "Drought",
+      "nature": "Timid",
+      "tera_type": "Ghost",
+      "level": 100,
+      "evs": {
+        "hp": 12,
+        "atk": 0,
+        "def": 0,
+        "spa": 244,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Weather Ball",
+        "Encore",
+        "Healing Wish",
+        "Will-O-Wisp"
+      ]
+    },
+    {
+      "species": "Walking Wake",
+      "item": "Choice Specs",
+      "ability": "Protosynthesis",
+      "nature": "Timid",
+      "tera_type": "Water",
+      "level": 100,
+      "evs": {
+        "hp": 12,
+        "atk": 0,
+        "def": 0,
+        "spa": 244,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Hydro Steam",
+        "Flamethrower",
+        "Draco Meteor",
+        "Dragon Pulse"
+      ]
+    },
+    {
+      "species": "Lilligant-Hisui",
+      "item": "Life Orb",
+      "ability": "Chlorophyll",
+      "nature": "Jolly",
+      "tera_type": "Ghost",
+      "level": 100,
+      "evs": {
+        "hp": 0,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Victory Dance",
+        "Close Combat",
+        "Solar Blade",
+        "Triple Axel"
+      ]
+    }
+  ]
+}

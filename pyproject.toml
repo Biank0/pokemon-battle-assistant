@@ -13,7 +13,8 @@ authors = [
 ]
 
 [project.scripts]
-pokemon-battle-assistant = "pokemon_battle_assistant.cli:main"
+pba = "pokemon_battle_assistant.pba_cli:main"
+pokemon-battle-assistant = "pokemon_battle_assistant.pba_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

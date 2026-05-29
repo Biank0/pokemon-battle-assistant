@@ -120,10 +120,14 @@ data/translations/zh_cn_names.json
 .venv/bin/python scripts/build_zh_translation_file.py
 ```
 
-## 下一步只做一件事
+## 第一阶段只做环境，不做助手
 
-建议下一步只做：
+第一阶段目标是完整对战环境，而不是对战助手。当前已新增第一版 `BattleRunner` / `BattleRunConfig` / legal actions / environment steps / `steps.jsonl`。下一步应继续补齐环境能力：
 
-> 写一个最简单的 `AssistantPlayer`，让它在 poke-env 对战中选择“当前威力最高/属性最好”的招式。
+1. 稳定启动/连接本地 Pokémon Showdown。
+2. 支持用户自定义队伍并进行本地对战。
+3. 完整记录每个决策点的 observation、legal actions、chosen action、最终结果和 replay。
+4. 形成可供未来 RL 接入的环境接口，例如 `reset()` / `step(action)` / `observe()` 的边界设计。
+5. 支持批量对战、随机种子/配置记录、JSONL 数据导出。
 
-不要先做复杂博弈树、双打框架、Champions 支持。
+暂不实现 `AssistantPlayer`、启发式 bot、复杂博弈树或 RL 算法。当前 `BattleRunner` 是完整跑局和导出数据的 runner，不是交互式 `reset()/step()` RL 环境。

@@ -23,18 +23,12 @@ import argparse
 import asyncio
 import json
 import sys
-from datetime import datetime
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from pokemon_battle_assistant.battle_recorder import (
-    OUTPUT_ROOT,
-    RecordingRandomPlayer,
-    battle_summary,
-    build_markdown_report,
-)
+from pokemon_battle_assistant.environment import BattleRunConfig, BattleRunner
 from pokemon_battle_assistant.team_converter import template_to_showdown_text
 from pokemon_battle_assistant.translation import translate_pokemon
 
@@ -56,7 +50,8 @@ def print_pre_battle_config(
     print("server: local Pokémon Showdown, ws://localhost:8000/showdown/websocket")
     print(f"player_1_template: {p1_source}")
     print(f"player_2_template: {p2_source}")
-    print("decision_mode: random moves (RandomPlayer)")
+    print("decision_mode: environment baseline / random legal actions")
+    print("note: 第一阶段只运行和记录环境，不开发助手或策略。")
     print()
     print("--- Player 1 Team (Showdown format) ---")
     print(p1_text)
@@ -91,65 +86,24 @@ async def run_battle(
 ) -> None:
     print_pre_battle_config(battle_format, p1_source, p2_source, p1_team_text, p2_team_text)
 
-    player_1 = RecordingRandomPlayer(
-        label="player_1",
+    config = BattleRunConfig(
         battle_format=battle_format,
-        max_concurrent_battles=1,
-        save_replays=False,
-        team=p1_team_text,
+        player_1_team=p1_team_text,
+        player_2_team=p2_team_text,
+        player_1_source=p1_source,
+        player_2_source=p2_source,
+        metadata={"entrypoint": "scripts/run_battle_with_trainer.py"},
     )
-    player_2 = RecordingRandomPlayer(
-        label="player_2",
-        battle_format=battle_format,
-        max_concurrent_battles=1,
-        save_replays=False,
-        team=p2_team_text,
-    )
+    result = await BattleRunner().run(config)
 
-    try:
-        await player_1.battle_against(player_2, n_battles=1)
-
-        battle_tag = next(iter(player_1.battles))
-        battle = player_1.battles[battle_tag]
-        output_dir = OUTPUT_ROOT / battle_tag
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        replay_path = battle.save_replay(output_dir / "replay.html")
-        record = {
-            "exported_at": datetime.now().isoformat(timespec="seconds"),
-            "pre_battle_config": {
-                "battle_format": battle_format,
-                "server": "local Pokémon Showdown / localhost:8000",
-                "players": [
-                    f"RecordingRandomPlayer（随机行动，模版：{p1_source}）",
-                    f"RecordingRandomPlayer（随机行动，模版：{p2_source}）",
-                ],
-                "team_source": f"训练家模版：{p1_source} vs {p2_source}",
-            },
-            "battle": battle_summary(battle),
-            "player_1_observations": player_1.observations.get(battle_tag, []),
-            "player_2_observations": player_2.observations.get(battle_tag, []),
-            "files": {
-                "replay_html": str(replay_path),
-                "record_json": str(output_dir / "record.json"),
-                "report_md": str(output_dir / "report.md"),
-            },
-        }
-
-        record_path = output_dir / "record.json"
-        report_path = output_dir / "report.md"
-        record_path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
-        report_path.write_text(build_markdown_report(record), encoding="utf-8")
-
-        print_post_battle_summary(record)
-        print()
-        print("# 文件已导出")
-        print(f"replay_html: {replay_path}")
-        print(f"record_json: {record_path}")
-        print(f"report_md: {report_path}")
-    finally:
-        await player_1.ps_client.stop_listening()
-        await player_2.ps_client.stop_listening()
+    print_post_battle_summary(result.record)
+    print(f"environment_steps: {len(result.record.get('steps', []))}")
+    print()
+    print("# 文件已导出")
+    print(f"replay_html: {result.replay_path}")
+    print(f"record_json: {result.record_path}")
+    print(f"report_md: {result.report_path}")
+    print(f"steps_jsonl: {result.steps_path}")
 
 
 def main() -> None:

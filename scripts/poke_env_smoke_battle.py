@@ -17,21 +17,13 @@ Output:
 from __future__ import annotations
 
 import asyncio
-import json
 import sys
-from datetime import datetime
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from pokemon_battle_assistant.battle_recorder import (
-    OUTPUT_ROOT,
-    RecordingRandomPlayer,
-    battle_summary,
-    build_markdown_report,
-    team_to_dict,
-)
+from pokemon_battle_assistant.environment import BattleRunConfig, BattleRunner
 from pokemon_battle_assistant.translation import translate_pokemon
 
 BATTLE_FORMAT = "gen9randombattle"
@@ -41,10 +33,10 @@ def print_pre_battle_config() -> None:
     print("# 对战运行前配置")
     print(f"battle_format: {BATTLE_FORMAT}")
     print("server: local Pokémon Showdown, ws://localhost:8000/showdown/websocket")
-    print("player_1: RecordingRandomPlayer / random moves")
-    print("player_2: RecordingRandomPlayer / random moves")
+    print("player_1: RecordingRandomPlayer / environment baseline random legal actions")
+    print("player_2: RecordingRandomPlayer / environment baseline random legal actions")
     print("team_source: Showdown random battle generator")
-    print("note: 随机对战的具体队伍由 Showdown 开局时生成，所以真正队伍会在对战后导出。")
+    print("note: 第一阶段只运行和记录环境；随机队伍由 Showdown 开局时生成。")
     print()
 
 
@@ -67,60 +59,20 @@ def print_post_battle_summary(record: dict) -> None:
 async def main() -> None:
     print_pre_battle_config()
 
-    player_1 = RecordingRandomPlayer(
-        label="player_1",
+    config = BattleRunConfig(
         battle_format=BATTLE_FORMAT,
-        max_concurrent_battles=1,
-        save_replays=False,
+        metadata={"entrypoint": "scripts/poke_env_smoke_battle.py", "team_source_note": "Showdown random battle generator"},
     )
-    player_2 = RecordingRandomPlayer(
-        label="player_2",
-        battle_format=BATTLE_FORMAT,
-        max_concurrent_battles=1,
-        save_replays=False,
-    )
+    result = await BattleRunner().run(config)
 
-    try:
-        await player_1.battle_against(player_2, n_battles=1)
-
-        battle_tag = next(iter(player_1.battles))
-        battle = player_1.battles[battle_tag]
-        output_dir = OUTPUT_ROOT / battle_tag
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        replay_path = battle.save_replay(output_dir / "replay.html")
-        record = {
-            "exported_at": datetime.now().isoformat(timespec="seconds"),
-            "pre_battle_config": {
-                "battle_format": BATTLE_FORMAT,
-                "server": "local Pokémon Showdown / localhost:8000",
-                "players": ["RecordingRandomPlayer（随机行动）", "RecordingRandomPlayer（随机行动）"],
-                "team_source": "Showdown random battle generator。随机对战的队伍由 Showdown 开局时生成。",
-            },
-            "battle": battle_summary(battle),
-            "player_1_observations": player_1.observations.get(battle_tag, []),
-            "player_2_observations": player_2.observations.get(battle_tag, []),
-            "files": {
-                "replay_html": str(replay_path),
-                "record_json": str(output_dir / "record.json"),
-                "report_md": str(output_dir / "report.md"),
-            },
-        }
-
-        record_path = output_dir / "record.json"
-        report_path = output_dir / "report.md"
-        record_path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
-        report_path.write_text(build_markdown_report(record), encoding="utf-8")
-
-        print_post_battle_summary(record)
-        print()
-        print("# 文件已导出")
-        print(f"replay_html: {replay_path}")
-        print(f"record_json: {record_path}")
-        print(f"report_md: {report_path}")
-    finally:
-        await player_1.ps_client.stop_listening()
-        await player_2.ps_client.stop_listening()
+    print_post_battle_summary(result.record)
+    print(f"environment_steps: {len(result.record.get('steps', []))}")
+    print()
+    print("# 文件已导出")
+    print(f"replay_html: {result.replay_path}")
+    print(f"record_json: {result.record_path}")
+    print(f"report_md: {result.report_path}")
+    print(f"steps_jsonl: {result.steps_path}")
 
 
 if __name__ == "__main__":
