@@ -4,6 +4,9 @@ import unittest
 
 from pokemon_battle_assistant.action_space import chosen_action_from_message, legal_actions_from_snapshot
 from pokemon_battle_assistant.environment import BattleRunConfig, build_step_records, control_kind, infer_battle_kind
+from pokemon_battle_assistant.pba_cli import resolve_trainer_path
+from pokemon_battle_assistant.showdown_formats import get_format_info
+from pokemon_battle_assistant.team_selection import parse_selection, validate_selected_slots
 
 
 class ActionSpaceTest(unittest.TestCase):
@@ -89,6 +92,30 @@ class EnvironmentRecordTest(unittest.TestCase):
         self.assertTrue(steps[0]["info"]["episode_finished"])
 
 
+class FriendlyCliTest(unittest.TestCase):
+    def test_resolve_trainer_path_accepts_team_name_and_json_file_name(self) -> None:
+        self.assertTrue(resolve_trainer_path("xiaobian").as_posix().endswith("data/trainers/xiaobian.json"))
+        self.assertTrue(resolve_trainer_path("xiaobian.json").as_posix().endswith("data/trainers/xiaobian.json"))
+
+
+class TeamSelectionTest(unittest.TestCase):
+    def test_parse_fixed_selection(self) -> None:
+        config = parse_selection("1,2,3,4")
+
+        self.assertEqual(config.mode, "fixed")
+        self.assertEqual(config.fixed_order, (1, 2, 3, 4))
+
+    def test_validate_selected_slots_rejects_duplicates(self) -> None:
+        with self.assertRaises(ValueError):
+            validate_selected_slots([1, 1, 2, 3], required_count=4, team_size=6)
+
+    def test_vgc_format_info_has_pick_four(self) -> None:
+        info = get_format_info("gen9vgc2026regi")
+
+        self.assertEqual(info.game_type, "doubles")
+        self.assertEqual(info.picked_team_size, 4)
+
+
 if __name__ == "__main__":
     unittest.main()
 
@@ -119,6 +146,40 @@ class TrainerValidationTest(unittest.TestCase):
 
         self.assertFalse(result.ok)
         self.assertTrue(any("中文" in error for error in result.errors))
+
+    def test_validate_rejects_wrong_ability_for_species(self) -> None:
+        import json
+        import tempfile
+        from pathlib import Path
+        from pokemon_battle_assistant.validators import validate_trainer_template
+
+        payload = {
+            "name": "bad",
+            "format": "gen9ou",
+            "team": [{"species": "Pikachu", "ability": "Intimidate", "moves": ["Thunderbolt"]}],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "bad.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            result = validate_trainer_template(path)
+
+        self.assertFalse(result.ok)
+        self.assertTrue(any("不能使用特性" in error for error in result.errors))
+
+    def test_showdown_validator_rejects_unlearnable_move(self) -> None:
+        from pokemon_battle_assistant.showdown_validator import find_showdown_path, validate_showdown_team
+
+        if find_showdown_path() is None:
+            self.skipTest("local pokemon-showdown checkout not found")
+
+        result = validate_showdown_team(
+            "Pikachu\nAbility: Static\nEVs: 252 Atk / 4 SpD / 252 Spe\n- Spore\n",
+            "gen9ou",
+        )
+
+        self.assertTrue(result.checked)
+        self.assertFalse(result.ok)
+        self.assertTrue(any("can't learn Spore" in error for error in result.errors))
 
 
 class EnvCheckTest(unittest.TestCase):

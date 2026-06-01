@@ -4,6 +4,37 @@
 
 ## 快速开始
 
+## VGC 快速开始
+
+当前项目后续主要围绕 **VGC 双打** 展开。推荐先用内置合法队伍跑通流程：
+
+```bash
+pba doctor
+pba team list
+pba team validate vgc_rain_balance --format gen9vgc2026regi
+pba battle vgc_rain_balance --format gen9vgc2026regi --select manual
+```
+
+如果要两支内置队伍互打：
+
+```bash
+pba battle vgc_sun_koraidon \
+  --opponent vgc_trick_room_calyrex \
+  --format gen9vgc2026regi \
+  --select manual \
+  --opponent-select random
+```
+
+内置 VGC 示例队说明见：`docs/VGC_STARTER_TEAMS.md`。
+
+真正对战前需要先启动本地 Showdown server：
+
+```bash
+cd ~/Bian-workspace/pokemon-showdown
+node pokemon-showdown start --no-security
+```
+
+
 所有功能通过统一入口 `pba` 调用。首次使用需要设置 alias：
 
 ```bash
@@ -14,6 +45,7 @@ source ~/.zshrc
 ### 环境检查
 
 ```bash
+pba doctor                       # 新手推荐：一键检查环境（等同于 env check）
 pba env check                    # 检查 Python、poke-env、Showdown server 和数据文件
 pba env check --json             # JSON 格式输出
 ```
@@ -26,22 +58,38 @@ pba team create                  # 交互式创建队伍（支持中文搜索）
 pba team show <名字>             # 查看队伍详情
 pba team preview <名字>          # 输出 Showdown 格式（可粘贴到 Showdown）
 pba team delete <名字>           # 删除队伍
-pba team validate <名字>         # 本地基础校验队伍模版
+pba team validate <名字>         # 检查队伍在当前规则下是否合法
+pba team validate <名字> --format gen9ou   # 按指定规则检查
+pba team validate <名字> --local-only      # 只做本地基础检查
 ```
 
 队伍模版保存在 `data/trainers/*.json`，也可以直接编辑 JSON 文件。
+
+当前项目后续主要围绕 **VGC 双打** 展开，因此 `pba team create` 默认推荐 `gen9vgc2026regi`，并会在创建时提示 VGC 常见注意点，例如 6 选 4、前两只首发、重复道具限制、Protect/速度控制/支援动作等。
+
+`team validate` 会先做本地友好检查（JSON 结构、名称、EV/IV、特性等），再调用本地 Pokémon Showdown 的 TeamValidator 做权威规则校验。这个检查不需要 Showdown server 启动，但需要本地存在 `pokemon-showdown` 代码；如果路径不是 `~/Bian-workspace/pokemon-showdown`，请设置环境变量 `PBA_SHOWDOWN_PATH`。
 
 ### 本地对战
 
 需要先启动本地 Pokemon Showdown（见下方「环境准备」）：
 
 ```bash
-pba battle data/trainers/my_team.json                                       # 双方同队伍
-pba battle data/trainers/team_a.json --opponent data/trainers/team_b.json   # 不同队伍对战
-pba battle data/trainers/my_team.json --format gen9ou                       # 指定对战格式
+pba battle my_team                                                          # 直接用队伍名，双方同队伍
+pba battle team_a --opponent team_b                                         # 不同队伍对战
+pba battle my_team --format gen9ou                                          # 指定对战格式
+pba battle vgc_team --format gen9vgc2026regi --select 1,2,3,4              # VGC：玩家 1 固定 6 选 4
+pba battle vgc_team --format gen9vgc2026regi --select manual               # VGC：玩家 1 手动选出
+pba battle my_team --skip-validation                                        # 高级用法：跳过开战前合法性检查
 pba random-battle --format gen9randomdoublesbattle                         # 双打随机对战
 pba random-battle --format gen9randomdoublesbattle --manual                # 用户手动操作玩家 1
 ```
+
+对于 `gen9vgc2026regi` 这类带 6 选 4 的规则，PBA 会在 Showdown team preview 阶段提交 `/team` 指令，不是简单裁剪队伍。`--select` 支持：
+
+- `auto`：默认，选择前 N 只
+- `random`：随机选出 N 只
+- `manual`：终端交互选择
+- `1,2,3,4`：按编号固定选出，VGC 中前两只是首发
 
 对战结束后在 `battle_outputs/<battle_tag>/` 下生成：
 - `replay.html` — 可视化对战回放
@@ -78,6 +126,18 @@ pba analyze examples/simple_battle.json --top 5
 ```
 
 详见 `docs/BATTLE_STRUCTURE.md`。
+
+## 热门规则建队指南
+
+为了方便先理解规则再建队，项目提供了三个常用 format 的中文说明：
+
+| 规则 | format id | 文档 |
+|---|---|---|
+| Gen 9 OU | `gen9ou` | `docs/formats/gen9ou.md` |
+| Gen 9 Doubles OU | `gen9doublesou` | `docs/formats/gen9doublesou.md` |
+| Gen 9 VGC 2026 Regulation I | `gen9vgc2026regi` | `docs/formats/gen9vgc2026regi.md` |
+
+入口见：`docs/formats/README.md`。
 
 ## 功能概览
 

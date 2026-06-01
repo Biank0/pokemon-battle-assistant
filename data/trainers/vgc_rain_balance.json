@@ -1,0 +1,186 @@
+{
+  "name": "VGC Rain Balance",
+  "format": "gen9vgc2026regi",
+  "team": [
+    {
+      "species": "Miraidon",
+      "item": "Choice Specs",
+      "ability": "Hadron Engine",
+      "nature": "Timid",
+      "tera_type": "Electric",
+      "level": 50,
+      "evs": {
+        "hp": 4,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Electro Drift",
+        "Draco Meteor",
+        "Volt Switch",
+        "Dazzling Gleam"
+      ]
+    },
+    {
+      "species": "Pelipper",
+      "item": "Focus Sash",
+      "ability": "Drizzle",
+      "nature": "Modest",
+      "tera_type": "Ghost",
+      "level": 50,
+      "evs": {
+        "hp": 4,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Hurricane",
+        "Weather Ball",
+        "Tailwind",
+        "Protect"
+      ]
+    },
+    {
+      "species": "Archaludon",
+      "item": "Assault Vest",
+      "ability": "Stamina",
+      "nature": "Modest",
+      "tera_type": "Grass",
+      "level": 50,
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 4,
+        "spa": 252,
+        "spd": 0,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Electro Shot",
+        "Draco Meteor",
+        "Body Press",
+        "Flash Cannon"
+      ]
+    },
+    {
+      "species": "Rillaboom",
+      "item": "Miracle Seed",
+      "ability": "Grassy Surge",
+      "nature": "Adamant",
+      "tera_type": "Fire",
+      "level": 50,
+      "evs": {
+        "hp": 252,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Fake Out",
+        "Grassy Glide",
+        "Wood Hammer",
+        "Protect"
+      ]
+    },
+    {
+      "species": "Incineroar",
+      "item": "Safety Goggles",
+      "ability": "Intimidate",
+      "nature": "Careful",
+      "tera_type": "Water",
+      "level": 50,
+      "evs": {
+        "hp": 252,
+        "atk": 4,
+        "def": 0,
+        "spa": 0,
+        "spd": 252,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Knock Off"
+      ]
+    },
+    {
+      "species": "Flutter Mane",
+      "item": "Booster Energy",
+      "ability": "Protosynthesis",
+      "nature": "Timid",
+      "tera_type": "Fairy",
+      "level": 50,
+      "evs": {
+        "hp": 4,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Moonblast",
+        "Shadow Ball",
+        "Icy Wind",
+        "Protect"
+      ]
+    }
+  ]
+}

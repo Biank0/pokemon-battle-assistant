@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from .action_space import chosen_action_from_message, legal_actions_from_snapshot
+from .team_selection import TeamSelectionConfig
 
 OUTPUT_ROOT = Path("battle_outputs")
 ControlMode = Literal["random", "manual"]
@@ -33,6 +34,9 @@ class BattleRunConfig:
     player_2_label: str = "player_2"
     player_1_control: ControlMode = "random"
     player_2_control: ControlMode = "random"
+    player_1_selection: TeamSelectionConfig = field(default_factory=TeamSelectionConfig)
+    player_2_selection: TeamSelectionConfig = field(default_factory=TeamSelectionConfig)
+    expected_selection_size: int | None = None
     player_1_kind: str | None = None
     player_2_kind: str | None = None
     server: str = "local Pokémon Showdown / localhost:8000"
@@ -146,6 +150,8 @@ class BattleRunner:
             max_concurrent_battles=1,
             save_replays=False,
             team=config.player_1_team,
+            selection_config=config.player_1_selection,
+            expected_selection_size=config.expected_selection_size,
         )
         player_2 = player_cls[config.player_2_control](
             label=config.player_2_label,
@@ -153,6 +159,8 @@ class BattleRunner:
             max_concurrent_battles=1,
             save_replays=False,
             team=config.player_2_team,
+            selection_config=config.player_2_selection,
+            expected_selection_size=config.expected_selection_size,
         )
 
         try:
@@ -181,6 +189,11 @@ class BattleRunner:
                         "player_1": config.player_1_control,
                         "player_2": config.player_2_control,
                     },
+                    "selection_modes": {
+                        "player_1": config.player_1_selection.to_dict(),
+                        "player_2": config.player_2_selection.to_dict(),
+                    },
+                    "expected_selection_size": config.expected_selection_size,
                     "players": [
                         f"{config.player_1_kind or control_kind(config.player_1_control)}，队伍来源：{config.player_1_source}",
                         f"{config.player_2_kind or control_kind(config.player_2_control)}，队伍来源：{config.player_2_source}",
@@ -190,6 +203,10 @@ class BattleRunner:
                 "battle": battle_summary(battle),
                 "player_1_observations": player_1.observations.get(battle_tag, []),
                 "player_2_observations": player_2.observations.get(battle_tag, []),
+                "team_preview": {
+                    "player_1": player_1.team_selections.get(battle_tag),
+                    "player_2": player_2.team_selections.get(battle_tag),
+                },
                 "files": {
                     "replay_html": str(replay_path),
                     "record_json": str(record_path),

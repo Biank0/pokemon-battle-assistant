@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import sys
 from pathlib import Path
@@ -42,6 +43,46 @@ TYPE_LIST = [
     "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison",
     "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", "Steel", "Fairy",
 ]
+DEFAULT_VGC_FORMAT = "gen9vgc2026regi"
+FORMAT_PRESETS = [
+    (DEFAULT_VGC_FORMAT, "VGC 2026 Regulation I（推荐，双打 6 选 4，50 级，公开队表）"),
+    ("gen9doublesou", "Gen 9 Doubles OU（Smogon 双打 6v6）"),
+    ("gen9ou", "Gen 9 OU（单打 6v6，兼容旧队伍）"),
+]
+
+
+def available_trainer_names() -> list[str]:
+    return sorted(path.stem for path in TRAINERS_DIR.glob("*.json"))
+
+
+def resolve_trainer_path(name_or_path: str) -> Path:
+    """Accept either a friendly team name or a JSON path."""
+    candidate = Path(name_or_path)
+    if candidate.exists():
+        return candidate
+    if candidate.suffix == ".json" and len(candidate.parts) == 1:
+        trainer_candidate = TRAINERS_DIR / candidate.name
+        if trainer_candidate.exists():
+            return trainer_candidate
+    if candidate.suffix == ".json":
+        return candidate
+    return TRAINERS_DIR / f"{name_or_path}.json"
+
+
+def print_missing_template(name_or_path: str) -> None:
+    print(f"模版不存在：{name_or_path}")
+    names = available_trainer_names()
+    if not names:
+        print("当前还没有队伍。可以先运行：pba team create")
+        return
+
+    close = difflib.get_close_matches(Path(name_or_path).stem, names, n=3, cutoff=0.35)
+    if close:
+        print("你是不是想用：")
+        for name in close:
+            print(f"  - {name}")
+    print("已有队伍：")
+    print("  " + ", ".join(names))
 
 
 def cmd_list(args: argparse.Namespace) -> None:
@@ -63,9 +104,9 @@ def cmd_list(args: argparse.Namespace) -> None:
 
 
 def cmd_show(args: argparse.Namespace) -> None:
-    path = TRAINERS_DIR / f"{args.name}.json"
+    path = resolve_trainer_path(args.name)
     if not path.exists():
-        print(f"模版不存在：{path}")
+        print_missing_template(args.name)
         return
 
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -113,9 +154,9 @@ def cmd_show(args: argparse.Namespace) -> None:
 
 
 def cmd_preview(args: argparse.Namespace) -> None:
-    path = TRAINERS_DIR / f"{args.name}.json"
+    path = resolve_trainer_path(args.name)
     if not path.exists():
-        print(f"模版不存在：{path}")
+        print_missing_template(args.name)
         return
 
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -127,6 +168,27 @@ def input_with_default(prompt: str, default: str = "") -> str:
         result = input(f"{prompt} [{default}]: ").strip()
         return result if result else default
     return input(f"{prompt}: ").strip()
+
+
+def print_vgc_builder_intro() -> None:
+    print("VGC 双打建队提示：")
+    print("- 当前默认规则是 gen9vgc2026regi：带 4-6 只，实战 6 选 4，前两只是首发。")
+    print("- VGC 有 Item Clause：道具不能重复。")
+    print("- 大多数宝可梦建议考虑 Protect / 速度控制 / 支援动作，不要直接照搬单打队。")
+    print("- 建完后请运行：pba team validate <队伍名> --format gen9vgc2026regi")
+    print()
+
+
+def input_battle_format() -> str:
+    print("选择对战规则：")
+    for idx, (fmt, desc) in enumerate(FORMAT_PRESETS, 1):
+        print(f"  {idx}. {fmt} - {desc}")
+    raw = input_with_default("规则编号或直接输入 format", "1").strip()
+    if raw.isdigit():
+        idx = int(raw) - 1
+        if 0 <= idx < len(FORMAT_PRESETS):
+            return FORMAT_PRESETS[idx][0]
+    return raw or DEFAULT_VGC_FORMAT
 
 
 def input_search_select(category: str, search_fn, prompt: str) -> str | None:
@@ -196,8 +258,9 @@ def input_ivs() -> dict[str, int]:
     return ivs
 
 
-def create_one_pokemon(index: int) -> dict | None:
+def create_one_pokemon(index: int, *, battle_format: str = DEFAULT_VGC_FORMAT, used_items: set[str] | None = None) -> dict | None:
     print(f"\n=== 添加第 {index} 只宝可梦 ===")
+    is_vgc = "vgc" in battle_format.lower()
 
     species = input_search_select("宝可梦", search_pokemon, "宝可梦名称")
     if not species:
@@ -225,6 +288,9 @@ def create_one_pokemon(index: int) -> dict | None:
     item = input_search_select("道具", search_items, "道具")
     if item is None:
         item = ""
+    if is_vgc and item and used_items is not None and item in used_items:
+        print(f"  ⚠️ VGC 通常不允许重复道具：{item} 已经被队伍中其他宝可梦使用。")
+        print("  建议更换道具；如果继续保存，validate 时 Showdown 会判定是否合法。")
 
     natures = get_natures()
     print("  可用性格：")
@@ -283,26 +349,36 @@ def create_one_pokemon(index: int) -> dict | None:
     }
     if nickname:
         mon["nickname"] = nickname
+    if is_vgc and moves and not any(m.lower().replace(" ", "").replace("-", "") == "protect" for m in moves):
+        print("  提醒：这只宝可梦没有 Protect。VGC 不一定必须带，但建议确认你有明确理由。")
     return mon
 
 
 def cmd_create(args: argparse.Namespace) -> None:
     print("=== 创建训练家模版 ===\n")
+    print_vgc_builder_intro()
     team_name = input("队伍名称: ").strip()
     if not team_name:
         print("名称不能为空。")
         return
 
     file_name = input_with_default("文件名（不含 .json）", team_name.lower().replace(" ", "_"))
-    battle_format = input_with_default("对战格式", "gen9ou")
+    battle_format = input_battle_format()
 
     team: list[dict] = []
+    used_items: set[str] = set()
     for i in range(1, 7):
-        mon = create_one_pokemon(i)
+        mon = create_one_pokemon(i, battle_format=battle_format, used_items=used_items)
         if mon:
             team.append(mon)
+            if mon.get("item"):
+                used_items.add(mon["item"])
         if i < 6 and mon:
-            more = input(f"\n继续添加宝可梦？(y/n) [y]: ").strip().lower()
+            default_more = "y" if len(team) < 4 else "n"
+            prompt = "继续添加宝可梦？"
+            if "vgc" in battle_format.lower() and len(team) < 4:
+                prompt += "（VGC 至少建议先满 4 只）"
+            more = input(f"\n{prompt}(y/n) [{default_more}]: ").strip().lower() or default_more
             if more == "n":
                 break
 
@@ -313,17 +389,26 @@ def cmd_create(args: argparse.Namespace) -> None:
     template = {"name": team_name, "format": battle_format, "team": team}
 
     out_path = TRAINERS_DIR / f"{file_name}.json"
+    if out_path.exists():
+        overwrite = input(f"\n文件已存在：{out_path.name}，是否覆盖？(y/n) [n]: ").strip().lower()
+        if overwrite != "y":
+            print("取消保存。")
+            return
     out_path.write_text(json.dumps(template, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n模版已保存到：{out_path}")
     print(f"包含 {len(team)} 只宝可梦。")
+    if "vgc" in battle_format.lower():
+        print("\n下一步建议：")
+        print(f"  pba team validate {out_path.stem} --format {battle_format}")
+        print(f"  pba battle {out_path.stem} --format {battle_format} --select manual")
     print(f"\n预览 Showdown 格式：")
     print(template_to_showdown_text(template))
 
 
 def cmd_delete(args: argparse.Namespace) -> None:
-    path = TRAINERS_DIR / f"{args.name}.json"
+    path = resolve_trainer_path(args.name)
     if not path.exists():
-        print(f"模版不存在：{path}")
+        print_missing_template(args.name)
         return
 
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -345,15 +430,15 @@ def main() -> None:
     sub.add_parser("list", help="列出所有训练家模版")
 
     show_p = sub.add_parser("show", help="显示模版详情")
-    show_p.add_argument("name", help="模版文件名（不含 .json）")
+    show_p.add_argument("name", help="模版名或 JSON 路径")
 
     preview_p = sub.add_parser("preview", help="输出 Showdown 文本格式")
-    preview_p.add_argument("name", help="模版文件名（不含 .json）")
+    preview_p.add_argument("name", help="模版名或 JSON 路径")
 
     sub.add_parser("create", help="交互式创建新模版")
 
     delete_p = sub.add_parser("delete", help="删除训练家模版")
-    delete_p.add_argument("name", help="模版文件名（不含 .json）")
+    delete_p.add_argument("name", help="模版名或 JSON 路径")
 
     args = parser.parse_args()
     if args.command == "list":

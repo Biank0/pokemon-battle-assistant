@@ -11,6 +11,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pokemon_battle_assistant.team_selection import (
+    TeamSelectionConfig,
+    TeamSelectionRecord,
+    choose_slots,
+    validate_selected_slots,
+)
+
 from poke_env.battle import AbstractBattle
 from poke_env.player import RandomPlayer
 from poke_env.player.battle_order import BattleOrder, DoubleBattleOrder
@@ -75,10 +82,30 @@ def translate_status(value: Any) -> str | None:
 class RecordingRandomPlayer(RandomPlayer):
     """RandomPlayer that records every decision point it sees."""
 
-    def __init__(self, *args: Any, label: str, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        label: str,
+        selection_config: TeamSelectionConfig | None = None,
+        expected_selection_size: int | None = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.label = label
         self.observations: dict[str, list[dict[str, Any]]] = {}
+        self.selection_config = selection_config or TeamSelectionConfig()
+        self.expected_selection_size = expected_selection_size
+        self.team_selections: dict[str, dict[str, Any]] = {}
+
+    def teampreview(self, battle: AbstractBattle) -> str:
+        command, record = choose_teampreview_order(
+            battle,
+            label=self.label,
+            selection_config=self.selection_config,
+            expected_selection_size=self.expected_selection_size,
+        )
+        self.team_selections[battle.battle_tag] = record.to_dict()
+        return command
 
     def choose_move(self, battle: AbstractBattle) -> BattleOrder:
         history = self.observations.setdefault(battle.battle_tag, [])
@@ -92,10 +119,30 @@ class RecordingRandomPlayer(RandomPlayer):
 class RecordingManualPlayer(RandomPlayer):
     """Player that asks the terminal user to choose from legal orders."""
 
-    def __init__(self, *args: Any, label: str, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        label: str,
+        selection_config: TeamSelectionConfig | None = None,
+        expected_selection_size: int | None = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.label = label
         self.observations: dict[str, list[dict[str, Any]]] = {}
+        self.selection_config = selection_config or TeamSelectionConfig()
+        self.expected_selection_size = expected_selection_size
+        self.team_selections: dict[str, dict[str, Any]] = {}
+
+    def teampreview(self, battle: AbstractBattle) -> str:
+        command, record = choose_teampreview_order(
+            battle,
+            label=self.label,
+            selection_config=self.selection_config,
+            expected_selection_size=self.expected_selection_size,
+        )
+        self.team_selections[battle.battle_tag] = record.to_dict()
+        return command
 
     def choose_move(self, battle: AbstractBattle) -> BattleOrder:
         history = self.observations.setdefault(battle.battle_tag, [])
@@ -132,6 +179,92 @@ class RecordingManualPlayer(RandomPlayer):
         print("合法动作:")
         for idx, order in enumerate(orders, 1):
             print(f"  {idx:2}. {getattr(order, 'message', str(order))}")
+
+
+def teampreview_pokemon_to_dict(mon: Any, slot: int) -> dict[str, Any]:
+    data = pokemon_to_dict(mon) or {}
+    data["slot"] = slot
+    data["display_name"] = translate_pokemon(data.get("species"))
+    return data
+
+
+def teampreview_team_to_list(team: Any) -> list[dict[str, Any]]:
+    return [teampreview_pokemon_to_dict(mon, idx) for idx, mon in enumerate(team or [], start=1)]
+
+
+def infer_teampreview_required_count(battle: AbstractBattle, expected_selection_size: int | None = None) -> int:
+    if expected_selection_size:
+        return expected_selection_size
+    max_team_size = getattr(battle, "max_team_size", None)
+    if max_team_size:
+        return int(max_team_size)
+    battle_format = (getattr(battle, "format", None) or "").lower()
+    if "vgc" in battle_format:
+        return 4
+    if "bss" in battle_format or "battlestadium" in battle_format:
+        return 3
+    return len(getattr(battle, "team", {}) or {})
+
+
+def choose_teampreview_order(
+    battle: AbstractBattle,
+    *,
+    label: str,
+    selection_config: TeamSelectionConfig,
+    expected_selection_size: int | None = None,
+) -> tuple[str, TeamSelectionRecord]:
+    team_values = list((getattr(battle, "team", {}) or {}).values())
+    required_count = infer_teampreview_required_count(battle, expected_selection_size)
+    team_size = len(team_values)
+
+    if selection_config.mode == "manual":
+        selected = prompt_manual_teampreview(battle, label=label, required_count=required_count)
+    else:
+        selected = choose_slots(selection_config, required_count=required_count, team_size=team_size)
+    selected = validate_selected_slots(selected, required_count=required_count, team_size=team_size)
+
+    for slot in selected:
+        team_values[slot - 1]._selected_in_teampreview = True
+
+    command = "/team " + "".join(str(slot) for slot in selected)
+    game_type = "doubles" if "vgc" in (getattr(battle, "format", "") or "").lower() or required_count == 4 else "singles"
+    record = TeamSelectionRecord(
+        player=label,
+        battle_tag=battle.battle_tag,
+        format=getattr(battle, "format", None),
+        game_type=game_type,
+        mode=selection_config.mode,
+        required_count=required_count,
+        selected_slots=selected,
+        command=command,
+        team_preview=teampreview_team_to_list(getattr(battle, "teampreview_team", []) or team_values),
+        opponent_preview=teampreview_team_to_list(getattr(battle, "teampreview_opponent_team", [])),
+    )
+    return command, record
+
+
+def prompt_manual_teampreview(battle: AbstractBattle, *, label: str, required_count: int) -> list[int]:
+    team_preview = teampreview_team_to_list(getattr(battle, "teampreview_team", []) or list(battle.team.values()))
+    opponent_preview = teampreview_team_to_list(getattr(battle, "teampreview_opponent_team", []))
+    print("\n# 队伍选出")
+    print(f"player: {label}")
+    print(f"battle_tag: {battle.battle_tag}")
+    print(f"format: {battle.format}")
+    print(f"需要选择：{required_count} 只。双打/VGC 中前 2 只是首发。")
+    print("我方队伍：")
+    for mon in team_preview:
+        print(f"  {mon['slot']}. {mon.get('display_name') or mon.get('species')}")
+    if opponent_preview:
+        print("对方队伍预览：")
+        for mon in opponent_preview:
+            print(f"  {mon['slot']}. {mon.get('display_name') or mon.get('species')}")
+    while True:
+        raw = input(f"请输入 {required_count} 个编号，例如 1,2,3,4: ").strip()
+        try:
+            slots = [int(part.strip()) for part in raw.replace("，", ",").split(",") if part.strip()]
+            return validate_selected_slots(slots, required_count=required_count, team_size=len(team_preview))
+        except ValueError as exc:
+            print(f"输入无效：{exc}")
 
 
 def manual_pokemon_label(value: Any) -> str:
@@ -413,6 +546,8 @@ def build_markdown_report(record: dict[str, Any]) -> str:
     lines.append(f"- 玩家 1：{config['players'][0]}")
     lines.append(f"- 玩家 2：{config['players'][1]}")
     lines.append(f"- 队伍来源：{config['team_source']}")
+    if record.get("team_preview") and (record["team_preview"].get("player_1") or record["team_preview"].get("player_2")):
+        lines.append("- 队伍选出：见第 3 节")
     lines.append("")
 
     lines.append("## 2. 对战结果摘要")
@@ -426,19 +561,33 @@ def build_markdown_report(record: dict[str, Any]) -> str:
     lines.append(f"- 玩家 2 用户名：{battle['opponent_username']}")
     lines.append("")
 
-    lines.append("## 3. 玩家 1 队伍")
+    if record.get("team_preview") and (record["team_preview"].get("player_1") or record["team_preview"].get("player_2")):
+        lines.append("## 3. 队伍选出记录")
+        lines.append("")
+        for player_key, title in [("player_1", "玩家 1"), ("player_2", "玩家 2")]:
+            selection = record["team_preview"].get(player_key)
+            if not selection:
+                continue
+            selected = ", ".join(str(slot) for slot in selection.get("selected_slots", []))
+            lines.append(f"- {title}：模式 `{selection.get('mode')}`，选择编号 `{selected}`，指令 `{selection.get('command')}`")
+        lines.append("")
+        section_offset = 1
+    else:
+        section_offset = 0
+
+    lines.append(f"## {3 + section_offset}. 玩家 1 队伍")
     lines.append("")
     for i, mon in enumerate(battle["team"], start=1):
         lines.append(f"{i}. {pokemon_line(mon)}")
     lines.append("")
 
-    lines.append("## 4. 玩家 2 队伍")
+    lines.append(f"## {4 + section_offset}. 玩家 2 队伍")
     lines.append("")
     for i, mon in enumerate(battle["opponent_team"], start=1):
         lines.append(f"{i}. {pokemon_line(mon)}")
     lines.append("")
 
-    lines.append("## 5. 决策点记录摘要")
+    lines.append(f"## {5 + section_offset}. 决策点记录摘要")
     lines.append("")
     lines.append(f"- 玩家 1 决策快照数：{len(record['player_1_observations'])}")
     lines.append(f"- 玩家 2 决策快照数：{len(record['player_2_observations'])}")
@@ -456,7 +605,7 @@ def build_markdown_report(record: dict[str, Any]) -> str:
         lines.append(f"- 可用招式：{move_text}")
         lines.append("")
 
-    lines.append("## 6. 中文对战事件记录")
+    lines.append(f"## {6 + section_offset}. 中文对战事件记录")
     lines.append("")
     translated_count = 0
     for event in battle["raw_replay_events"]:
@@ -468,7 +617,7 @@ def build_markdown_report(record: dict[str, Any]) -> str:
         lines.append("未能从 replay events 中提取可读事件。请查看 `record.json` 或 `replay.html`。")
     lines.append("")
 
-    lines.append("## 7. 导出文件")
+    lines.append(f"## {7 + section_offset}. 导出文件")
     lines.append("")
     lines.append(f"- 可视化 replay：`{record['files']['replay_html']}`")
     lines.append(f"- 完整 JSON 记录：`{record['files']['record_json']}`")

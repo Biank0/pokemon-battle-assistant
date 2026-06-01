@@ -1,0 +1,72 @@
+{
+  "name": "VGC Sun Koraidon",
+  "format": "gen9vgc2026regi",
+  "team": [
+    {
+      "species": "Koraidon",
+      "item": "Clear Amulet",
+      "ability": "Orichalcum Pulse",
+      "nature": "Jolly",
+      "tera_type": "Fire",
+      "level": 50,
+      "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
+      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "moves": ["Collision Course", "Flare Blitz", "Dragon Claw", "Protect"]
+    },
+    {
+      "species": "Flutter Mane",
+      "item": "Focus Sash",
+      "ability": "Protosynthesis",
+      "nature": "Timid",
+      "tera_type": "Fairy",
+      "level": 50,
+      "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 252, "spd": 0, "spe": 252},
+      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "moves": ["Moonblast", "Shadow Ball", "Icy Wind", "Protect"]
+    },
+    {
+      "species": "Tornadus",
+      "item": "Covert Cloak",
+      "ability": "Prankster",
+      "nature": "Timid",
+      "tera_type": "Ghost",
+      "level": 50,
+      "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 252, "spd": 0, "spe": 252},
+      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "moves": ["Tailwind", "Bleakwind Storm", "Taunt", "Protect"]
+    },
+    {
+      "species": "Rillaboom",
+      "item": "Assault Vest",
+      "ability": "Grassy Surge",
+      "nature": "Adamant",
+      "tera_type": "Fire",
+      "level": 50,
+      "evs": {"hp": 252, "atk": 252, "def": 4, "spa": 0, "spd": 0, "spe": 0},
+      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "moves": ["Fake Out", "Grassy Glide", "Wood Hammer", "U-turn"]
+    },
+    {
+      "species": "Incineroar",
+      "item": "Safety Goggles",
+      "ability": "Intimidate",
+      "nature": "Careful",
+      "tera_type": "Water",
+      "level": 50,
+      "evs": {"hp": 252, "atk": 4, "def": 0, "spa": 0, "spd": 252, "spe": 0},
+      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "moves": ["Fake Out", "Flare Blitz", "Parting Shot", "Knock Off"]
+    },
+    {
+      "species": "Amoonguss",
+      "item": "Sitrus Berry",
+      "ability": "Regenerator",
+      "nature": "Relaxed",
+      "tera_type": "Water",
+      "level": 50,
+      "evs": {"hp": 252, "atk": 0, "def": 156, "spa": 0, "spd": 100, "spe": 0},
+      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 0},
+      "moves": ["Spore", "Rage Powder", "Pollen Puff", "Protect"]
+    }
+  ]
+}
