@@ -22,6 +22,7 @@ from poke_env.battle import AbstractBattle
 from poke_env.player import RandomPlayer
 from poke_env.player.battle_order import BattleOrder, DoubleBattleOrder
 
+from .showdown_formats import is_doubles_format
 from .translation import (
     translate_ability,
     translate_item,
@@ -227,7 +228,7 @@ def choose_teampreview_order(
         team_values[slot - 1]._selected_in_teampreview = True
 
     command = "/team " + "".join(str(slot) for slot in selected)
-    game_type = "doubles" if "vgc" in (getattr(battle, "format", "") or "").lower() or required_count == 4 else "singles"
+    game_type = "doubles" if is_doubles_format(getattr(battle, "format", "")) or required_count == 4 else "singles"
     record = TeamSelectionRecord(
         player=label,
         battle_tag=battle.battle_tag,

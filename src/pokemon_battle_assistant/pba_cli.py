@@ -175,11 +175,7 @@ def cmd_env(args: argparse.Namespace) -> None:
 
 
 def cmd_team(args: argparse.Namespace) -> None:
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("trainer_cli", PROJECT_ROOT / "scripts" / "trainer_cli.py")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    from pokemon_battle_assistant import trainer_cli as mod
 
     if args.team_action == "list":
         mod.cmd_list(args)

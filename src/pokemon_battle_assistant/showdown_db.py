@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 from functools import lru_cache
 from pathlib import Path
+from typing import Callable
 
 DB_PATH = Path(__file__).resolve().parents[2] / "data" / "showdown_db.json"
 ZH_PATH = Path(__file__).resolve().parents[2] / "data" / "translations" / "zh_cn_names.json"
@@ -78,25 +79,48 @@ def _resolve_zh_query(category: str, query: str) -> str | None:
     return None
 
 
+def _match_rank(query_id: str, entry_id: str, entry_name: str) -> int | None:
+    """Rank an English match: 0=exact, 1=prefix, 2=substring, None=no match."""
+    name_id = _normalize(entry_name)
+    if entry_id == query_id or name_id == query_id:
+        return 0
+    if entry_id.startswith(query_id) or name_id.startswith(query_id):
+        return 1
+    if query_id in entry_id or query_id in name_id:
+        return 2
+    return None
+
+
+def _ranked_search(category: str, query: str, limit: int, *, skip: Callable[[dict], bool] | None = None) -> list[dict]:
+    """Generic search: collect all matches, rank by quality, then truncate.
+
+    Ranking beats the previous early-break behavior, which could discard a better
+    match (e.g. an exact name) that happened to be iterated after `limit` weaker
+    substring hits.
+    """
+    q = _normalize(query)
+    is_zh = _is_cjk(query)
+    table = load_db()[category if category != "pokemon" else "pokedex"]
+    scored: list[tuple[int, int, dict]] = []
+    for order, (eid, entry) in enumerate(table.items()):
+        if skip and skip(entry):
+            continue
+        rank = _match_rank(q, eid, entry["name"]) if q else None
+        if rank is None and is_zh and _zh_match(category, query, eid):
+            rank = 3
+        if rank is None:
+            continue
+        scored.append((rank, order, {"id": eid, **entry}))
+    scored.sort(key=lambda item: (item[0], item[1]))
+    return [result for _, _, result in scored[:limit]]
+
+
 def get_pokemon(species_id: str) -> dict | None:
     return load_db()["pokedex"].get(_normalize(species_id))
 
 
 def search_pokemon(query: str, limit: int = 10) -> list[dict]:
-    q = _normalize(query)
-    is_zh = _is_cjk(query)
-    pokedex = load_db()["pokedex"]
-    results = []
-    for pid, entry in pokedex.items():
-        if entry.get("num", 0) <= 0:
-            continue
-        if q in pid or q in _normalize(entry["name"]):
-            results.append({"id": pid, **entry})
-        elif is_zh and _zh_match("pokemon", query, pid):
-            results.append({"id": pid, **entry})
-        if len(results) >= limit:
-            break
-    return results
+    return _ranked_search("pokemon", query, limit, skip=lambda entry: entry.get("num", 0) <= 0)
 
 
 def get_pokemon_abilities(species_id: str) -> list[str]:
@@ -126,18 +150,7 @@ def get_move(move_id: str) -> dict | None:
 
 
 def search_moves(query: str, limit: int = 10) -> list[dict]:
-    q = _normalize(query)
-    is_zh = _is_cjk(query)
-    moves = load_db()["moves"]
-    results = []
-    for mid, entry in moves.items():
-        if q in mid or q in _normalize(entry["name"]):
-            results.append({"id": mid, **entry})
-        elif is_zh and _zh_match("moves", query, mid):
-            results.append({"id": mid, **entry})
-        if len(results) >= limit:
-            break
-    return results
+    return _ranked_search("moves", query, limit)
 
 
 def get_item(item_id: str) -> dict | None:
@@ -145,18 +158,7 @@ def get_item(item_id: str) -> dict | None:
 
 
 def search_items(query: str, limit: int = 10) -> list[dict]:
-    q = _normalize(query)
-    is_zh = _is_cjk(query)
-    items = load_db()["items"]
-    results = []
-    for iid, entry in items.items():
-        if q in iid or q in _normalize(entry["name"]):
-            results.append({"id": iid, **entry})
-        elif is_zh and _zh_match("items", query, iid):
-            results.append({"id": iid, **entry})
-        if len(results) >= limit:
-            break
-    return results
+    return _ranked_search("items", query, limit)
 
 
 def get_natures() -> dict:

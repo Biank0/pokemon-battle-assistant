@@ -121,8 +121,9 @@ def control_kind(control: ControlMode) -> str:
 
 
 def infer_battle_kind(battle_format: str) -> str:
-    text = battle_format.lower()
-    return "doubles" if "double" in text or "vgc" in text else "singles"
+    from .showdown_formats import is_doubles_format
+
+    return "doubles" if is_doubles_format(battle_format) else "singles"
 
 
 class BattleRunner:

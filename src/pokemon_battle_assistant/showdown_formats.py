@@ -4,11 +4,17 @@ from __future__ import annotations
 
 import json
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
 from .showdown_validator import find_showdown_path
+
+
+def is_doubles_format(format_id: str | None) -> bool:
+    """Whether a format id denotes a doubles/VGC game type."""
+    text = (format_id or "").lower()
+    return "double" in text or "vgc" in text
 
 
 @dataclass(frozen=True)
@@ -59,7 +65,7 @@ def get_format_info(format_id: str, *, showdown_path: str | Path | None = None, 
         id=format_id,
         exists=bool(fallback_size),
         name=format_id,
-        game_type="doubles" if "vgc" in format_id.lower() or "double" in format_id.lower() else "singles",
+        game_type="doubles" if is_doubles_format(format_id) else "singles",
         picked_team_size=fallback_size,
         min_team_size=fallback_size,
         max_team_size=6 if fallback_size else None,
@@ -97,7 +103,7 @@ try {
             check=False,
         )
         if proc.returncode != 0:
-            return FormatInfo(**{**fallback.to_dict(), "error": proc.stderr.strip() or fallback.error})
+            return replace(fallback, error=proc.stderr.strip() or fallback.error)
         data = json.loads(proc.stdout)
         return FormatInfo(
             id=data.get("id", format_id),
@@ -110,4 +116,4 @@ try {
             error=data.get("error"),
         )
     except Exception as exc:
-        return FormatInfo(**{**fallback.to_dict(), "error": str(exc) or fallback.error})
+        return replace(fallback, error=str(exc) or fallback.error)
