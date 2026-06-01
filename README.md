@@ -2,9 +2,35 @@
 
 宝可梦对战环境项目。第一阶段聚焦完整本地对战环境，支持自定义训练家队伍、本地模拟对战、结构化记录、中文报告，并为未来 RL 接入预留接口。
 
+## 外部依赖
+
+本项目自身保存 PBA 代码、离线数据和队伍模版。真实本地对战依赖两个外部项目：
+
+```text
+/path/to/pokemon-showdown   # 本地规则裁判和对战服务器
+/path/to/poke-env           # Python 侧 Showdown bot 客户端
+```
+
+建议把三个项目放在同一个工作目录下，例如：
+
+```text
+workspace/
+├── pokemon-battle-assistant
+├── pokemon-showdown
+└── poke-env
+```
+
+如果你的 `pokemon-showdown` 不在 PBA 仓库同级目录，请设置：
+
+```bash
+export PBA_SHOWDOWN_PATH=/path/to/pokemon-showdown
+```
+
+`poke-env` 需要安装到本项目 `.venv` 中，见下方「环境准备」。
+
 ## 快速开始
 
-## VGC 快速开始
+### VGC 快速开始
 
 当前项目后续主要围绕 **VGC 双打** 展开。推荐先用内置合法队伍跑通流程：
 
@@ -30,7 +56,7 @@ pba battle vgc_sun_koraidon \
 真正对战前需要先启动本地 Showdown server：
 
 ```bash
-cd ~/Bian-workspace/pokemon-showdown
+cd /path/to/pokemon-showdown
 node pokemon-showdown start --no-security
 ```
 
@@ -38,7 +64,7 @@ node pokemon-showdown start --no-security
 所有功能通过统一入口 `pba` 调用。首次使用需要设置 alias：
 
 ```bash
-echo 'alias pba="~/Bian-workspace/pokemon-battle-assistant/pba"' >> ~/.zshrc
+echo 'alias pba="/path/to/pokemon-battle-assistant/pba"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
@@ -67,7 +93,7 @@ pba team validate <名字> --local-only      # 只做本地基础检查
 
 当前项目后续主要围绕 **VGC 双打** 展开，因此 `pba team create` 默认推荐 `gen9vgc2026regi`，并会在创建时提示 VGC 常见注意点，例如 6 选 4、前两只首发、重复道具限制、Protect/速度控制/支援动作等。
 
-`team validate` 会先做本地友好检查（JSON 结构、名称、EV/IV、特性等），再调用本地 Pokémon Showdown 的 TeamValidator 做权威规则校验。这个检查不需要 Showdown server 启动，但需要本地存在 `pokemon-showdown` 代码；如果路径不是 `~/Bian-workspace/pokemon-showdown`，请设置环境变量 `PBA_SHOWDOWN_PATH`。
+`team validate` 会先做本地友好检查（JSON 结构、名称、EV/IV、特性等），再调用本地 Pokémon Showdown 的 TeamValidator 做权威规则校验。这个检查不需要 Showdown server 启动，但需要本地存在 `pokemon-showdown` 代码；如果路径不是 PBA 仓库同级的 `pokemon-showdown`，请设置环境变量 `PBA_SHOWDOWN_PATH`。
 
 ### 本地对战
 
@@ -157,15 +183,15 @@ pba analyze examples/simple_battle.json --top 5
 需要 Python 3.10+：
 
 ```bash
-cd ~/Bian-workspace/pokemon-battle-assistant
+cd /path/to/pokemon-battle-assistant
 python3.13 -m venv .venv
-.venv/bin/python -m pip install -e ~/Bian-workspace/poke-env
+.venv/bin/python -m pip install -e /path/to/poke-env
 ```
 
 ### 本地 Pokemon Showdown（对战功能需要）
 
 ```bash
-cd ~/Bian-workspace/pokemon-showdown
+cd /path/to/pokemon-showdown
 npm install
 cp config/config-example.js config/config.js
 node pokemon-showdown start --no-security
