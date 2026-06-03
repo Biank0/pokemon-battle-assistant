@@ -308,6 +308,7 @@ def cmd_battle(args: argparse.Namespace) -> None:
         print(f"player_2_template: {p2_source}")
         print(f"player_1_control: {args.player1_control}")
         print(f"player_2_control: {args.player2_control}")
+        print(f"output_root: {args.output_root}")
         if expected_selection_size:
             print(f"team_preview: 需要选出 {expected_selection_size} 只；player_1={p1_selection.to_dict()} player_2={p2_selection.to_dict()}")
         print("note: 第一阶段只运行和记录环境，不开发助手或策略。")
@@ -324,6 +325,7 @@ def cmd_battle(args: argparse.Namespace) -> None:
             player_1_selection=p1_selection,
             player_2_selection=p2_selection,
             expected_selection_size=expected_selection_size,
+            output_root=Path(args.output_root),
             metadata={"entrypoint": "pba battle"},
         )
         try:
@@ -377,6 +379,7 @@ def cmd_random_battle(args: argparse.Namespace) -> None:
         print("team_source: Showdown random battle generator")
         print(f"player_1_control: {args.player1_control}")
         print(f"player_2_control: {args.player2_control}")
+        print(f"output_root: {args.output_root}")
         print("note: 第一阶段只运行和记录环境，不开发助手或策略。")
         print()
 
@@ -386,6 +389,7 @@ def cmd_random_battle(args: argparse.Namespace) -> None:
             player_2_source="Showdown random battle generator",
             player_1_control=args.player1_control,
             player_2_control=args.player2_control,
+            output_root=Path(args.output_root),
             metadata={"entrypoint": "pba random-battle"},
         )
         try:
@@ -472,6 +476,7 @@ def main() -> None:
     battle_parser.add_argument("--player2-control", choices=["random", "manual"], default="random", help="玩家 2 控制方式")
     battle_parser.add_argument("--manual", action="store_true", help="快捷方式：等同于 --player1-control manual")
     battle_parser.add_argument("--skip-validation", action="store_true", help="跳过开战前队伍合法性检查")
+    battle_parser.add_argument("--output-root", default="battle_outputs", help="对战记录输出目录，默认 battle_outputs")
     battle_parser.add_argument(
         "--select",
         default="auto",
@@ -493,6 +498,7 @@ def main() -> None:
     random_parser.add_argument("--player1-control", choices=["random", "manual"], default="random", help="玩家 1 控制方式")
     random_parser.add_argument("--player2-control", choices=["random", "manual"], default="random", help="玩家 2 控制方式")
     random_parser.add_argument("--manual", action="store_true", help="快捷方式：等同于 --player1-control manual")
+    random_parser.add_argument("--output-root", default="battle_outputs", help="对战记录输出目录，默认 battle_outputs")
 
     # --- pba analyze ---
     analyze_parser = sub.add_parser("analyze", help="离线局面分析")

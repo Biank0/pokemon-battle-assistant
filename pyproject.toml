@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pokemon-battle-assistant"
-version = "0.1.0"
-description = "A lightweight MVP bot for Pokemon battle action evaluation and coaching."
+version = "0.0.1"
+description = "Pokemon battle environment and VGC infrastructure for future agent/RL workflows."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [

@@ -91,6 +91,11 @@ def chosen_action_from_message(message: str | None) -> dict[str, Any] | None:
     if not message:
         return None
     text = str(message)
+    # Doubles/VGC orders can be composite commands such as
+    # "/choose move heatwave -1, move protect". Treat them as atomic complete
+    # orders instead of pretending they are a single move.
+    if "," in text or text.startswith("/team "):
+        return LegalAction(action_id="chosen:order", kind="order", label=text, command=text).to_dict()
     if text.startswith("/choose move "):
         label = text.removeprefix("/choose move ")
         return LegalAction(action_id=f"chosen:{label}", kind="move", label=label, command=text).to_dict()

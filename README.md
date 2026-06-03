@@ -1,6 +1,19 @@
 # Pokemon Battle Assistant
 
-宝可梦对战环境项目。第一阶段聚焦完整本地对战环境，支持自定义训练家队伍、本地模拟对战、结构化记录、中文报告，并为未来 RL 接入预留接口。
+**当前版本：v0.0.1**
+
+宝可梦对战环境项目。v0.0.1 聚焦完整本地对战环境与 VGC 双打基础设施，支持自定义训练家队伍、本地模拟对战、VGC 6 选 4、结构化记录、中文报告，并为未来 agent / RL 接入预留接口。
+
+## v0.0.1 版本定位
+
+本版本是项目的第一个可用环境版本，目标不是直接提供最强对战 bot，而是先把后续 agent 需要依赖的工程底座打稳：
+
+- 统一 CLI：`pba doctor`、`pba team ...`、`pba battle ...`、`pba random-battle ...`、`pba analyze ...`。
+- VGC 双打主线：默认围绕 `gen9vgc2026regi`，支持 6 选 4 team preview，前两只为首发，后两只为后排。
+- 本地 Showdown 对战环境：基于本地 `pokemon-showdown` + `poke-env` 跑完整对战。
+- 数据导出：每局导出 replay、`record.json`、`steps.jsonl` 和中文报告。
+- 用户友好：中文搜索、队伍合法性检查、手动选出界面、Showdown 错误中文解释。
+- Agent 预研：新增环境层检查、宝可梦对战 AI 调研、VGC 学习框架设计文档，为后续 heuristic / LLM / imitation / RL agent 铺路。
 
 ## 外部依赖
 
@@ -106,6 +119,7 @@ pba battle my_team --format gen9ou                                          # �
 pba battle vgc_team --format gen9vgc2026regi --select 1,2,3,4              # VGC：玩家 1 固定 6 选 4
 pba battle vgc_team --format gen9vgc2026regi --select manual               # VGC：玩家 1 手动选出
 pba battle my_team --skip-validation                                        # 高级用法：跳过开战前合法性检查
+pba battle my_team --output-root runs/exp001                                # 指定对战记录输出目录
 pba random-battle --format gen9randomdoublesbattle                         # 双打随机对战
 pba random-battle --format gen9randomdoublesbattle --manual                # 用户手动操作玩家 1
 ```
@@ -117,9 +131,11 @@ pba random-battle --format gen9randomdoublesbattle --manual                # 用
 - `manual`：终端交互选择
 - `1,2,3,4`：按编号固定选出，VGC 中前两只是首发
 
-对战结束后在 `battle_outputs/<battle_tag>/` 下生成：
+手动选出界面会展示队伍编号、中文名/种族、属性、道具、特性和招式摘要，方便根据公开队表做更接近实战的 VGC 选出。
+
+对战结束后默认在 `battle_outputs/<battle_tag>/` 下生成；也可以用 `--output-root` 指定输出根目录：
 - `replay.html` — 可视化对战回放
-- `record.json` — 完整对战数据，包含 environment steps、observation、legal actions、chosen action
+- `record.json` — 完整对战数据，包含 environment steps、observation、legal actions、chosen action；VGC 双打复合动作会作为完整 order 保存
 - `steps.jsonl` — 逐 step JSONL 数据，便于后续批量分析/RL 数据管线读取
 - `report.md` — 中文对战报告
 
@@ -164,6 +180,14 @@ pba analyze examples/simple_battle.json --top 5
 | Gen 9 VGC 2026 Regulation I | `gen9vgc2026regi` | `docs/formats/gen9vgc2026regi.md` |
 
 入口见：`docs/formats/README.md`。
+
+## v0.0.1 设计与调研文档
+
+本版本新增三份面向后续 agent 开发的文档：
+
+- `docs/ENVIRONMENT_LAYER_REVIEW_2026-06-03.md`：环境层架构检查、已完成改进和后续接口打磨清单。
+- `docs/AI_BATTLE_AGENT_SURVEY_2026-06-03.md`：宝可梦对战 AI 常见方案调研，覆盖 poke-env、Metamon、PokéChamp、PokeLLMon、pkmn 生态和传统 RL 项目。
+- `docs/VGC_LEARNING_FRAMEWORK_2026-06-03.md`：VGC 双打学习框架设计，重点拆解 6 选 4 team preview 和每回合双槽 order 决策。
 
 ## 功能概览
 
@@ -264,8 +288,9 @@ pokemon-battle-assistant/
 │   ├── models.py                    # 数据模型
 │   ├── type_chart.py                # 属性克制表
 │   └── cli.py                       # 局面分析入口
+├── docs/                            # 使用说明、规则说明、调研和设计文档
 ├── examples/simple_battle.json
-└── tests/test_mvp.py
+└── tests/                           # 单元测试
 ```
 
 ## 测试
@@ -274,16 +299,16 @@ pokemon-battle-assistant/
 PYTHONPATH=src python -m unittest discover -s tests
 ```
 
-## 第一阶段目标
+## v0.0.1 范围与下一步
 
-第一阶段不开发任何对战助手或自动决策器。当前目标是搭建完整、稳定、可复现的对战环境，支持：
+v0.0.1 不承诺提供完整自动对战助手或强策略 bot。当前目标是搭建完整、稳定、可复现的对战环境，支持：
 
 - 用户使用自定义队伍进行本地模拟对战
 - 记录完整 battle state、动作、回放和中文报告
 - 未来 RL agent 通过清晰接口接入环境
 - 可批量运行、可复现实验、可导出训练数据
 
-暂不做 `AssistantPlayer`、启发式 bot、复杂博弈树或 RL 算法本身。当前 `BattleRunner` 只负责完整跑局和导出数据，不是交互式 `reset()/step()` RL 环境。
+当前暂不把 `AssistantPlayer`、复杂博弈树或 RL 算法本身作为稳定功能发布。`BattleRunner` 只负责完整跑局和导出数据，不是交互式 `reset()/step()` RL 环境。下一步建议从 `HeuristicVGCPreviewPolicy`、VGC 双槽 order parser、`pba vgc preview` 和 agent decision 记录开始。
 
 ## Contributors
 

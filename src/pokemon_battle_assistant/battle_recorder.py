@@ -254,11 +254,11 @@ def prompt_manual_teampreview(battle: AbstractBattle, *, label: str, required_co
     print(f"需要选择：{required_count} 只。双打/VGC 中前 2 只是首发。")
     print("我方队伍：")
     for mon in team_preview:
-        print(f"  {mon['slot']}. {mon.get('display_name') or mon.get('species')}")
+        print(f"  {teampreview_option_line(mon)}")
     if opponent_preview:
         print("对方队伍预览：")
         for mon in opponent_preview:
-            print(f"  {mon['slot']}. {mon.get('display_name') or mon.get('species')}")
+            print(f"  {teampreview_option_line(mon)}")
     while True:
         raw = input(f"请输入 {required_count} 个编号，例如 1,2,3,4: ").strip()
         try:
@@ -266,6 +266,17 @@ def prompt_manual_teampreview(battle: AbstractBattle, *, label: str, required_co
             return validate_selected_slots(slots, required_count=required_count, team_size=len(team_preview))
         except ValueError as exc:
             print(f"输入无效：{exc}")
+
+
+def teampreview_option_line(mon: dict[str, Any]) -> str:
+    """Compact, human-readable team-preview line for manual 6-pick-N UX."""
+
+    name = mon.get("display_name") or translate_pokemon(mon.get("species"))
+    item = translate_item(mon.get("item"))
+    ability = translate_ability(mon.get("ability"))
+    types = "/".join(mon.get("types") or []) or "未知属性"
+    moves = ", ".join(translate_move(move) for move in (mon.get("moves") or [])) or "未知招式"
+    return f"{mon.get('slot')}. {name}｜{types}｜道具:{item}｜特性:{ability}｜招式:{moves}"
 
 
 def manual_pokemon_label(value: Any) -> str:

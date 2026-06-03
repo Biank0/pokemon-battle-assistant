@@ -52,6 +52,12 @@ class ActionSpaceTest(unittest.TestCase):
         self.assertEqual(action["kind"], "move")
         self.assertEqual(action["command"], "/choose move thunderbolt")
 
+    def test_chosen_double_order_stays_atomic_order(self) -> None:
+        action = chosen_action_from_message("/choose move heatwave -1, move protect")
+        self.assertIsNotNone(action)
+        self.assertEqual(action["kind"], "order")
+        self.assertEqual(action["command"], "/choose move heatwave -1, move protect")
+
 
 class EnvironmentRecordTest(unittest.TestCase):
     def test_config_serializes_path_and_metadata(self) -> None:
