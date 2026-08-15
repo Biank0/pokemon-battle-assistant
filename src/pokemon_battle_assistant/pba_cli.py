@@ -660,6 +660,17 @@ def cmd_closed_loop(args: argparse.Namespace) -> None:
     asyncio.run(run())
 
 
+def cmd_serve(args: argparse.Namespace) -> None:
+    import uvicorn
+
+    from pokemon_battle_assistant.api import app
+
+    print("# Pokemon Battle Assistant API")
+    print(f"http://{args.host}:{args.port}")
+    print("Vue 前端开发服务器默认代理到该地址；接口文档见 /docs")
+    uvicorn.run(app, host=args.host, port=args.port)
+
+
 def cmd_build_team(args: argparse.Namespace) -> None:
     from pokemon_battle_assistant.agent.llm_client import LLMBackend, LLMClient
     from pokemon_battle_assistant.modules.team_builder.agent import TeamBuilderAgent
@@ -836,6 +847,11 @@ def main() -> None:
     closed_loop_parser.add_argument("--auto", action="store_true", help="自动迭代所有轮次（默认手动确认）")
     closed_loop_parser.add_argument("--output-root", default="orchestrator_outputs", help="输出目录")
 
+    # --- pba serve ---
+    serve_parser = sub.add_parser("serve", help="启动 FastAPI 后端（供 Vue 前端调用）")
+    serve_parser.add_argument("--host", default="127.0.0.1", help="监听地址，默认 127.0.0.1")
+    serve_parser.add_argument("--port", type=int, default=8000, help="端口，默认 8000")
+
     args = parser.parse_args()
 
     if getattr(args, "manual", False):
@@ -865,6 +881,8 @@ def main() -> None:
         cmd_agent_battle(args)
     elif args.command == "lab":
         cmd_lab(args)
+    elif args.command == "serve":
+        cmd_serve(args)
     elif args.command == "closed-loop":
         cmd_closed_loop(args)
     elif args.command == "analysis":

@@ -76,10 +76,11 @@ class Orchestrator:
         auto_iterate: bool = True,
         *,
         config: LoopConfig | None = None,
+        run_id: str | None = None,
     ) -> str:
         """启动闭环流程（建队 → Lab → Analysis → 迭代），返回 run_id。"""
         loop_config = config or LoopConfig()
-        run_id = f"run-{datetime.now():%Y%m%d-%H%M%S}-{uuid4().hex[:6]}"
+        run_id = run_id or f"run-{datetime.now():%Y%m%d-%H%M%S}-{uuid4().hex[:6]}"
         run_dir = Path(loop_config.output_root) / run_id
         run_dir.mkdir(parents=True, exist_ok=True)
         status = OrchestratorStatus(
