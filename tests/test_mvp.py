@@ -7,8 +7,13 @@ from pathlib import Path
 
 from pokemon_battle_assistant.cli import load_battle_state
 from pokemon_battle_assistant.evaluator import evaluate_battle
+from pokemon_battle_assistant.translation import (
+    translate_ability,
+    translate_item,
+    translate_move,
+    translate_pokemon,
+)
 from pokemon_battle_assistant.type_chart import describe_multiplier, get_type_multiplier
-from pokemon_battle_assistant.translation import translate_ability, translate_item, translate_move, translate_pokemon
 
 
 class TranslationTest(unittest.TestCase):

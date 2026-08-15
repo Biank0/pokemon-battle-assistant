@@ -138,12 +138,16 @@ class BattleRunner:
         # a running poke-env installation.
         from .battle_recorder import (
             RecordingManualPlayer,
+            RecordingPlayerBase,
             RecordingRandomPlayer,
             battle_summary,
             build_markdown_report,
         )
 
-        player_cls = {"random": RecordingRandomPlayer, "manual": RecordingManualPlayer}
+        player_cls: dict[str, type[RecordingPlayerBase]] = {
+            "random": RecordingRandomPlayer,
+            "manual": RecordingManualPlayer,
+        }
 
         player_1 = player_cls[config.player_1_control](
             label=config.player_1_label,

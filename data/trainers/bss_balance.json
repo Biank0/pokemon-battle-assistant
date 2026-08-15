@@ -1,0 +1,186 @@
+{
+  "name": "BSS Balance",
+  "format": "gen9bssregi",
+  "team": [
+    {
+      "species": "Gholdengo",
+      "item": "Air Balloon",
+      "ability": "Good As Gold",
+      "nature": "Timid",
+      "tera_type": "Water",
+      "level": 50,
+      "evs": {
+        "hp": 4,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Nasty Plot",
+        "Make It Rain",
+        "Shadow Ball",
+        "Recover"
+      ]
+    },
+    {
+      "species": "Dragonite",
+      "item": "Leftovers",
+      "ability": "Multiscale",
+      "nature": "Adamant",
+      "tera_type": "Normal",
+      "level": 50,
+      "evs": {
+        "hp": 0,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Dragon Dance",
+        "Extreme Speed",
+        "Earthquake",
+        "Fire Punch"
+      ]
+    },
+    {
+      "species": "Ting-Lu",
+      "item": "Rocky Helmet",
+      "ability": "Vessel of Ruin",
+      "nature": "Careful",
+      "tera_type": "Fairy",
+      "level": 50,
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 4,
+        "spa": 0,
+        "spd": 252,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Ruination",
+        "Stealth Rock",
+        "Whirlwind",
+        "Fissure"
+      ]
+    },
+    {
+      "species": "Chien-Pao",
+      "item": "Focus Sash",
+      "ability": "Sword of Ruin",
+      "nature": "Jolly",
+      "tera_type": "Ghost",
+      "level": 50,
+      "evs": {
+        "hp": 0,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Ice Spinner",
+        "Sucker Punch",
+        "Sacred Sword",
+        "Swords Dance"
+      ]
+    },
+    {
+      "species": "Volcarona",
+      "item": "Heavy-Duty Boots",
+      "ability": "Flame Body",
+      "nature": "Timid",
+      "tera_type": "Water",
+      "level": 50,
+      "evs": {
+        "hp": 4,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Quiver Dance",
+        "Flamethrower",
+        "Giga Drain",
+        "Bug Buzz"
+      ]
+    },
+    {
+      "species": "Rotom-Wash",
+      "item": "Sitrus Berry",
+      "ability": "Levitate",
+      "nature": "Bold",
+      "tera_type": "Grass",
+      "level": 50,
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 252,
+        "spa": 0,
+        "spd": 4,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Hydro Pump",
+        "Volt Switch",
+        "Will-O-Wisp",
+        "Hex"
+      ]
+    }
+  ]
+}

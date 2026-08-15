@@ -7,6 +7,8 @@ improved over time.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from .models import Action, ActionEvaluation, BattleState
 from .type_chart import describe_multiplier, get_type_multiplier, normalize_type
 
@@ -103,7 +105,7 @@ def _evaluate_move(action: Action, state: BattleState) -> ActionEvaluation:
     elif multiplier < 1:
         risks.append("该招式面对当前目标不够理想，除非你在读对方换人。")
 
-    confidence = "high" if move_type != "Unknown" else "low"
+    confidence: Literal["low", "medium", "high"] = "high" if move_type != "Unknown" else "low"
     if action.power is None:
         confidence = "medium" if confidence == "high" else confidence
         risks.append("当前没有完整伤害数据，评分主要基于属性克制和启发式规则。")

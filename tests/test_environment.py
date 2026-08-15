@@ -3,7 +3,12 @@ from __future__ import annotations
 import unittest
 
 from pokemon_battle_assistant.action_space import chosen_action_from_message, legal_actions_from_snapshot
-from pokemon_battle_assistant.environment import BattleRunConfig, build_step_records, control_kind, infer_battle_kind
+from pokemon_battle_assistant.environment import (
+    BattleRunConfig,
+    build_step_records,
+    control_kind,
+    infer_battle_kind,
+)
 from pokemon_battle_assistant.pba_cli import resolve_trainer_path
 from pokemon_battle_assistant.showdown_formats import get_format_info
 from pokemon_battle_assistant.team_selection import parse_selection, validate_selected_slots
@@ -138,6 +143,7 @@ class TrainerValidationTest(unittest.TestCase):
         import json
         import tempfile
         from pathlib import Path
+
         from pokemon_battle_assistant.validators import validate_trainer_template
 
         payload = {
@@ -157,6 +163,7 @@ class TrainerValidationTest(unittest.TestCase):
         import json
         import tempfile
         from pathlib import Path
+
         from pokemon_battle_assistant.validators import validate_trainer_template
 
         payload = {

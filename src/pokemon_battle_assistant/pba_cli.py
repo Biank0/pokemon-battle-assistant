@@ -79,11 +79,11 @@ def load_trainer_template_for_cli(name_or_path: str) -> tuple[Path, dict]:
     except FileNotFoundError:
         print(f"队伍模版不存在：{name_or_path}")
         print(format_trainer_suggestions(name_or_path))
-        raise SystemExit(1)
+        raise SystemExit(1) from None
     except json.JSONDecodeError as exc:
         print(f"队伍模版 JSON 解析失败：{path}:{exc.lineno}:{exc.colno} {exc.msg}")
         print("提示：如果不想手写 JSON，可以运行：pba team create")
-        raise SystemExit(1)
+        raise SystemExit(1) from None
 
 
 def print_validation_result(path: Path, local_result, showdown_result=None, *, battle_format: str | None = None) -> None:
@@ -239,8 +239,8 @@ def raise_battle_error(exc: Exception) -> None:
 
 
 def cmd_battle(args: argparse.Namespace) -> None:
-    from pokemon_battle_assistant.environment import BattleRunConfig, BattleRunner
     from pokemon_battle_assistant.env_check import port_open
+    from pokemon_battle_assistant.environment import BattleRunConfig, BattleRunner
     from pokemon_battle_assistant.showdown_formats import get_format_info
     from pokemon_battle_assistant.team_converter import template_to_showdown_text
     from pokemon_battle_assistant.team_selection import parse_selection, validate_selected_slots
@@ -279,7 +279,7 @@ def cmd_battle(args: argparse.Namespace) -> None:
                 )
     except ValueError as exc:
         print(f"队伍选出参数错误：{exc}")
-        raise SystemExit(1)
+        raise SystemExit(1) from None
 
     if not args.skip_validation:
         p1_local, p1_showdown = validate_template_for_cli(p1_path, p1_template, battle_format=battle_format)
@@ -358,8 +358,8 @@ def cmd_battle(args: argparse.Namespace) -> None:
 
 
 def cmd_random_battle(args: argparse.Namespace) -> None:
-    from pokemon_battle_assistant.environment import BattleRunConfig, BattleRunner
     from pokemon_battle_assistant.env_check import port_open
+    from pokemon_battle_assistant.environment import BattleRunConfig, BattleRunner
     from pokemon_battle_assistant.translation import translate_pokemon
 
     battle_format = args.format

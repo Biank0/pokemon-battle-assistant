@@ -26,6 +26,11 @@ htmlcov/
 .env.*
 !.env.example
 
+
 # Runtime artifacts
 replays/
 battle_outputs/
+data/memory/
+
+# Local AI prompt doc
+改进prompt.md

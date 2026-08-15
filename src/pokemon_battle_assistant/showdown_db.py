@@ -6,9 +6,9 @@ Supports both English and Chinese name search via the local translation table.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
-from typing import Callable
 
 DB_PATH = Path(__file__).resolve().parents[2] / "data" / "showdown_db.json"
 ZH_PATH = Path(__file__).resolve().parents[2] / "data" / "translations" / "zh_cn_names.json"

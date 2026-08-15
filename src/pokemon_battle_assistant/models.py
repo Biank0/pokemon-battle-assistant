@@ -25,7 +25,7 @@ class Move:
     tags: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | str) -> "Move":
+    def from_dict(cls, data: dict[str, Any] | str) -> Move:
         """Create a move from either a string name or a JSON object."""
 
         if isinstance(data, str):
@@ -50,7 +50,7 @@ class PokemonSet:
     role: str | None = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "PokemonSet":
+    def from_dict(cls, data: dict[str, Any]) -> PokemonSet:
         return cls(
             name=str(data["name"]),
             types=list(data.get("types", [])),
@@ -72,7 +72,7 @@ class Action:
     tags: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Action":
+    def from_dict(cls, data: dict[str, Any]) -> Action:
         raw_kind = data.get("kind", data.get("type", "move"))
         if raw_kind not in {"move", "switch"}:
             raise ValueError(f"Unsupported action kind: {raw_kind}")
@@ -99,7 +99,7 @@ class BattleState:
     notes: str | None = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "BattleState":
+    def from_dict(cls, data: dict[str, Any]) -> BattleState:
         return cls(
             rule_set=str(data.get("rule_set", "unknown")),
             my_active=PokemonSet.from_dict(data["my_active"]),

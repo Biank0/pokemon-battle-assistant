@@ -6,10 +6,12 @@ battle scripts (e.g., trainer template battles).
 
 from __future__ import annotations
 
-import json
-from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+from poke_env.battle import AbstractBattle
+from poke_env.player import RandomPlayer
+from poke_env.player.battle_order import BattleOrder, DoubleBattleOrder
 
 from pokemon_battle_assistant.team_selection import (
     TeamSelectionConfig,
@@ -17,10 +19,6 @@ from pokemon_battle_assistant.team_selection import (
     choose_slots,
     validate_selected_slots,
 )
-
-from poke_env.battle import AbstractBattle
-from poke_env.player import RandomPlayer
-from poke_env.player.battle_order import BattleOrder, DoubleBattleOrder
 
 from .showdown_formats import is_doubles_format
 from .translation import (
@@ -80,8 +78,8 @@ def translate_status(value: Any) -> str | None:
     return STATUS_ZH.get(name.upper(), name)
 
 
-class RecordingRandomPlayer(RandomPlayer):
-    """RandomPlayer that records every decision point it sees."""
+class RecordingPlayerBase(RandomPlayer):
+    """Base player that records every decision point it sees."""
 
     def __init__(
         self,
@@ -107,6 +105,10 @@ class RecordingRandomPlayer(RandomPlayer):
         )
         self.team_selections[battle.battle_tag] = record.to_dict()
         return command
+
+
+class RecordingRandomPlayer(RecordingPlayerBase):
+    """RandomPlayer that records every decision point it sees."""
 
     def choose_move(self, battle: AbstractBattle) -> BattleOrder:
         history = self.observations.setdefault(battle.battle_tag, [])
@@ -117,33 +119,8 @@ class RecordingRandomPlayer(RandomPlayer):
         return order
 
 
-class RecordingManualPlayer(RandomPlayer):
+class RecordingManualPlayer(RecordingPlayerBase):
     """Player that asks the terminal user to choose from legal orders."""
-
-    def __init__(
-        self,
-        *args: Any,
-        label: str,
-        selection_config: TeamSelectionConfig | None = None,
-        expected_selection_size: int | None = None,
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(*args, **kwargs)
-        self.label = label
-        self.observations: dict[str, list[dict[str, Any]]] = {}
-        self.selection_config = selection_config or TeamSelectionConfig()
-        self.expected_selection_size = expected_selection_size
-        self.team_selections: dict[str, dict[str, Any]] = {}
-
-    def teampreview(self, battle: AbstractBattle) -> str:
-        command, record = choose_teampreview_order(
-            battle,
-            label=self.label,
-            selection_config=self.selection_config,
-            expected_selection_size=self.expected_selection_size,
-        )
-        self.team_selections[battle.battle_tag] = record.to_dict()
-        return command
 
     def choose_move(self, battle: AbstractBattle) -> BattleOrder:
         history = self.observations.setdefault(battle.battle_tag, [])
@@ -161,10 +138,10 @@ class RecordingManualPlayer(RandomPlayer):
             if raw.isdigit():
                 idx = int(raw) - 1
                 if 0 <= idx < len(orders):
-                    order = orders[idx]
-                    snapshot["chosen_order_message"] = getattr(order, "message", str(order))
+                    chosen = orders[idx]
+                    snapshot["chosen_order_message"] = getattr(chosen, "message", str(chosen))
                     history.append(snapshot)
-                    return order
+                    return chosen
             print("输入无效，请重新输入编号。")
 
     def _print_manual_prompt(self, snapshot: dict[str, Any], orders: list[BattleOrder]) -> None:
@@ -370,7 +347,7 @@ def move_to_dict(move: Any) -> dict[str, Any]:
 def team_to_dict(team: Any) -> list[dict[str, Any]]:
     if not team:
         return []
-    return [pokemon_to_dict(mon) for mon in team.values()]
+    return [d for mon in team.values() if (d := pokemon_to_dict(mon)) is not None]
 
 
 def snapshot_battle(battle: AbstractBattle, observer: str) -> dict[str, Any]:
