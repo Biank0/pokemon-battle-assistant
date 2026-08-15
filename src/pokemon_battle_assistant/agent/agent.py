@@ -129,7 +129,10 @@ class BattleAgent:
                 "content": render_team_preview_message(observation, plan, self.team_size),
             },
         ]
-        content, tool_log = self._run_llm_loop(messages, observation, memory)
+        try:
+            content, tool_log = self._run_llm_loop(messages, observation, memory)
+        except Exception as exc:  # LLM 不可用（缺 key/网络）时降级为 fallback 决策
+            content, tool_log = "", [{"error": f"LLM call failed: {exc}"}]
 
         slots: list[int] | None = None
         reasoning = ""
@@ -180,7 +183,10 @@ class BattleAgent:
                 "content": render_turn_user_message(observation, plan, opponent_summary),
             },
         ]
-        content, tool_log = self._run_llm_loop(messages, observation, memory)
+        try:
+            content, tool_log = self._run_llm_loop(messages, observation, memory)
+        except Exception as exc:  # LLM 不可用（缺 key/网络）时降级为 fallback 决策
+            content, tool_log = "", [{"error": f"LLM call failed: {exc}"}]
 
         order: str | None = None
         reasoning = ""

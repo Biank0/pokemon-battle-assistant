@@ -243,6 +243,42 @@ class TestDecideTeamPreview(unittest.TestCase):
         self.assertFalse(decision.fallback)
 
 
+class BrokenLLM:
+    """始终抛异常的假 LLM，验证无 key/网络时的降级路径。"""
+
+    backend = "openai"
+    model = "broken"
+
+    def chat(self, messages: list[dict], *, temperature: float | None = None) -> Any:
+        raise RuntimeError("no api key")
+
+    def chat_with_tools(
+        self,
+        messages: list[dict],
+        tools: list[dict] | None = None,
+        *,
+        temperature: float | None = None,
+    ) -> Any:
+        raise RuntimeError("no api key")
+
+
+class TestLLMUnavailableFallback(unittest.TestCase):
+    def test_decide_turn_falls_back_when_llm_raises(self) -> None:
+        agent = BattleAgent(BrokenLLM())  # type: ignore[arg-type]
+        observation = make_observation(legal_orders=["/choose move earthquake"])
+        decision = agent.decide_turn(observation)
+        self.assertTrue(decision.fallback)
+        self.assertEqual(decision.order_message, "/choose move earthquake")
+
+    def test_decide_team_preview_falls_back_when_llm_raises(self) -> None:
+        agent = BattleAgent(BrokenLLM())  # type: ignore[arg-type]
+        observation = make_observation()
+        decision = agent.decide_team_preview(observation)
+        self.assertTrue(decision.fallback)
+        self.assertEqual(decision.slots, [1, 2, 3])
+        self.assertEqual(decision.order_message, "/team 123")
+
+
 class TestDecisionLogger(unittest.TestCase):
     def test_records_export(self):
         logger = DecisionLogger()
