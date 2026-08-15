@@ -1,6 +1,41 @@
 # 项目进度记忆
 
-更新时间：2026-06-01
+更新时间：2026-08-15（夜间接力模式）
+
+> **注意：本文件以下（分隔线之后）的旧内容写于 2026-06-01，方向已过时
+>（旧方向是 VGC 双打）。当前主线是 BSS Regulation I 单打 + AI 助手，
+> 以本章节和 `改进prompt.md` 为准。**
+
+## 当前状态（2026-08-15 深夜）
+
+- Phase 1 ✅ BSS 规则适配 + 感知层 + 记忆层 + LLM Client（commit 89dc5b5）
+- Phase 2 ✅ Team Builder Module：tools 四件套 + TeamBuilderAgent + `pba build-team`（commit c90eb80）
+- Phase 3 ⬜ Battle Module（对战工具 5 件套 / BattleAgent / AgentPlayer + CLI）
+- Phase 4 ⬜ Lab Module + Analysis Module
+- Phase 5 ⬜ Orchestrator + FastAPI
+- Phase 6 ⬜ Vue 前端（时间不足可降级为最小可用版）
+- Phase 7 ⬜ 文档收尾
+
+环境要点：
+- 项目在 `E:\workspace\pokemon-battle-assistant`，系统 Python 3.13 直接可用（已 editable 安装）
+- 本地 Showdown 在 `E:\workspace\pokemon-showdown`
+- LLM 配置：项目根 `.env`（OPENAI_API_KEY / LLM_BACKEND / OPENAI_BASE_URL / OLLAMA_BASE_URL），
+  LLMClient 启动时自动加载；没有 key 时只做 mock 测试，不要卡在等 key
+- 验证命令：`python -m unittest discover -s tests` + `python -m ruff check .` + `python -m mypy src`
+
+## 夜间接力执行规则（自动化会话必读）
+
+1. 先 `git -C E:\workspace\pokemon-battle-assistant log --oneline -8` 和 `git status`，再读本文件，确认进度和下一个任务
+2. 任务清单在根目录 `改进prompt.md` 第七章（按 Phase 顺序），对照上面的当前状态找下一个未完成项
+3. 沙箱限制：Write/Edit 工具不能直接写 E 盘，用 python 脚本写文件（写到工作目录再执行）
+4. 每完成一个任务：全量测试 + ruff + mypy 全绿后 git 本地提交；**绝不 push 远程**
+5. 完成或收尾时更新本文件的「当前状态」章节
+6. 遇到阻塞（缺 API key、环境问题、设计存疑）：跳过该任务并在本文件记录原因，继续下一个不被阻塞的任务
+7. 真实 LLM 实测仅当 `.env` 已配置时执行；用少量对局验证即可，不要大量消耗
+8. 若 git status 显示有未提交改动（可能是上次会话中断），先理解并补完测试再提交
+
+---
+
 
 ## 当前方向
 
