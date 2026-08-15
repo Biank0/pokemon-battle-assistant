@@ -12,6 +12,7 @@ Usage:
     pba random-battle [--format <format>]
     pba analyze <battle_state.json> [--top N]
     pba build-team "需求描述" [--format gen9bssregi]
+    pba analysis <battle_tag>
 """
 
 from __future__ import annotations
@@ -568,6 +569,30 @@ def cmd_lab(args: argparse.Namespace) -> None:
     asyncio.run(run())
 
 
+def cmd_analysis(args: argparse.Namespace) -> None:
+    from pokemon_battle_assistant.modules.analysis.engine import AnalysisEngine
+
+    async def run() -> None:
+        engine = AnalysisEngine()
+        analysis_id = await engine.analyze_battle(args.battle_tag, depth=args.depth)
+        report = engine.get_result(analysis_id)
+        print("# 对战深度分析")
+        print(f"analysis_id: {report.analysis_id}")
+        print(f"battle_tag: {report.battle_tag}")
+        print(f"回放摘要: {report.replay.get('summary')}")
+        mistakes = [r for r in report.decision_review if r.get("rating") == "mistake"]
+        goods = [r for r in report.decision_review if r.get("rating") == "good"]
+        print(f"决策评估: 好 {len(goods)} / 失误 {len(mistakes)} / 共 {len(report.decision_review)} 回合")
+        profile = report.opponent_profile
+        print(f"对手风格: {profile.get('style')}  换人率: {profile.get('switch_rate')}")
+        print()
+        print("输出文件：")
+        for name, path in report.files.items():
+            print(f"  {name}: {path}")
+
+    asyncio.run(run())
+
+
 def cmd_build_team(args: argparse.Namespace) -> None:
     from pokemon_battle_assistant.agent.llm_client import LLMBackend, LLMClient
     from pokemon_battle_assistant.modules.team_builder.agent import TeamBuilderAgent
@@ -723,6 +748,11 @@ def main() -> None:
     lab_run.add_argument("--model", help="LLM 模型名（如 ollama/qwen2.5:7b 时填 qwen2.5:7b）")
     lab_run.add_argument("--output-root", default="lab_outputs", help="报告输出目录，默认 lab_outputs")
 
+    # --- pba analysis ---
+    analysis_parser = sub.add_parser("analysis", help="对战深度复盘分析（回放 + 决策评估 + 对手画像）")
+    analysis_parser.add_argument("battle_tag", help="对战 ID（battle_outputs/{battle_tag} 或 lab 输出）")
+    analysis_parser.add_argument("--depth", default="full", help="分析深度：full / quick")
+
     args = parser.parse_args()
 
     if getattr(args, "manual", False):
@@ -752,6 +782,8 @@ def main() -> None:
         cmd_agent_battle(args)
     elif args.command == "lab":
         cmd_lab(args)
+    elif args.command == "analysis":
+        cmd_analysis(args)
     elif args.command == "build-team":
         cmd_build_team(args)
     else:
