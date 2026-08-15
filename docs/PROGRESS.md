@@ -6,15 +6,15 @@
 >（旧方向是 VGC 双打）。当前主线是 BSS Regulation I 单打 + AI 助手，
 > 以本章节和 `改进prompt.md` 为准。**
 
-## 当前状态（2026-08-15 深夜）
+## 当前状态（2026-08-16 夜间接力更新）
 
 - Phase 1 ✅ BSS 规则适配 + 感知层 + 记忆层 + LLM Client（commit 89dc5b5）
-- Phase 2 ✅ Team Builder Module：tools 四件套 + TeamBuilderAgent + `pba build-team`（commit c90eb80）
-- Phase 3 ⬜ Battle Module（对战工具 5 件套 / BattleAgent / AgentPlayer + CLI）
-- Phase 4 ⬜ Lab Module + Analysis Module
-- Phase 5 ⬜ Orchestrator + FastAPI
-- Phase 6 ⬜ Vue 前端（时间不足可降级为最小可用版）
-- Phase 7 ⬜ 文档收尾
+- Phase 2 ✅ Team Builder Module：工具四件套 + TeamBuilderAgent + `pba build-team`（commit c90eb80）
+- Phase 3 ✅ Battle Module：对战工具 5 件套（39f5da4）+ BattleAgent（0e46efe）+ RecordingAgentPlayer + `pba agent-battle`（54b54d1）
+- Phase 4 ✅ Lab Module `pba lab run`（93aafd5）+ Analysis Module `pba analysis`（27dd4aa）
+- Phase 5 ✅ Orchestrator 闭环 `pba closed-loop`（e5ece97）+ FastAPI `pba serve`（efa7d18）
+- Phase 6 ✅ 免构建 Vue 前端 9 页面 + 截图（3ef9bd2）
+- Phase 7 🔄 文档收尾：README 已精简（<150 行），新增 `docs/ARCHITECTURE.md`、`docs/BSS_RULES.md`；剩余 7.2 示例数据（Agent 对战 record / 建队结果 / 分析报告示例）
 
 环境要点：
 - 项目在 `E:\workspace\pokemon-battle-assistant`，系统 Python 3.13 直接可用（已 editable 安装）
