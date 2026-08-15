@@ -103,6 +103,7 @@ pba serve        # 打开 http://127.0.0.1:8000
 | `lab_outputs/` | 批量实验报告与统计 |
 | `analysis_outputs/` | 深度复盘报告 |
 | `orchestrator_outputs/<run_id>/` | 闭环每轮记录（迭代链 + 胜率对比） |
+| `examples/` | 示例数据：Agent 对战 record、分析报告、AI 建队结果（见 `examples/README.md`） |
 
 ## 测试与质量
 

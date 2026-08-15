@@ -14,7 +14,7 @@
 - Phase 4 ✅ Lab Module `pba lab run`（93aafd5）+ Analysis Module `pba analysis`（27dd4aa）
 - Phase 5 ✅ Orchestrator 闭环 `pba closed-loop`（e5ece97）+ FastAPI `pba serve`（efa7d18）
 - Phase 6 ✅ 免构建 Vue 前端 9 页面 + 截图（3ef9bd2）
-- Phase 7 🔄 文档收尾：README 已精简（<150 行），新增 `docs/ARCHITECTURE.md`、`docs/BSS_RULES.md`；剩余 7.2 示例数据（Agent 对战 record / 建队结果 / 分析报告示例）
+- Phase 7 ✅ 文档收尾：README 精简至 126 行 + `docs/ARCHITECTURE.md` + `docs/BSS_RULES.md`（7fcd437）；示例数据就绪：Agent 对战 record/回放/报告、深度分析五件套、AI 建队含迭代历史（examples/）；修复 BattleAgent 无 LLM 时抛异常卡死对战的 bug（93b80e7）
 
 环境要点：
 - 项目在 `E:\workspace\pokemon-battle-assistant`，系统 Python 3.13 直接可用（已 editable 安装）

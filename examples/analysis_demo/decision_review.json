@@ -1,0 +1,92 @@
+[
+  {
+    "turn": 1,
+    "order_message": "/choose move nastyplot",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 2,
+    "order_message": "/choose move nastyplot",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 2,
+    "order_message": "/choose switch Dragonite",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 3,
+    "order_message": "/choose move dragondance",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 4,
+    "order_message": "/choose move dragondance",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 5,
+    "order_message": "/choose move dragondance",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 6,
+    "order_message": "/choose move dragondance",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 7,
+    "order_message": "/choose move dragondance",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 7,
+    "order_message": "/choose switch Ting-Lu",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  },
+  {
+    "turn": 8,
+    "order_message": "/choose move ruination",
+    "rating": "average",
+    "rating_zh": "一般",
+    "comment": "回退决策：LLM 输出未能解析，执行了保底策略。",
+    "alternative": "优化 prompt 或输出格式约束，减少回退。",
+    "source": "rule"
+  }
+]
