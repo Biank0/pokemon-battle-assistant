@@ -429,6 +429,97 @@ def cmd_analyze(args: argparse.Namespace) -> None:
     print(format_analysis(state, evaluations, top_n=args.top))
 
 
+def cmd_agent_battle(args: argparse.Namespace) -> None:
+    from pokemon_battle_assistant.env_check import port_open
+    from pokemon_battle_assistant.modules.battle.agent_player import create_agent_player
+    from pokemon_battle_assistant.modules.battle.session import AgentBattleConfig, BattleSession
+    from pokemon_battle_assistant.showdown_formats import get_format_info
+    from pokemon_battle_assistant.team_converter import template_to_showdown_text
+
+    p1_path, p1_template = load_trainer_template_for_cli(args.template)
+    p1_team_text = template_to_showdown_text(p1_template)
+    p1_source = str(p1_path)
+    if args.opponent:
+        p2_path, p2_template = load_trainer_template_for_cli(args.opponent)
+        p2_team_text = template_to_showdown_text(p2_template)
+        p2_source = str(p2_path)
+    else:
+        p2_team_text = p1_team_text
+        p2_source = p1_source
+
+    battle_format = args.format or p1_template.get("format", "gen9bssregi")
+    format_info = get_format_info(battle_format)
+    expected_selection_size = format_info.picked_team_size or 3
+
+    if not args.skip_validation:
+        p1_local, p1_showdown = validate_template_for_cli(p1_path, p1_template, battle_format=battle_format)
+        if not validation_ok(p1_local, p1_showdown):
+            print_validation_result(p1_path, p1_local, p1_showdown, battle_format=battle_format)
+            raise SystemExit(1)
+
+    if not port_open("127.0.0.1", 8000):
+        print("# Agent 对战启动前检查失败")
+        print("队伍合法性检查已通过，但无法连接本地 Pokémon Showdown server。")
+        print("请先在另一个终端运行：")
+        print(r"  cd E:\workspace\pokemon-showdown")
+        print("  node pokemon-showdown start --no-security")
+        raise SystemExit(1)
+
+    from pokemon_battle_assistant.agent.llm_client import LLMBackend, LLMClient
+
+    choice = getattr(args, "backend", None)
+    backend: LLMBackend | None = None
+    if choice in ("openai", "ollama"):
+        backend = choice
+    llm = LLMClient(backend=backend)
+
+    async def run() -> None:
+        agent_player = create_agent_player(
+            llm,
+            label="player_1",
+            battle_format=battle_format,
+            team=p1_team_text,
+            expected_selection_size=expected_selection_size,
+        )
+        config = AgentBattleConfig(
+            battle_format=battle_format,
+            player_team=p1_team_text,
+            player_source=p1_source,
+            opponent_team=p2_team_text,
+            opponent_source=p2_source,
+            opponent_control=args.opponent_control,
+            output_root=Path(args.output_root),
+            expected_selection_size=expected_selection_size,
+            metadata={"entrypoint": "pba agent-battle"},
+        )
+        print("# Agent 对战")
+        print(f"backend: {llm.backend}  model: {llm.model}")
+        print(f"battle_format: {battle_format}")
+        print(f"player_1_template: {p1_source}")
+        print(f"player_2_template: {p2_source}")
+        print(f"player_2_control: {args.opponent_control}")
+        print()
+        try:
+            result = await BattleSession(agent_player).run(config)
+        except Exception as exc:
+            raise_battle_error(exc)
+        battle = result.record["battle"]
+        print("# 对战结束摘要")
+        print(f"battle_tag: {battle['battle_tag']}")
+        print(f"turns: {battle['turns']}")
+        print(f"winner_side: {'player_1(agent)' if battle['won'] else 'player_2'}")
+        decisions = result.record.get("agent_decisions", [])
+        fallbacks = sum(1 for d in decisions if d.get("fallback"))
+        print(f"agent_decisions: {len(decisions)} (fallback: {fallbacks})")
+        print()
+        print("# 文件已导出")
+        print(f"replay_html: {result.replay_path}")
+        print(f"record_json: {result.record_path}")
+        print(f"report_md: {result.report_path}")
+
+    asyncio.run(run())
+
+
 def cmd_build_team(args: argparse.Namespace) -> None:
     from pokemon_battle_assistant.agent.llm_client import LLMBackend, LLMClient
     from pokemon_battle_assistant.modules.team_builder.agent import TeamBuilderAgent
@@ -559,6 +650,18 @@ def main() -> None:
     build_parser.add_argument("--backend", choices=["openai", "ollama"], help="LLM backend，默认读 LLM_BACKEND 环境变量")
     build_parser.add_argument("--name", help="保存队伍时使用的名称（默认用 LLM 生成的队名）")
 
+    # --- pba agent-battle ---
+    agent_battle_parser = sub.add_parser("agent-battle", help="Agent 自动对战（LLM 决策，导出推理日志）")
+    agent_battle_parser.add_argument("template", help="我方训练家队伍模版名或路径")
+    agent_battle_parser.add_argument("--opponent", help="对手训练家队伍模版（缺省用镜像队伍）")
+    agent_battle_parser.add_argument("--format", help="对战格式，缺省用模版里的 format")
+    agent_battle_parser.add_argument(
+        "--opponent-control", choices=["random", "manual"], default="random", help="对手控制方式，默认 random"
+    )
+    agent_battle_parser.add_argument("--backend", choices=["openai", "ollama"], help="LLM backend，默认读 LLM_BACKEND 环境变量")
+    agent_battle_parser.add_argument("--skip-validation", action="store_true", help="跳过队伍合法性校验")
+    agent_battle_parser.add_argument("--output-root", default="battle_outputs", help="对战记录输出目录")
+
     args = parser.parse_args()
 
     if getattr(args, "manual", False):
@@ -584,6 +687,8 @@ def main() -> None:
         cmd_random_battle(args)
     elif args.command == "analyze":
         cmd_analyze(args)
+    elif args.command == "agent-battle":
+        cmd_agent_battle(args)
     elif args.command == "build-team":
         cmd_build_team(args)
     else:

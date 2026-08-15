@@ -159,6 +159,91 @@ class RecordingManualPlayer(RecordingPlayerBase):
             print(f"  {idx:2}. {getattr(order, 'message', str(order))}")
 
 
+class RecordingAgentPlayer(RecordingPlayerBase):
+    """LLM Agent 控制的记录型 Player：感知 -> 记忆 -> 工具推理 -> 合法动作。
+
+    依赖按需懒加载，避免与 perception/memory 模块产生循环导入。
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        agent: Any,
+        memory: Any = None,
+        builder: Any = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.agent = agent
+        if memory is None:
+            from .memory.manager import MemoryManager
+
+            memory = MemoryManager()
+        self.memory = memory
+        if builder is None:
+            from .perception.observation import ObservationBuilder
+
+            builder = ObservationBuilder()
+        self.builder = builder
+        self.agent_decisions: dict[str, list[dict[str, Any]]] = {}
+
+    def _observed(self, battle: AbstractBattle) -> Any:
+        revealed = self.memory.update(battle)
+        revealed_dict = revealed.to_dict() if hasattr(revealed, "to_dict") else dict(revealed or {})
+        pokemon = revealed_dict.get("pokemon") or {}
+        return self.builder.build(battle, opponent_revealed=pokemon)
+
+    def _log_decision(self, battle_tag: str, turn: int, decision_type: str, decision: Any) -> None:
+        self.agent_decisions.setdefault(str(battle_tag), []).append(
+            {
+                "turn": turn,
+                "decision_type": decision_type,
+                "order_message": decision.order_message,
+                "reasoning": decision.reasoning,
+                "tool_calls": list(decision.tool_calls_log or []),
+                "fallback": bool(decision.fallback),
+            }
+        )
+
+    def teampreview(self, battle: AbstractBattle) -> str:
+        observation = self._observed(battle)
+        decision = self.agent.decide_team_preview(observation, self.memory)
+        self.team_selections[battle.battle_tag] = {
+            "selected_slots": list(decision.slots),
+            "command": decision.order_message,
+            "required_count": len(decision.slots),
+            "mode": "agent",
+            "reasoning": decision.reasoning,
+            "fallback": decision.fallback,
+        }
+        self._log_decision(battle.battle_tag, 0, "team_preview", decision)
+        return decision.order_message
+
+    def choose_move(self, battle: AbstractBattle) -> BattleOrder:
+        history = self.observations.setdefault(battle.battle_tag, [])
+        snapshot = snapshot_battle(battle, observer=self.label)
+        orders = legal_orders(battle)
+        if not orders:
+            order = self.choose_default_move()
+        else:
+            observation = self._observed(battle)
+            decision = self.agent.decide_turn(observation, self.memory)
+            chosen: Any = orders[0]
+            for candidate in orders:
+                if getattr(candidate, "message", "") == decision.order_message:
+                    chosen = candidate
+                    break
+            order = chosen
+            snapshot["agent_reasoning"] = decision.reasoning
+            snapshot["agent_fallback"] = bool(decision.fallback)
+            self._log_decision(battle.battle_tag, int(getattr(battle, "turn", 0) or 0), "turn", decision)
+            self.memory.update_after_turn(battle.battle_tag, observation)
+            self.memory.record_action(battle.battle_tag, int(getattr(battle, "turn", 0) or 0), order.message)
+        snapshot["chosen_order_message"] = getattr(order, "message", str(order))
+        history.append(snapshot)
+        return order
+
+
 def teampreview_pokemon_to_dict(mon: Any, slot: int) -> dict[str, Any]:
     data = pokemon_to_dict(mon) or {}
     data["slot"] = slot
