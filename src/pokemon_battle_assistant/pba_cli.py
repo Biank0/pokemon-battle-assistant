@@ -11,6 +11,7 @@ Usage:
     pba battle <template> [--opponent <template>] [--format <format>]
     pba random-battle [--format <format>]
     pba analyze <battle_state.json> [--top N]
+    pba build-team "需求描述" [--format gen9bssregi]
 """
 
 from __future__ import annotations
@@ -428,6 +429,52 @@ def cmd_analyze(args: argparse.Namespace) -> None:
     print(format_analysis(state, evaluations, top_n=args.top))
 
 
+def cmd_build_team(args: argparse.Namespace) -> None:
+    from pokemon_battle_assistant.agent.llm_client import LLMBackend, LLMClient
+    from pokemon_battle_assistant.modules.team_builder.agent import TeamBuilderAgent
+
+    choice = getattr(args, "backend", None)
+    backend: LLMBackend | None = None
+    if choice in ("openai", "ollama"):
+        backend = choice
+    llm = LLMClient(backend=backend)
+    agent = TeamBuilderAgent(llm=llm)
+
+    print("# AI 建队")
+    print(f"backend: {llm.backend}")
+    print(f"model: {llm.model}")
+    print(f"format: {args.format}")
+    print(f"需求: {args.requirement}")
+    print()
+
+    result = agent.generate_team(args.requirement, format=args.format)
+
+    if result.tool_calls_log:
+        print("# 工具调用")
+        for entry in result.tool_calls_log:
+            status = "ok" if entry.get("ok") else "error"
+            print(f"  - {entry['tool']} [{status}]")
+        print()
+
+    if result.reasoning:
+        print("# 建队思路")
+        print(result.reasoning)
+        print()
+
+    if not result.valid:
+        print("# 队伍未通过校验")
+        for error in result.validation_errors:
+            print(f"❌ {error}")
+        raise SystemExit(1)
+
+    path = agent.save_team(result, name=args.name)
+    print("# 已保存队伍")
+    print(f"  name: {result.team.get('name', '')}")
+    print(f"  path: {path}")
+    print("  可用以下命令开战：")
+    print(f"  pba battle {path.stem}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="pba",
@@ -505,6 +552,13 @@ def main() -> None:
     analyze_parser.add_argument("input", help="对战局面 JSON 文件路径")
     analyze_parser.add_argument("--top", type=int, default=3, help="显示前 N 个推荐操作")
 
+    # --- pba build-team ---
+    build_parser = sub.add_parser("build-team", help="AI 建队（LLM + 工具检索 + 合法性校验）")
+    build_parser.add_argument("requirement", help="自然语言建队需求，例如：围绕烈咬陆鲨建一支偏进攻的队伍")
+    build_parser.add_argument("--format", default="gen9bssregi", help="对战格式，默认 gen9bssregi")
+    build_parser.add_argument("--backend", choices=["openai", "ollama"], help="LLM backend，默认读 LLM_BACKEND 环境变量")
+    build_parser.add_argument("--name", help="保存队伍时使用的名称（默认用 LLM 生成的队名）")
+
     args = parser.parse_args()
 
     if getattr(args, "manual", False):
@@ -530,6 +584,8 @@ def main() -> None:
         cmd_random_battle(args)
     elif args.command == "analyze":
         cmd_analyze(args)
+    elif args.command == "build-team":
+        cmd_build_team(args)
     else:
         print_friendly_help(parser)
 

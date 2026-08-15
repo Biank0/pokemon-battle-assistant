@@ -23,9 +23,28 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Literal
 
 import httpx
+
+
+def _load_dotenv() -> None:
+    """从当前目录 / 项目根目录加载 .env（不覆盖已有环境变量）。"""
+    candidates = [Path.cwd() / ".env", Path(__file__).resolve().parents[3] / ".env"]
+    for path in candidates:
+        try:
+            if not path.is_file():
+                continue
+            for raw_line in path.read_text(encoding="utf-8").splitlines():
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+        except OSError:
+            continue
+
 
 LLMBackend = Literal["openai", "ollama"]
 
@@ -106,6 +125,7 @@ class LLMClient:
         timeout: float = 60.0,
         http_client: httpx.Client | None = None,
     ) -> None:
+        _load_dotenv()
         self.backend: LLMBackend = backend or os.environ.get("LLM_BACKEND", "openai").strip().lower()  # type: ignore[assignment]
         if self.backend not in ("openai", "ollama"):
             raise ValueError(f"未知 LLM backend：{self.backend}（支持 openai / ollama）")
