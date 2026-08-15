@@ -520,6 +520,54 @@ def cmd_agent_battle(args: argparse.Namespace) -> None:
     asyncio.run(run())
 
 
+def cmd_lab(args: argparse.Namespace) -> None:
+    from pokemon_battle_assistant.modules.lab.config import BatchConfig
+    from pokemon_battle_assistant.modules.lab.reporter import LabReporter
+    from pokemon_battle_assistant.modules.lab.runner import LabRunner
+
+    if args.lab_action != "run":
+        print("用法：pba lab run <team> --opponents a,b --battles N")
+        raise SystemExit(0)
+
+    opponents = [name.strip() for name in args.opponents.split(",") if name.strip()]
+    if not opponents:
+        print("请通过 --opponents 指定至少一个对手队伍（逗号分隔）")
+        raise SystemExit(1)
+
+    config = BatchConfig(
+        team=args.template,
+        opponents=opponents,
+        battles_per_opponent=args.battles,
+        battle_format=args.format,
+        concurrency=args.concurrency,
+        backend=args.backend,
+        model=args.model,
+        output_root=Path(args.output_root),
+    )
+
+    async def run() -> None:
+        print("# Lab 批量对战")
+        print(f"team: {config.team}")
+        print(f"opponents: {config.opponents}")
+        print(f"battles_per_opponent: {config.battles_per_opponent} (总计 {config.total_battles()} 局)")
+        print(f"format: {config.battle_format}  concurrency: {config.concurrency}")
+        print(f"backend: {config.backend or 'env'}  model: {config.model or 'env'}")
+        print()
+        report = await LabRunner().run(config)
+        json_path, md_path = LabReporter().write(report.to_dict(), Path(args.output_root))
+        stats = report.stats
+        print("# Lab 结果摘要")
+        print(f"total: {stats['total_battles']}  wins: {stats['wins']}  losses: {stats['losses']}  errors: {stats['errors']}")
+        print(f"win_rate: {stats['win_rate']}")
+        for opponent, data in stats["by_opponent"].items():
+            print(f"  vs {opponent}: {data['wins']}/{data['total']} (win_rate {data['win_rate']})")
+        print()
+        print(f"summary_json: {json_path}")
+        print(f"summary_md: {md_path}")
+
+    asyncio.run(run())
+
+
 def cmd_build_team(args: argparse.Namespace) -> None:
     from pokemon_battle_assistant.agent.llm_client import LLMBackend, LLMClient
     from pokemon_battle_assistant.modules.team_builder.agent import TeamBuilderAgent
@@ -662,6 +710,19 @@ def main() -> None:
     agent_battle_parser.add_argument("--skip-validation", action="store_true", help="跳过队伍合法性校验")
     agent_battle_parser.add_argument("--output-root", default="battle_outputs", help="对战记录输出目录")
 
+    # --- pba lab ---
+    lab_parser = sub.add_parser("lab", help="Lab 批量模拟对战与统计")
+    lab_sub = lab_parser.add_subparsers(dest="lab_action")
+    lab_run = lab_sub.add_parser("run", help="批量对战一支队伍 vs 多个对手")
+    lab_run.add_argument("template", help="我方训练家队伍模版名或路径")
+    lab_run.add_argument("--opponents", required=True, help="对手队伍列表，逗号分隔，例如 bss_balance,bss_sun")
+    lab_run.add_argument("--battles", type=int, default=10, help="每个对手的对局数，默认 10")
+    lab_run.add_argument("--format", default="gen9bssregi", help="对战格式，默认 gen9bssregi")
+    lab_run.add_argument("--concurrency", type=int, default=2, help="并发对局数，默认 2")
+    lab_run.add_argument("--backend", choices=["openai", "ollama"], help="LLM backend，默认读 LLM_BACKEND 环境变量")
+    lab_run.add_argument("--model", help="LLM 模型名（如 ollama/qwen2.5:7b 时填 qwen2.5:7b）")
+    lab_run.add_argument("--output-root", default="lab_outputs", help="报告输出目录，默认 lab_outputs")
+
     args = parser.parse_args()
 
     if getattr(args, "manual", False):
@@ -689,6 +750,8 @@ def main() -> None:
         cmd_analyze(args)
     elif args.command == "agent-battle":
         cmd_agent_battle(args)
+    elif args.command == "lab":
+        cmd_lab(args)
     elif args.command == "build-team":
         cmd_build_team(args)
     else:
