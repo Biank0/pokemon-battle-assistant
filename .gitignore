@@ -37,3 +37,6 @@ data/memory/
 
 # Local AI prompt doc
 改进prompt.md
+analysis_outputs/
+lab_outputs/
+orchestrator_outputs/
