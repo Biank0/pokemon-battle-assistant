@@ -13,6 +13,7 @@ Usage:
     pba analyze <battle_state.json> [--top N]
     pba build-team "需求描述" [--format gen9bssregi]
     pba analysis <battle_tag>
+    pba closed-loop "需求" --opponents a,b --iterations 3
 """
 
 from __future__ import annotations
@@ -593,6 +594,72 @@ def cmd_analysis(args: argparse.Namespace) -> None:
     asyncio.run(run())
 
 
+def cmd_closed_loop(args: argparse.Namespace) -> None:
+    from pokemon_battle_assistant.agent.llm_client import LLMBackend, LLMClient
+    from pokemon_battle_assistant.modules.orchestrator import LoopConfig, Orchestrator
+
+    opponents = [name.strip() for name in args.opponents.split(",") if name.strip()]
+    if not opponents:
+        print("请通过 --opponents 指定至少一个对手队伍（逗号分隔）")
+        raise SystemExit(1)
+
+    choice = getattr(args, "backend", None)
+    backend: LLMBackend | None = None
+    if choice in ("openai", "ollama"):
+        backend = choice
+    llm = LLMClient(backend=backend, model=args.model) if args.model else LLMClient(backend=backend)
+
+    config = LoopConfig(
+        opponents=opponents,
+        battles_per_opponent=args.battles,
+        battle_format=args.format,
+        concurrency=args.concurrency,
+        backend=args.backend,
+        model=args.model,
+        stop_win_rate=args.stop_win_rate,
+        output_root=Path(args.output_root),
+    )
+    orchestrator = Orchestrator(llm=llm, output_root=Path(args.output_root))
+
+    async def run() -> None:
+        print("# 闭环流程：建队 → Lab → Analysis → 迭代")
+        print(f"requirement: {args.requirement}")
+        print(f"iterations: {args.iterations}  mode: {'自动' if args.auto else '手动确认'}")
+        print(f"opponents: {config.opponents}  battles/opponent: {config.battles_per_opponent}")
+        print(f"format: {config.battle_format}  backend: {llm.backend}  model: {llm.model}")
+        print()
+        run_id = await orchestrator.start_closed_loop(
+            args.requirement,
+            max_iterations=args.iterations,
+            auto_iterate=args.auto,
+            config=config,
+        )
+        status = orchestrator.get_status(run_id)
+        while status.state == "waiting_confirm":
+            print(f"[{status.message}]")
+            answer = input("继续下一轮迭代？(y/n，默认 y)：").strip().lower()
+            if answer in ("n", "no"):
+                print("用户停止迭代。")
+                break
+            await orchestrator.confirm_iteration(run_id)
+            status = orchestrator.get_status(run_id)
+
+        print()
+        print("# 闭环流程结束")
+        print(f"run_id: {run_id}")
+        print(f"state: {status.state}（{status.current_iteration}/{status.max_iterations} 轮）")
+        print(f"message: {status.message}")
+        if status.best_iteration is not None:
+            print(f"推荐队伍：第 {status.best_iteration + 1} 轮（胜率 {status.best_win_rate}）")
+        for record in orchestrator.get_iteration_history(run_id):
+            rate = record.win_rate if record.win_rate is not None else "-"
+            note = record.error or record.advice_summary or "-"
+            print(f"  第 {record.iteration + 1} 轮：胜率 {rate}（{record.wins}/{record.total_battles}） {note}")
+        print(f"输出目录：{Path(args.output_root) / run_id}")
+
+    asyncio.run(run())
+
+
 def cmd_build_team(args: argparse.Namespace) -> None:
     from pokemon_battle_assistant.agent.llm_client import LLMBackend, LLMClient
     from pokemon_battle_assistant.modules.team_builder.agent import TeamBuilderAgent
@@ -753,6 +820,22 @@ def main() -> None:
     analysis_parser.add_argument("battle_tag", help="对战 ID（battle_outputs/{battle_tag} 或 lab 输出）")
     analysis_parser.add_argument("--depth", default="full", help="分析深度：full / quick")
 
+    # --- pba closed-loop ---
+    closed_loop_parser = sub.add_parser(
+        "closed-loop", help="闭环流程：AI 建队 → Lab 跑量 → 深度复盘 → 迭代优化"
+    )
+    closed_loop_parser.add_argument("requirement", help="自然语言建队需求")
+    closed_loop_parser.add_argument("--opponents", required=True, help="对手队伍列表，逗号分隔")
+    closed_loop_parser.add_argument("--iterations", type=int, default=3, help="迭代轮数，默认 3")
+    closed_loop_parser.add_argument("--battles", type=int, default=3, help="每个对手的对局数，默认 3")
+    closed_loop_parser.add_argument("--format", default="gen9bssregi", help="对战格式，默认 gen9bssregi")
+    closed_loop_parser.add_argument("--concurrency", type=int, default=2, help="并发对局数，默认 2")
+    closed_loop_parser.add_argument("--backend", choices=["openai", "ollama"], help="LLM backend")
+    closed_loop_parser.add_argument("--model", help="LLM 模型名")
+    closed_loop_parser.add_argument("--stop-win-rate", type=float, help="达到该胜率提前结束")
+    closed_loop_parser.add_argument("--auto", action="store_true", help="自动迭代所有轮次（默认手动确认）")
+    closed_loop_parser.add_argument("--output-root", default="orchestrator_outputs", help="输出目录")
+
     args = parser.parse_args()
 
     if getattr(args, "manual", False):
@@ -782,6 +865,8 @@ def main() -> None:
         cmd_agent_battle(args)
     elif args.command == "lab":
         cmd_lab(args)
+    elif args.command == "closed-loop":
+        cmd_closed_loop(args)
     elif args.command == "analysis":
         cmd_analysis(args)
     elif args.command == "build-team":
