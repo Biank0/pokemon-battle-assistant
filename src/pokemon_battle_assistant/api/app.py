@@ -137,7 +137,37 @@ def create_app(
     app.include_router(create_lab_router(registry, lab_runner_provider=_get_lab_runner))
     app.include_router(create_analysis_router(_get_analysis_engine))
     app.include_router(create_orchestrator_router(registry, orchestrator_provider=_get_orchestrator))
+
+    _mount_frontend(app)
+
     return app
+
+
+def _mount_frontend(app: FastAPI) -> None:
+    """托管 frontend/ 下的免构建静态资源（SPA，history 路由回退到 index.html）。"""
+    frontend = PROJECT_ROOT / "frontend"
+    index = frontend / "index.html"
+    if not index.is_file():
+        return
+
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    for sub in ("vendor", "js", "css"):
+        directory = frontend / sub
+        if directory.is_dir():
+            app.mount(f"/{sub}", StaticFiles(directory=directory), name=sub)
+
+    @app.get("/", include_in_schema=False)
+    def spa_root() -> FileResponse:
+        return FileResponse(index)
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def spa_fallback(full_path: str) -> FileResponse:
+        candidate = frontend / full_path
+        if full_path and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(index)
 
 
 app = create_app()
