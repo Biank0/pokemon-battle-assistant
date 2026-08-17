@@ -105,8 +105,8 @@ class EnvironmentRecordTest(unittest.TestCase):
 
 class FriendlyCliTest(unittest.TestCase):
     def test_resolve_trainer_path_accepts_team_name_and_json_file_name(self) -> None:
-        self.assertTrue(resolve_trainer_path("xiaobian").as_posix().endswith("data/trainers/xiaobian.json"))
-        self.assertTrue(resolve_trainer_path("xiaobian.json").as_posix().endswith("data/trainers/xiaobian.json"))
+        self.assertTrue(resolve_trainer_path("xiaobian").as_posix().endswith("data/teams/lab/xiaobian.json"))
+        self.assertTrue(resolve_trainer_path("xiaobian.json").as_posix().endswith("data/teams/lab/xiaobian.json"))
 
 
 class TeamSelectionTest(unittest.TestCase):
@@ -135,7 +135,7 @@ class TrainerValidationTest(unittest.TestCase):
     def test_validate_xiaobian_template(self) -> None:
         from pokemon_battle_assistant.validators import validate_trainer_template
 
-        result = validate_trainer_template("data/trainers/xiaobian.json")
+        result = validate_trainer_template("data/teams/lab/xiaobian.json")
 
         self.assertTrue(result.ok, result.to_dict())
 

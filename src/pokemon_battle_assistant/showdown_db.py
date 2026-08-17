@@ -8,10 +8,11 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from functools import lru_cache
-from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parents[2] / "data" / "showdown_db.json"
-ZH_PATH = Path(__file__).resolve().parents[2] / "data" / "translations" / "zh_cn_names.json"
+from .data_paths import DEX_DB_PATH, DEX_TRANSLATIONS_PATH
+
+DB_PATH = DEX_DB_PATH
+ZH_PATH = DEX_TRANSLATIONS_PATH
 
 
 @lru_cache(maxsize=1)

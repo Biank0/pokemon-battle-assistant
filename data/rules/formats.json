@@ -1,0 +1,83 @@
+{
+  "_comment": "对战规则结构化数据（数据层② rules/）。用途：本地 Showdown 不可用时的元数据兜底 + 前端/文档展示 + 未来 RAG 检索源。合法性校验的权威来源始终是本地 pokemon-showdown，人类可读的规则说明见同目录 docs/。",
+  "formats": [
+    {
+      "id": "gen9bssregi",
+      "name": "BSS Regulation I（6选3单打）",
+      "game_type": "singles",
+      "picked_team_size": 3,
+      "max_team_size": 6,
+      "level": 50,
+      "rules": [
+        "单打，带 6 只选出 3 只",
+        "等级自动调至 50",
+        "Item Clause：全队道具不可重复",
+        "至多 2 只受限传说宝可梦"
+      ],
+      "doc": "gen9bssregi.md"
+    },
+    {
+      "id": "gen9vgc2026regi",
+      "name": "VGC 2026 Regulation I（6选4双打）",
+      "game_type": "doubles",
+      "picked_team_size": 4,
+      "max_team_size": 6,
+      "level": 50,
+      "rules": [
+        "双打，带 6 只选出 4 只（前 2 只首发）",
+        "等级自动调至 50（Flat Rules）",
+        "Item Clause：全队道具不可重复",
+        "Open Team Sheets：公开队表",
+        "Limit Two Restricted：至多 2 只受限传说",
+        "VGC Timer 计时规则"
+      ],
+      "doc": "gen9vgc2026regi.md"
+    },
+    {
+      "id": "gen9ou",
+      "name": "Gen 9 OU（6v6 单打）",
+      "game_type": "singles",
+      "picked_team_size": null,
+      "max_team_size": 6,
+      "level": 100,
+      "rules": [
+        "6v6 单打，全队参战",
+        "等级 100",
+        "Smogon OU 分级禁用表"
+      ],
+      "doc": "gen9ou.md"
+    },
+    {
+      "id": "gen9doublesou",
+      "name": "Gen 9 Doubles OU（6v6 双打）",
+      "game_type": "doubles",
+      "picked_team_size": null,
+      "max_team_size": 6,
+      "level": 100,
+      "rules": [
+        "6v6 双打，全队参战",
+        "等级 100",
+        "Smogon DOU 分级禁用表"
+      ],
+      "doc": "gen9doublesou.md"
+    },
+    {
+      "id": "gen9randombattle",
+      "name": "Gen 9 随机对战",
+      "game_type": "singles",
+      "picked_team_size": null,
+      "max_team_size": 6,
+      "level": null,
+      "rules": ["系统随机分配队伍"]
+    },
+    {
+      "id": "gen9randomdoublesbattle",
+      "name": "Gen 9 随机双打",
+      "game_type": "doubles",
+      "picked_team_size": null,
+      "max_team_size": 6,
+      "level": null,
+      "rules": ["系统随机分配队伍"]
+    }
+  ]
+}

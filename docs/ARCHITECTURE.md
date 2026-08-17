@@ -70,7 +70,7 @@
 
 | 模块 | 目录 | 核心 | 工具 | 输出 |
 |---|---|---|---|---|
-| Team Builder | `team_builder/` | `TeamBuilderAgent`：需求解析 → 工具检索 → 生成 → 校验修正 → 保存；`iterate_team` 基于分析报告迭代 | 环境热门 / 属性互补 / 打击面 / 规则校验 | `data/trainers/` + 建队结果（含迭代链 `parent_team_hash`） |
+| Team Builder | `team_builder/` | `TeamBuilderAgent`：需求解析 → 工具检索 → 生成 → 校验修正 → 保存；`iterate_team` 基于分析报告迭代 | 环境热门 / 属性互补 / 打击面 / 规则校验 | `data/teams/lab/` + 建队结果（含迭代链 `parent_team_hash`） |
 | Battle | `battle/` | `BattleAgent`（team preview 选出 + 逐回合决策）+ `BattleSession` + `RecordingAgentPlayer` | 伤害计算 / 属性查询 / 速度比较 / 威胁评估 / 特性查询 + 记忆层 | `battle_outputs/`（record.json 含决策日志） |
 | Lab | `lab/` | `LabRunner` 批量对战 + `stats` 统计 + `reporter` 报告；简化决策换吞吐 | 无（heuristic 简化决策） | `lab_outputs/`（每局 + 汇总报告） |
 | Analysis | `analysis/` | `replayer` 回放重建 + `reviewer` 逐回合评估 + `profiler` 对手画像 + `advisor` 策略建议 | 复用对战工具 + replay 数据 | `analysis_outputs/` |

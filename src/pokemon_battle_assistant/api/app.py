@@ -9,6 +9,7 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from ..data_paths import TEAMS_DIR
 from .jobs import JobRegistry
 from .routes.analysis import create_analysis_router
 from .routes.battle import create_battle_router
@@ -18,7 +19,7 @@ from .routes.team_builder import create_team_builder_router
 from .routes.teams import TeamsStore, create_teams_router
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_TRAINERS_DIR = PROJECT_ROOT / "data" / "trainers"
+DEFAULT_TEAMS_ROOT = TEAMS_DIR
 
 SUPPORTED_FORMATS = [
     {
@@ -51,7 +52,7 @@ def create_app(
     analysis_engine: Any | None = None,
     orchestrator: Any | None = None,
     battle_runner: Callable[[dict[str, Any]], Awaitable[dict[str, Any]]] | None = None,
-    trainers_dir: Path | str | None = None,
+    teams_root: Path | str | None = None,
     battle_output_root: str = "battle_outputs",
 ) -> FastAPI:
     """创建 FastAPI 应用；重依赖全部可注入，测试传 fake，生产延迟构建。"""
@@ -121,7 +122,7 @@ def create_app(
             )
         return orchestrator_holder["orchestrator"]
 
-    store = TeamsStore(trainers_dir or DEFAULT_TRAINERS_DIR)
+    store = TeamsStore(teams_root or DEFAULT_TEAMS_ROOT)
 
     @app.get("/api/health", tags=["meta"])
     def health() -> dict[str, str]:

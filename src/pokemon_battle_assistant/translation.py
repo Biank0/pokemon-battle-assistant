@@ -1,7 +1,7 @@
 """Local Chinese name translation helpers.
 
 The project keeps a local JSON name table at:
-    data/translations/zh_cn_names.json
+    data/dex/translations/zh_cn_names.json
 
 Runtime code only reads the local file.  The file can be regenerated with:
     .venv/bin/python scripts/build_zh_translation_file.py
@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_TRANSLATION_FILE = PROJECT_ROOT / "data" / "translations" / "zh_cn_names.json"
+DEFAULT_TRANSLATION_FILE = PROJECT_ROOT / "data" / "dex" / "translations" / "zh_cn_names.json"
 
 _ID_RE = re.compile(r"[^a-z0-9]+")
 

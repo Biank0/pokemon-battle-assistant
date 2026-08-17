@@ -11,7 +11,7 @@ from pokemon_battle_assistant.modules.team_builder.generator import parse_team_j
 from pokemon_battle_assistant.modules.team_builder.parser import RequirementParser
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-BSS_BALANCE = PROJECT_ROOT / "data" / "trainers" / "bss_balance.json"
+BSS_BALANCE = PROJECT_ROOT / "data" / "teams" / "lab" / "bss_balance.json"
 
 
 def load_balance() -> dict:

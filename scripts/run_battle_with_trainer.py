@@ -6,10 +6,10 @@ Prerequisite:
 
 Run:
     cd ~/path/to/pokemon-battle-assistant
-    .venv/bin/python scripts/run_battle_with_trainer.py data/trainers/example_team.json
+    .venv/bin/python scripts/run_battle_with_trainer.py data/teams/lab/example_team.json
 
     # Two different templates (player 1 vs player 2):
-    .venv/bin/python scripts/run_battle_with_trainer.py data/trainers/team_a.json --opponent data/trainers/team_b.json
+    .venv/bin/python scripts/run_battle_with_trainer.py data/teams/lab/team_a.json --opponent data/teams/lab/team_b.json
 
 Output:
     battle_outputs/<battle_tag>/replay.html

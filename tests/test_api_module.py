@@ -99,7 +99,7 @@ class ApiTests(unittest.TestCase):
             analysis_engine=self.engine,
             orchestrator=self.orchestrator,
             battle_runner=fake_battle_runner,
-            trainers_dir=self.tmp / "trainers",
+            teams_root=self.tmp / "teams",
         )
         client_cm = TestClient(app)
         self.client = client_cm.__enter__()

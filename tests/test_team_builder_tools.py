@@ -15,7 +15,7 @@ from pokemon_battle_assistant.tools.synergy_checker import check_synergy
 from pokemon_battle_assistant.tools.team_validator import validate_team
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-BSS_BALANCE = PROJECT_ROOT / "data" / "trainers" / "bss_balance.json"
+BSS_BALANCE = PROJECT_ROOT / "data" / "teams" / "lab" / "bss_balance.json"
 
 DRAGON_TEAM = [
     {"species": "Garchomp", "moves": ["Earthquake"]},

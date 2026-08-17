@@ -30,7 +30,7 @@ pba battle <队伍名> --format gen9vgc2026regi --select manual
 文件：
 
 ```text
-data/trainers/vgc_rain_balance.json
+data/teams/lab/vgc_rain_balance.json
 ```
 
 队伍成员：
@@ -78,7 +78,7 @@ pba battle vgc_rain_balance --format gen9vgc2026regi --select 1,2,3,5
 文件：
 
 ```text
-data/trainers/vgc_trick_room_calyrex.json
+data/teams/lab/vgc_trick_room_calyrex.json
 ```
 
 队伍成员：
@@ -126,7 +126,7 @@ pba battle vgc_trick_room_calyrex --format gen9vgc2026regi --select 2,1,3,5
 文件：
 
 ```text
-data/trainers/vgc_sun_koraidon.json
+data/teams/lab/vgc_sun_koraidon.json
 ```
 
 队伍成员：
@@ -174,7 +174,7 @@ pba battle vgc_sun_koraidon --format gen9vgc2026regi --select 3,1,2,5
 文件：
 
 ```text
-data/trainers/vgc_psyspam_calyrex.json
+data/teams/lab/vgc_psyspam_calyrex.json
 ```
 
 队伍成员：

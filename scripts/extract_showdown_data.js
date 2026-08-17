@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 const SHOWDOWN_DIST = path.resolve(__dirname, "../../pokemon-showdown/dist/data");
-const OUTPUT = path.resolve(__dirname, "../data/showdown_db.json");
+const OUTPUT = path.resolve(__dirname, "../data/dex/showdown_db.json");
 
 const NON_STANDARD_SKIP = new Set(["Past", "Future", "LGPE", "CAP", "Custom", "Unobtainable"]);
 

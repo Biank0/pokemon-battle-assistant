@@ -22,7 +22,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_PATH = PROJECT_ROOT / "data" / "translations" / "zh_cn_names.json"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "dex" / "translations" / "zh_cn_names.json"
 POKEAPI = "https://pokeapi.co/api/v2"
 LANGUAGE_PRIORITY = ("zh-hans", "zh-hant")
 MAX_WORKERS = 24

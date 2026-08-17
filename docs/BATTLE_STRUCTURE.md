@@ -39,14 +39,14 @@ legal_order_messages: ["/choose move ..., move ..."]
 | 来源 | 指令 | 说明 |
 |---|---|---|
 | 随机队伍 | `pba random-battle --format ...` | 队伍由 Showdown 随机生成 |
-| 导入模版 | `pba battle <template> --opponent <template>` | 队伍来自 `data/trainers/*.json` |
+| 导入模版 | `pba battle <template> --opponent <template>` | 队伍来自 `data/teams/lab/*.json` |
 
 示例：
 
 ```bash
 pba random-battle --format gen9randombattle
 pba random-battle --format gen9randomdoublesbattle
-pba battle data/trainers/xiaobian.json --opponent data/trainers/example_team.json --format gen9ou
+pba battle data/teams/lab/xiaobian.json --opponent data/teams/lab/example_team.json --format gen9ou
 ```
 
 ## 3. Control Mode：随机基线 / 用户手动 / 未来外部 agent
@@ -67,7 +67,7 @@ pba random-battle --format gen9randomdoublesbattle --manual
 pba random-battle --format gen9randomdoublesbattle --player1-control manual --player2-control random
 
 # 模版队伍，用户手动操作玩家 1
-pba battle data/trainers/xiaobian.json --opponent data/trainers/example_team.json --format gen9ou --manual
+pba battle data/teams/lab/xiaobian.json --opponent data/teams/lab/example_team.json --format gen9ou --manual
 ```
 
 手动模式每个决策点会显示：
@@ -137,7 +137,7 @@ pba env check --json
 
 ```bash
 pba team validate xiaobian
-pba team validate data/trainers/xiaobian.json
+pba team validate data/teams/lab/xiaobian.json
 ```
 
 `team validate` 做本地基础检查，例如 JSON、宝可梦数量、招式数量、中文招式残留、EV/IV 范围等。Showdown 完整合法性仍以实际对战时的 server 校验为准。

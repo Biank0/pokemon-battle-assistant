@@ -12,6 +12,7 @@ from pokemon_battle_assistant.agent.llm_client import LLMClient, LLMResponse
 from pokemon_battle_assistant.tools import run_tool, team_builder_tool_specs
 from pokemon_battle_assistant.tools.team_validator import validate_team
 
+from ...data_paths import GENERATED_TEAMS_DIR as TRAINERS_DIR  # AI 生成队伍 → data/teams/generated/
 from .generator import TeamGenerator, parse_team_json
 from .parser import RequirementParser
 from .prompts import (
@@ -23,7 +24,6 @@ from .prompts import (
 from .result import TeamBuildResult, team_hash
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
-TRAINERS_DIR = PROJECT_ROOT / "data" / "trainers"
 
 _TOOL_RESULT_LIMIT = 6000
 
@@ -98,7 +98,7 @@ class TeamBuilderAgent:
         name: str | None = None,
         root: Path | None = None,
     ) -> Path:
-        """把建队结果保存到 data/trainers/（或指定目录）。"""
+        """把建队结果保存到 data/teams/generated/（或指定目录）。"""
         directory = root or TRAINERS_DIR
         directory.mkdir(parents=True, exist_ok=True)
         slug = _slugify(

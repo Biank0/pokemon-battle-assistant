@@ -36,7 +36,7 @@ BSS（Battle Stadium Singles）是宝可梦官方排位赛的单打赛制。本�
 - `team_selection.py`：选出数量默认 3，`/team` 指令在 team preview 阶段提交
 - `showdown_formats.py`：`FALLBACK_PICKED_TEAM_SIZES` 含 `gen9bssregi: 3`
 - 合法性校验：`pba team validate <team> --format gen9bssregi` 走本地 Showdown `TeamValidator`
-- 内置示例队：`data/trainers/bss_balance.json` / `bss_sun.json` / `bss_trick_room.json`
+- 内置示例队：`data/teams/lab/bss_balance.json` / `bss_sun.json` / `bss_trick_room.json`
 - Agent 对战：`pba agent-battle <team> --format gen9bssregi`（team preview 由 `BattleAgent.decide_team_preview` 决策）
 
 ## 4. 选出策略（6 选 3）

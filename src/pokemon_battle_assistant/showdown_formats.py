@@ -46,10 +46,25 @@ class FormatInfo:
         }
 
 
-FALLBACK_PICKED_TEAM_SIZES = {
-    "gen9vgc2026regi": 4,
-    "gen9bssregi": 3,
-}
+def _load_fallback_formats() -> dict[str, dict[str, Any]]:
+    """从 data/rules/formats.json 读取结构化规则，作为本地 Showdown 不可用时的兜底。"""
+    from .data_paths import FORMATS_JSON_PATH
+
+    if not FORMATS_JSON_PATH.is_file():
+        return {}
+    try:
+        with open(FORMATS_JSON_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return {
+        str(fmt["id"]).lower(): fmt
+        for fmt in data.get("formats", [])
+        if isinstance(fmt, dict) and fmt.get("id")
+    }
+
+
+_FALLBACK_FORMATS = _load_fallback_formats()
 
 
 def get_format_info(format_id: str, *, showdown_path: str | Path | None = None, timeout: float = 10.0) -> FormatInfo:
@@ -60,7 +75,8 @@ def get_format_info(format_id: str, *, showdown_path: str | Path | None = None, 
     known formats PBA documents.
     """
     root = find_showdown_path(showdown_path)
-    fallback_size = FALLBACK_PICKED_TEAM_SIZES.get(format_id.lower())
+    fmt_entry = _FALLBACK_FORMATS.get(format_id.lower(), {})
+    fallback_size = fmt_entry.get("picked_team_size")
     fallback = FormatInfo(
         id=format_id,
         exists=bool(fallback_size),

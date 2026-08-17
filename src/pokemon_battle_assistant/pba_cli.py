@@ -24,14 +24,18 @@ import difflib
 import json
 from pathlib import Path
 
+from .data_paths import GENERATED_TEAMS_DIR, LAB_TEAMS_DIR, available_team_names, resolve_team_path
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-TRAINERS_DIR = PROJECT_ROOT / "data" / "trainers"
-TRAINERS_DIR.mkdir(parents=True, exist_ok=True)
+# 兼容旧名：队伍数据库已从 data/trainers 迁移到 data/teams/{lab,generated}
+TRAINERS_DIR = LAB_TEAMS_DIR
+LAB_TEAMS_DIR.mkdir(parents=True, exist_ok=True)
+GENERATED_TEAMS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def available_trainer_names() -> list[str]:
-    return sorted(path.stem for path in TRAINERS_DIR.glob("*.json"))
+    return available_team_names()
 
 
 def format_trainer_suggestions(name_or_path: str) -> str:
@@ -51,27 +55,8 @@ def format_trainer_suggestions(name_or_path: str) -> str:
 
 
 def resolve_trainer_path(name_or_path: str) -> Path:
-    """Resolve a trainer template from either a file path or a friendly team name.
-
-    User-facing commands should accept all of these forms:
-      - xiaobian
-      - xiaobian.json
-      - data/trainers/xiaobian.json
-      - /absolute/path/to/xiaobian.json
-    """
-    candidate = Path(name_or_path)
-    if candidate.exists():
-        return candidate
-
-    if candidate.suffix == ".json" and len(candidate.parts) == 1:
-        trainer_candidate = TRAINERS_DIR / candidate.name
-        if trainer_candidate.exists():
-            return trainer_candidate
-
-    if candidate.suffix == ".json":
-        return candidate
-
-    return TRAINERS_DIR / f"{name_or_path}.json"
+    """队伍名/路径解析：委托 data_paths.resolve_team_path（先查 lab 再查 generated）。"""
+    return resolve_team_path(name_or_path)
 
 
 def load_trainer_template_for_cli(name_or_path: str) -> tuple[Path, dict]:

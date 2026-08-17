@@ -48,7 +48,7 @@ export default {
     <div>
       <el-card class="page-card">
         <h1 class="page-title">队伍管理</h1>
-        <p class="page-desc">已保存的训练家队伍模板（data/trainers），可校验合法性后用于对战 / 实验。</p>
+        <p class="page-desc">已保存的队伍数据库（data/teams）：实验室队伍（手工预制）与 AI 生成队伍分开管理。</p>
       </el-card>
 
       <el-table :data="state.teams" v-loading="state.loading" border stripe>
@@ -58,6 +58,13 @@ export default {
           </template>
         </el-table-column>
         <el-table-column prop="format" label="格式" width="170" />
+        <el-table-column label="来源" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.source === 'generated' ? 'warning' : 'info'" size="small" effect="plain">
+              {{ row.source === 'generated' ? 'AI 生成' : '实验室' }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="pokemon_count" label="宝可梦数量" width="110" align="center" />
         <el-table-column label="操作" width="240" align="center">
           <template #default="{ row }">

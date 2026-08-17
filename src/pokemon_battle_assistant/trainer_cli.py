@@ -12,6 +12,13 @@ import difflib
 import json
 from pathlib import Path
 
+from .data_paths import (
+    GENERATED_TEAMS_DIR,
+    LAB_TEAMS_DIR,
+    available_team_names,
+    iter_team_files,
+    resolve_team_path,
+)
 from .showdown_db import (
     get_learnable_moves,
     get_natures,
@@ -29,8 +36,11 @@ from .translation import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-TRAINERS_DIR = PROJECT_ROOT / "data" / "trainers"
-TRAINERS_DIR.mkdir(parents=True, exist_ok=True)
+
+# 兼容旧名：队伍数据库已从 data/trainers 迁移到 data/teams/{lab,generated}
+TRAINERS_DIR = LAB_TEAMS_DIR
+LAB_TEAMS_DIR.mkdir(parents=True, exist_ok=True)
+GENERATED_TEAMS_DIR.mkdir(parents=True, exist_ok=True)
 
 STAT_NAMES = {"hp": "HP", "atk": "攻击", "def": "防御", "spa": "特攻", "spd": "特防", "spe": "速度"}
 STAT_ORDER = ["hp", "atk", "def", "spa", "spd", "spe"]
@@ -55,21 +65,12 @@ def is_flat_rules_format(battle_format: str) -> bool:
 
 
 def available_trainer_names() -> list[str]:
-    return sorted(path.stem for path in TRAINERS_DIR.glob("*.json"))
+    return available_team_names()
 
 
 def resolve_trainer_path(name_or_path: str) -> Path:
     """Accept either a friendly team name or a JSON path."""
-    candidate = Path(name_or_path)
-    if candidate.exists():
-        return candidate
-    if candidate.suffix == ".json" and len(candidate.parts) == 1:
-        trainer_candidate = TRAINERS_DIR / candidate.name
-        if trainer_candidate.exists():
-            return trainer_candidate
-    if candidate.suffix == ".json":
-        return candidate
-    return TRAINERS_DIR / f"{name_or_path}.json"
+    return resolve_team_path(name_or_path)
 
 
 def print_missing_template(name_or_path: str) -> None:
@@ -89,19 +90,20 @@ def print_missing_template(name_or_path: str) -> None:
 
 
 def cmd_list(args: argparse.Namespace) -> None:
-    files = sorted(TRAINERS_DIR.glob("*.json"))
+    files = iter_team_files()
     if not files:
-        print("没有找到训练家模版。使用 create 子命令创建。")
+        print("没有找到队伍。使用 create 子命令创建。")
         return
-    print(f"{'名称':<25} {'队伍名':<25} {'格式':<15} {'宝可梦数'}")
-    print("-" * 75)
-    for f in files:
+    print(f"{'名称':<25} {'队伍名':<25} {'格式':<15} {'来源':<8} {'宝可梦数'}")
+    print("-" * 85)
+    for source, f in files:
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
             team_name = data.get("name", "?")
             fmt = data.get("format", "?")
             count = len(data.get("team", []))
-            print(f"{f.stem:<25} {team_name:<25} {fmt:<15} {count}")
+            source_label = "实验室" if source == "lab" else "生成"
+            print(f"{f.stem:<25} {team_name:<25} {fmt:<15} {source_label:<8} {count}")
         except (json.JSONDecodeError, KeyError):
             print(f"{f.stem:<25} (读取失败)")
 
