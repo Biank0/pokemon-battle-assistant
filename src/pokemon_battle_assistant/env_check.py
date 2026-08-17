@@ -76,13 +76,14 @@ def run_env_check() -> EnvCheckResult:
         "showdown:localhost:8000",
         showdown_ok,
         "可连接" if showdown_ok else "不可连接",
-        "请先运行：cd ~/Bian-workspace/pokemon-showdown && node pokemon-showdown start --no-security" if not showdown_ok else None,
+        f"请先运行 start.bat（或手动：cd {PROJECT_ROOT / 'pokemon-showdown'} && node pokemon-showdown start --no-security）" if not showdown_ok else None,
     )
 
     for rel_path in [
-        "data/showdown_db.json",
-        "data/translations/zh_cn_names.json",
-        "data/trainers",
+        "data/dex/showdown_db.json",
+        "data/dex/translations/zh_cn_names.json",
+        "data/teams/lab",
+        "data/teams/generated",
     ]:
         path = PROJECT_ROOT / rel_path
         result.add(f"data:{rel_path}", path.exists(), str(path), f"缺少必要数据：{rel_path}" if not path.exists() else None)

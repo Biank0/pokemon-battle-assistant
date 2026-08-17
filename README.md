@@ -49,22 +49,43 @@ Orchestrator 把各模块串成自我改进的闭环：
 
 ## 快速开始
 
-### 1. 环境准备
+### 1. 环境准备（一键安装）
+
+前置要求：[Python 3.10+](https://www.python.org/downloads/)（安装时勾选 Add to PATH）与 [Node.js 18+](https://nodejs.org/)。
+
+**Windows**：clone 后依次双击 `setup.bat`（自动装依赖 + 内置对战引擎 + 生成配置）和 `start.bat`（一键拉起对战引擎、后端与网页，浏览器自动打开）。
+
+**macOS / Linux**：
 
 ```bash
-python -m pip install -e .          # Python 3.10+
+git clone --recurse-submodules <本仓库地址>
+cd pokemon-battle-assistant
+./setup.sh      # 建 venv、装依赖、初始化对战引擎（pokemon-showdown 子模块）
+./start.sh      # 一键启动 Showdown + API + 网页，自动打开浏览器
+```
 
-cd /path/to/pokemon-showdown        # 本地对战引擎（对战功能需要）
+> clone 时忘了 `--recurse-submodules` 也没关系，setup 脚本会自动补齐（GitHub 直连失败时自动走镜像）。
+
+手动方式（等价）：
+
+```bash
+python -m pip install -e .
+cd pokemon-showdown                  # 内置的对战引擎（git 子模块）
 node pokemon-showdown start --no-security
 ```
 
-LLM 配置：项目根 `.env`（没有 Key 时 Agent 自动走 mock，测试与开发不受影响）
+LLM 配置：项目根 `.env`（setup 自动从 `.env.example` 生成；没有 Key 时 Agent 自动走 mock，测试与开发不受影响）
 
 ```text
-LLM_BACKEND=openai                       # 或 ollama
+# DeepSeek（推荐）
+LLM_BACKEND=openai
 OPENAI_API_KEY=sk-...
-OPENAI_BASE_URL=...                      # 可选，兼容代理
-OLLAMA_BASE_URL=http://localhost:11434   # ollama 后端时使用
+OPENAI_BASE_URL=https://api.deepseek.com/v1
+OPENAI_MODEL=deepseek-chat
+
+# 或本地 Ollama
+LLM_BACKEND=ollama
+OLLAMA_BASE_URL=http://localhost:11434
 ```
 
 ### 2. CLI 核心命令
@@ -90,15 +111,18 @@ pba serve        # 打开 http://127.0.0.1:8000
 
 ## BSS 规则与示例队
 
-主线规则 `gen9bssregi`：单打、带 6 选 3、自动 50 级、Item Clause、至多 2 只受限传说。完整说明见 [docs/BSS_RULES.md](docs/BSS_RULES.md) 与 [docs/formats/gen9bssregi.md](docs/formats/gen9bssregi.md)。
+主线规则 `gen9bssregi`：单打、带 6 选 3、自动 50 级、Item Clause、至多 2 只受限传说。完整说明见 [docs/BSS_RULES.md](docs/BSS_RULES.md) 与 [data/rules/docs/gen9bssregi.md](data/rules/docs/gen9bssregi.md)。
 
-内置示例队（均已过合法性校验）：`bss_balance`（平衡）、`bss_sun`（晴天）、`bss_trick_room`（戏法空间），位于 `data/trainers/`。
+内置示例队（均已过合法性校验）：`bss_balance`（平衡）、`bss_sun`（晴天）、`bss_trick_room`（戏法空间），位于 `data/teams/lab/`。
 
 ## 数据与输出
 
 | 目录 | 内容 |
 |---|---|
-| `data/trainers/` | 队伍 JSON（含 AI 生成队伍） |
+| `data/dex/` | 宝可梦及道具图鉴（showdown_db.json + 中英对照表，只读） |
+| `data/rules/` | 对战规则（formats.json 结构化规则 + docs/ 规则说明） |
+| `data/teams/lab/` | 实验室队伍 JSON（手工预制，用于对战实验） |
+| `data/teams/generated/` | 生成队伍 JSON（AI 建队模块产出） |
 | `battle_outputs/<battle_tag>/` | 单局 replay / record.json / steps.jsonl / 中文报告 |
 | `lab_outputs/` | 批量实验报告与统计 |
 | `analysis_outputs/` | 深度复盘报告 |
