@@ -202,6 +202,7 @@ class RecordingAgentPlayer(RecordingPlayerBase):
                 "reasoning": decision.reasoning,
                 "tool_calls": list(decision.tool_calls_log or []),
                 "fallback": bool(decision.fallback),
+                "action_raw": getattr(decision, "action_raw", ""),
             }
         )
 

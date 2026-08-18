@@ -17,6 +17,7 @@ from typing import Any
 
 from ..perception.observation import BattleObservation
 from ..tools.battle_registry import ToolContext, battle_tool_specs, run_battle_tool
+from ..translation import translate_move, translate_pokemon
 from .decision_logger import DecisionLogger
 from .llm_client import LLMClient
 from .planner import plan_team_preview, plan_turn
@@ -43,6 +44,7 @@ class TurnDecision:
     reasoning: str
     tool_calls_log: list[dict[str, Any]] = field(default_factory=list)
     fallback: bool = False
+    action_raw: str = ""
 
 
 def parse_json_payload(text: str) -> dict[str, Any] | None:
@@ -72,15 +74,46 @@ def _normalize_order_text(text: str) -> str:
     return value.strip()
 
 
+# LLM 输出里常见的中文动词前缀（"使用圣剑" -> "圣剑"）
+_ZH_ACTION_VERB_RE = re.compile(r"^(?:使用|释放|选择|打出|换上|切换|换成|派出|使用技能)")
+
+
+def _order_zh_aliases(order: str) -> list[str]:
+    """为一个合法 order 生成中文别名，如 ``move sacredsword`` -> ``move 圣剑``、``圣剑``。
+
+    合法动作列表是英文 ID，而 prompt 里招式/宝可梦以中文名展示，LLM 常回中文；
+    注册中文别名让匹配器两种语言都能命中。
+    """
+    normalized = _normalize_order_text(order)
+    match = re.match(r"(move|switch)\s+(\S+)", normalized)
+    if not match:
+        return []
+    verb, target = match.group(1), match.group(2)
+    species = target.split(":")[-1]  # 容忍 switch p2a: chienpao 形式
+    zh = translate_move(species) if verb == "move" else translate_pokemon(species)
+    if not zh or zh in (species, "未知", "Unknown"):
+        return []
+    return [f"{verb} {zh}", zh]
+
 def extract_legal_order(action_text: str, legal_orders: list[str]) -> str | None:
     """Judge：把 LLM 输出的 action 匹配到合法 order（大小写/前缀容忍）。"""
     if not action_text or not legal_orders:
         return None
+    # LLM 偶尔照抄合法动作对象的字符串形式 {'message': '/choose move x'}，提取内层指令
+    embedded = re.search(r"['\"]message['\"]\s*[:=]\s*['\"]([^'\"]+)['\"]", action_text)
+    if embedded:
+        action_text = embedded.group(1)
     normalized = _normalize_order_text(action_text)
+    stripped_verb = _ZH_ACTION_VERB_RE.sub("", normalized).strip()
+    if stripped_verb:
+        normalized = stripped_verb
     table: dict[str, str] = {}
     for order in legal_orders:
         table[_normalize_order_text(order)] = order
         table[_normalize_order_text(order).replace(" ", "")] = order
+        for alias in _order_zh_aliases(order):
+            table[_normalize_order_text(alias)] = order
+            table[_normalize_order_text(alias).replace(" ", "")] = order
     if normalized in table:
         return table[normalized]
     if normalized.replace(" ", "") in table:
@@ -190,9 +223,11 @@ class BattleAgent:
 
         order: str | None = None
         reasoning = ""
+        action_raw = ""
         payload = parse_json_payload(content)
         if payload:
             action = str(payload.get("action") or "")
+            action_raw = action
             reasoning = str(payload.get("reasoning") or "")
             order = extract_legal_order(action, [o.message for o in observation.legal_orders])
             if order is None and action:
@@ -213,6 +248,7 @@ class BattleAgent:
             reasoning=reasoning,
             tool_calls=tool_log,
             fallback=fallback,
+            action_raw=action_raw,
             model=str(getattr(self.llm, "model", "") or ""),
             backend=self.llm.backend,
             started_at=started,
@@ -222,6 +258,7 @@ class BattleAgent:
             reasoning=reasoning,
             tool_calls_log=tool_log,
             fallback=fallback,
+            action_raw=action_raw,
         )
 
     # ------------------------------------------------------------------
@@ -240,7 +277,7 @@ class BattleAgent:
                 {
                     "role": "assistant",
                     "content": response.content or "",
-                    "tool_calls": [c.to_dict() for c in response.tool_calls],
+                    "tool_calls": [c.to_wire_dict() for c in response.tool_calls],
                 }
             )
             for call in response.tool_calls:

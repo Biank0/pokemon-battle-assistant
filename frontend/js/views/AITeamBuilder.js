@@ -3,6 +3,7 @@ import { generateTeam, iterateTeam, getBuilderHistory, getFormats } from '../api
 
 export default {
   setup() {
+    const router = VueRouter.useRouter()
     const state = reactive({
       requirement: '快攻队：先手压制，高速高攻，配优先度招式',
       format: 'gen9bssregi',
@@ -25,7 +26,9 @@ export default {
       try {
         state.result = await generateTeam(state.requirement, state.format)
         await refreshHistory()
-        if (state.result.valid) ElementPlus.ElMessage.success('队伍已生成且通过校验')
+        if (state.result.valid) {
+          ElementPlus.ElMessage.success('队伍已生成且通过校验，已自动存入队伍库（AI 生成）')
+        }
       } finally {
         state.generating = false
       }
@@ -41,15 +44,16 @@ export default {
           state.format,
         )
         await refreshHistory()
-        ElementPlus.ElMessage.success('迭代完成（第 ' + state.result.iteration + ' 轮）')
+        ElementPlus.ElMessage.success('迭代完成（第 ' + state.result.iteration + ' 轮），已更新队伍库')
       } finally {
         state.generating = false
       }
     }
 
     function goLab() {
-      const name = state.result && state.result.team ? state.result.team.name : ''
-      if (name) this.$router.push('/lab?team=' + encodeURIComponent(name))
+      const name = (state.result && state.result.saved_name) || (state.result && state.result.team ? state.result.team.name : '')
+      if (name) router.push('/lab?team=' + encodeURIComponent(name))
+      else ElementPlus.ElMessage.warning('队伍未通过校验，暂不能送实验室')
     }
 
     onMounted(async () => {
@@ -107,7 +111,7 @@ export default {
               <el-button size="small" style="margin-left: 10px" @click="onIterate" :loading="state.generating">
                 基于反馈迭代
               </el-button>
-              <el-button size="small" type="primary" :disabled="!(state.result.team && state.result.team.name)" @click="goLab">
+              <el-button size="small" type="primary" :disabled="!state.result.saved_name" @click="goLab">
                 送实验室跑量
               </el-button>
             </span>
@@ -120,12 +124,24 @@ export default {
           :closable="false"
           class="page-card"
         >
-          <div v-for="e in state.result.validation_errors" :key="e">❌ {{ e }}</div>
+          <div v-for="e in state.result.validation_errors" :key="e">
+            <el-tag type="danger" size="small" effect="plain">错误</el-tag> {{ e }}
+          </div>
+        </el-alert>
+
+        <el-alert
+          v-if="state.result.saved_name"
+          type="success"
+          :closable="false"
+          class="page-card"
+          show-icon
+        >
+          队伍已存入库中（ID：{{ state.result.saved_name }}），可直接去实验室跑量或去对战。
         </el-alert>
 
         <el-row :gutter="16">
-          <el-col :span="8" v-for="member in (state.result.team && state.result.team.team) || []" :key="member.species">
-            <PokemonCard :member="member" />
+          <el-col :span="8" v-for="(member, i) in (state.result.team && state.result.team.team) || []" :key="member.species">
+            <PokemonCard :member="{ ...member, ...((state.result.team_zh || [])[i] || {}) }" />
           </el-col>
         </el-row>
 

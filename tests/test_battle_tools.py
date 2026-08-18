@@ -25,7 +25,7 @@ class TestTypeAnalyzer(unittest.TestCase):
     def test_super_effective(self):
         result = analyze_type("Electric", ["Water"])
         self.assertTrue(result["ok"])
-        self.assertEqual(result["multiplier"], 2.0)
+        self.assertEqual(result["multiplier"], 2.0)  # 格斗打冰 2x、打钢 2x，组合 4.0
         self.assertEqual(result["effectiveness"], "效果拔群")
 
     def test_double_weakness(self):
@@ -42,8 +42,18 @@ class TestTypeAnalyzer(unittest.TestCase):
         self.assertEqual(result["multiplier"], 0.25)
 
     def test_unknown_type(self):
+        # 宽松解析：含已知属性子串的输入按该属性处理（应对 "Water (Pokemon Type) Object" 这类枚举污染串）
         result = analyze_type("Fairy Dust", ["Water"])
-        self.assertFalse(result["ok"])
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["move_type"], "Fairy")
+        # 真正无法识别的输入仍明确报错
+        self.assertFalse(analyze_type("potato", ["Water"])["ok"])
+
+    def test_chinese_type_names(self):
+        result = analyze_type("格斗", ["冰", "钢"])
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["move_type"], "Fighting")
+        self.assertEqual(result["multiplier"], 4.0)  # 格斗打冰 2x、打钢 2x，组合 4.0
 
     def test_weakness_profile(self):
         profile = defender_weakness_profile(["Dragon", "Flying"])

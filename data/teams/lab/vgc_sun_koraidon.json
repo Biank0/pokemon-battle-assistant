@@ -1,5 +1,6 @@
 {
   "name": "VGC Sun Koraidon",
+  "display_name": "VGC 骄阳猛兽",
   "format": "gen9vgc2026regi",
   "team": [
     {
@@ -9,9 +10,28 @@
       "nature": "Jolly",
       "tera_type": "Fire",
       "level": 50,
-      "evs": {"hp": 4, "atk": 252, "def": 0, "spa": 0, "spd": 0, "spe": 252},
-      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31},
-      "moves": ["Collision Course", "Flare Blitz", "Dragon Claw", "Protect"]
+      "evs": {
+        "hp": 4,
+        "atk": 252,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Collision Course",
+        "Flare Blitz",
+        "Dragon Claw",
+        "Protect"
+      ]
     },
     {
       "species": "Flutter Mane",
@@ -20,9 +40,28 @@
       "nature": "Timid",
       "tera_type": "Fairy",
       "level": 50,
-      "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 252, "spd": 0, "spe": 252},
-      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
-      "moves": ["Moonblast", "Shadow Ball", "Icy Wind", "Protect"]
+      "evs": {
+        "hp": 4,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Moonblast",
+        "Shadow Ball",
+        "Icy Wind",
+        "Protect"
+      ]
     },
     {
       "species": "Tornadus",
@@ -31,9 +70,28 @@
       "nature": "Timid",
       "tera_type": "Ghost",
       "level": 50,
-      "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 252, "spd": 0, "spe": 252},
-      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
-      "moves": ["Tailwind", "Bleakwind Storm", "Taunt", "Protect"]
+      "evs": {
+        "hp": 4,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Tailwind",
+        "Bleakwind Storm",
+        "Taunt",
+        "Protect"
+      ]
     },
     {
       "species": "Rillaboom",
@@ -42,9 +100,28 @@
       "nature": "Adamant",
       "tera_type": "Fire",
       "level": 50,
-      "evs": {"hp": 252, "atk": 252, "def": 4, "spa": 0, "spd": 0, "spe": 0},
-      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31},
-      "moves": ["Fake Out", "Grassy Glide", "Wood Hammer", "U-turn"]
+      "evs": {
+        "hp": 252,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Fake Out",
+        "Grassy Glide",
+        "Wood Hammer",
+        "U-turn"
+      ]
     },
     {
       "species": "Incineroar",
@@ -53,9 +130,28 @@
       "nature": "Careful",
       "tera_type": "Water",
       "level": 50,
-      "evs": {"hp": 252, "atk": 4, "def": 0, "spa": 0, "spd": 252, "spe": 0},
-      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31},
-      "moves": ["Fake Out", "Flare Blitz", "Parting Shot", "Knock Off"]
+      "evs": {
+        "hp": 252,
+        "atk": 4,
+        "def": 0,
+        "spa": 0,
+        "spd": 252,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Knock Off"
+      ]
     },
     {
       "species": "Amoonguss",
@@ -64,9 +160,28 @@
       "nature": "Relaxed",
       "tera_type": "Water",
       "level": 50,
-      "evs": {"hp": 252, "atk": 0, "def": 156, "spa": 0, "spd": 100, "spe": 0},
-      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 0},
-      "moves": ["Spore", "Rage Powder", "Pollen Puff", "Protect"]
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 156,
+        "spa": 0,
+        "spd": 100,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 0
+      },
+      "moves": [
+        "Spore",
+        "Rage Powder",
+        "Pollen Puff",
+        "Protect"
+      ]
     }
   ]
 }

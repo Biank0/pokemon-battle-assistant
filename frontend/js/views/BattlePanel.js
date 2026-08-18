@@ -87,6 +87,10 @@ export default {
       VueRouter.useRouter().push('/analysis?tag=' + encodeURIComponent(tag))
     }
 
+    function teamLabel(team) {
+      return team.display_name || team.name
+    }
+
     onMounted(async () => {
       state.teams = await listTeams()
       state.formats = await getFormats()
@@ -98,7 +102,7 @@ export default {
       if (timer) window.clearTimeout(timer)
     })
 
-    return { state, stepActive, statusTagType, onStart, goAnalysis }
+    return { state, stepActive, statusTagType, onStart, goAnalysis, teamLabel }
   },
   template: `
     <div>
@@ -110,14 +114,14 @@ export default {
             <el-col :span="8">
               <el-form-item label="己方队伍">
                 <el-select v-model="state.form.template" filterable placeholder="选择队伍">
-                  <el-option v-for="t in state.teams" :key="t.name" :label="t.name" :value="t.name" />
+                  <el-option v-for="t in state.teams" :key="t.name" :label="teamLabel(t)" :value="t.name" />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="对手队伍">
                 <el-select v-model="state.form.opponent" filterable clearable placeholder="留空=镜像对战">
-                  <el-option v-for="t in state.teams" :key="t.name" :label="t.name" :value="t.name" />
+                  <el-option v-for="t in state.teams" :key="t.name" :label="teamLabel(t)" :value="t.name" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -179,16 +183,43 @@ export default {
           :title="state.battleResult.won ? '胜利！' : '惜败'"
           :sub-title="'battle_tag: ' + (state.battleResult.battle_tag || '-') + ' ｜ 回合数: ' + (state.battleResult.turns != null ? state.battleResult.turns : '-')"
         />
-        <el-descriptions title="记录文件" :column="1" border>
-          <el-descriptions-item v-for="(path, key) in state.battleResult.files" :key="key" :label="String(key)">
-            <span class="mono">{{ path }}</span>
-          </el-descriptions-item>
-        </el-descriptions>
-        <div style="margin-top: 12px">
+        <div class="turn-actions">
           <el-button v-if="state.battleResult.battle_tag" type="primary" @click="goAnalysis(state.battleResult.battle_tag)">
             深度复盘这场对战
           </el-button>
         </div>
+      </el-card>
+
+      <el-card class="page-card" v-if="state.battleResult && state.battleResult.turn_log && state.battleResult.turn_log.length">
+        <template #header>逐回合出招明细</template>
+        <div class="turn-log">
+          <el-timeline>
+            <el-timeline-item
+              v-for="(item, i) in state.battleResult.turn_log"
+              :key="i"
+              :timestamp="'回合 ' + (item.turn != null ? item.turn : '-')"
+              :type="item.side === '己方' ? 'primary' : 'warning'"
+              :hollow="item.side !== '己方'"
+            >
+              <span class="turn-side">{{ item.side }}</span>
+              <span class="turn-kind">{{ item.kind_zh }}</span>
+              <span class="turn-label">{{ item.label_zh }}</span>
+              <span
+                v-if="item.active_zh || item.opponent_active_zh"
+                class="turn-active"
+              >出场：{{ item.active_zh || '-' }} vs {{ item.opponent_active_zh || '-' }}</span>
+            </el-timeline-item>
+          </el-timeline>
+        </div>
+      </el-card>
+
+      <el-card class="page-card" v-if="state.battleResult">
+        <template #header>记录文件</template>
+        <el-descriptions :column="1" border>
+          <el-descriptions-item v-for="(path, key) in state.battleResult.files" :key="key" :label="String(key)">
+            <span class="mono">{{ path }}</span>
+          </el-descriptions-item>
+        </el-descriptions>
       </el-card>
     </div>
   `,

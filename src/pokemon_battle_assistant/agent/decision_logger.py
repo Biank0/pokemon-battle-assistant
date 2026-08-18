@@ -15,6 +15,7 @@ class DecisionRecord:
     reasoning: str
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     fallback: bool = False
+    action_raw: str = ""
     model: str = ""
     backend: str = ""
     elapsed_ms: int = 0
@@ -27,6 +28,7 @@ class DecisionRecord:
             "reasoning": self.reasoning,
             "tool_calls": self.tool_calls,
             "fallback": self.fallback,
+            "action_raw": self.action_raw,
             "model": self.model,
             "backend": self.backend,
             "elapsed_ms": self.elapsed_ms,
@@ -48,6 +50,7 @@ class DecisionLogger:
         reasoning: str,
         tool_calls: list[dict[str, Any]] | None = None,
         fallback: bool = False,
+        action_raw: str = "",
         model: str = "",
         backend: str = "",
         started_at: float | None = None,
@@ -60,6 +63,7 @@ class DecisionLogger:
             reasoning=reasoning,
             tool_calls=list(tool_calls or []),
             fallback=fallback,
+            action_raw=action_raw,
             model=model,
             backend=backend,
             elapsed_ms=elapsed,

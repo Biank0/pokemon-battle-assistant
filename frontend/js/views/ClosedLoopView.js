@@ -156,7 +156,7 @@ export default {
             <el-col :span="10">
               <el-form-item label="对手列表">
                 <el-select v-model="state.form.opponents" multiple filterable>
-                  <el-option v-for="t in state.teams" :key="t.name" :label="t.name" :value="t.name" />
+                  <el-option v-for="t in state.teams" :key="t.name" :label="t.display_name || t.name" :value="t.name" />
                 </el-select>
               </el-form-item>
             </el-col>

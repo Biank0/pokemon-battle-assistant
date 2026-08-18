@@ -7,12 +7,12 @@ export default {
       healthy: false,
       health: {},
       cards: [
-        { path: '/team-builder', icon: '🪄', title: 'AI 建队', desc: '输入需求，生成合法 BSS 队伍与建队理由' },
-        { path: '/battle', icon: '⚔️', title: '对战面板', desc: '配置队伍与对手，Agent 自动打一局' },
-        { path: '/team', icon: '📚', title: '队伍管理', desc: '查看 / 校验 / 删除已保存队伍' },
-        { path: '/lab', icon: '🧪', title: '实验室', desc: '多对手批量模拟，统计胜率报告' },
-        { path: '/analysis', icon: '📊', title: '分析报告', desc: '对战复盘与逐回合决策评估' },
-        { path: '/orchestrator', icon: '🔁', title: '闭环流程', desc: '建队 → 跑量 → 复盘 → 迭代一条龙' },
+        { path: '/team-builder', icon: 'MagicStick', title: 'AI 建队', desc: '输入需求，生成合法 BSS 队伍与建队理由' },
+        { path: '/battle', icon: 'Sword', title: '对战面板', desc: '配置队伍与对手，Agent 自动打一局' },
+        { path: '/team', icon: 'Collection', title: '队伍管理', desc: '查看 / 校验 / 删除已保存队伍' },
+        { path: '/lab', icon: 'Odometer', title: '实验室', desc: '多对手批量模拟，统计胜率报告' },
+        { path: '/analysis', icon: 'DataAnalysis', title: '分析报告', desc: '对战复盘与逐回合决策评估' },
+        { path: '/orchestrator', icon: 'Refresh', title: '闭环流程', desc: '建队 → 跑量 → 复盘 → 迭代一条龙' },
       ],
     })
 
@@ -46,7 +46,7 @@ export default {
       <el-row :gutter="16">
         <el-col :span="8" v-for="card in state.cards" :key="card.path">
           <el-card class="entry-card" shadow="hover" @click="$router.push(card.path)">
-            <div class="entry-icon">{{ card.icon }}</div>
+            <div class="entry-icon"><el-icon :size="30"><component :is="card.icon" /></el-icon></div>
             <div class="entry-title">{{ card.title }}</div>
             <div class="entry-desc">{{ card.desc }}</div>
           </el-card>

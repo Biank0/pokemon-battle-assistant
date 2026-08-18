@@ -1,0 +1,188 @@
+{
+  "name": "HyperSpeed Assault",
+  "format": "gen9bssregi",
+  "team": [
+    {
+      "species": "Miraidon",
+      "item": "Choice Specs",
+      "ability": "Hadron Engine",
+      "nature": "Modest",
+      "tera_type": "Electric",
+      "level": 50,
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 4,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Electro Drift",
+        "Draco Meteor",
+        "Overheat",
+        "Volt Switch"
+      ]
+    },
+    {
+      "species": "Chien-Pao",
+      "item": "Focus Sash",
+      "ability": "Sword of Ruin",
+      "nature": "Jolly",
+      "tera_type": "Dark",
+      "level": 50,
+      "evs": {
+        "hp": 0,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Sucker Punch",
+        "Icicle Crash",
+        "Sacred Sword",
+        "Ice Shard"
+      ]
+    },
+    {
+      "species": "Volcarona",
+      "item": "Heavy-Duty Boots",
+      "ability": "Flame Body",
+      "nature": "Timid",
+      "tera_type": "Grass",
+      "level": 50,
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 4,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Quiver Dance",
+        "Fire Blast",
+        "Bug Buzz",
+        "Giga Drain"
+      ]
+    },
+    {
+      "species": "Flutter Mane",
+      "item": "Booster Energy",
+      "ability": "Protosynthesis",
+      "nature": "Timid",
+      "tera_type": "Fairy",
+      "level": 50,
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 4,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Moonblast",
+        "Shadow Ball",
+        "Thunderbolt",
+        "Psyshock"
+      ]
+    },
+    {
+      "species": "Landorus-Therian",
+      "item": "Choice Scarf",
+      "ability": "Intimidate",
+      "nature": "Jolly",
+      "tera_type": "Ground",
+      "level": 50,
+      "evs": {
+        "hp": 0,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Earthquake",
+        "Rock Slide",
+        "U-turn",
+        "Stealth Rock"
+      ]
+    },
+    {
+      "species": "Kingambit",
+      "item": "Black Glasses",
+      "ability": "Supreme Overlord",
+      "nature": "Adamant",
+      "tera_type": "Steel",
+      "level": 50,
+      "evs": {
+        "hp": 252,
+        "atk": 252,
+        "def": 0,
+        "spa": 0,
+        "spd": 4,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Sucker Punch",
+        "Kowtow Cleave",
+        "Iron Head",
+        "Swords Dance"
+      ]
+    }
+  ],
+  "source": "generated",
+  "display_name": "AI 生成·快攻队：先手压制，高速高"
+}

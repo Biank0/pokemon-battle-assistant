@@ -32,6 +32,30 @@ class FakeBuilder:
         )
 
 
+class FakeBuilderWithMembers:
+    """返回带成员的队伍，用于验证 generate 自动持久化到 generated/ 目录。"""
+
+    def generate_team(self, requirement: str, format: str = "gen9bssregi"):
+        return SimpleNamespace(
+            team={
+                "name": "快攻队 Alpha",  # 含中文/空格 → slug 应为 ai_alpha 之外的合法 ID
+                "format": format,
+                "team": [{"species": "pikachu", "moves": ["thunderbolt"]}],
+            },
+            valid=True,
+            reasoning="r0",
+            validation_errors=[],
+        )
+
+    def iterate_team(self, team: dict, report: dict, format: str = "gen9bssregi"):
+        return SimpleNamespace(
+            team={**team, "name": "迭代 V2"},
+            valid=True,
+            reasoning="r1",
+            validation_errors=[],
+        )
+
+
 class FakeLabRunner:
     async def run(self, config):
         stats = {
@@ -76,7 +100,7 @@ class FakeAnalysisEngine:
 
 
 async def fake_battle_runner(payload):
-    return {"battle_tag": "bat-api", "turns": 3, "won": True, "files": {}}
+    return {"battle_tag": "bat-api", "turns": 3, "won": True, "turn_log": [], "files": {}}
 
 
 class ApiTests(unittest.TestCase):
@@ -124,9 +148,13 @@ class ApiTests(unittest.TestCase):
 
     def test_teams_crud_and_validate(self):
         template = {"name": "apiteam", "format": "gen9bssregi", "team": [{"species": "pikachu"}]}
-        resp = self.client.post("/api/teams", json={"name": "apiteam", "template": template})
+        resp = self.client.post(
+            "/api/teams",
+            json={"name": "apiteam", "template": template, "display_name": "接口测试队"},
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["name"], "apiteam")
+        self.assertEqual(resp.json()["display_name"], "接口测试队")
 
         dup = self.client.post("/api/teams", json={"name": "apiteam", "template": template})
         self.assertEqual(dup.status_code, 409)
@@ -136,10 +164,18 @@ class ApiTests(unittest.TestCase):
 
         listing = self.client.get("/api/teams").json()["teams"]
         self.assertEqual([item["name"] for item in listing], ["apiteam"])
+        self.assertEqual(listing[0]["display_name"], "接口测试队")
 
         detail = self.client.get("/api/teams/apiteam")
         self.assertEqual(detail.status_code, 200)
-        self.assertEqual(detail.json()["team"]["format"], "gen9bssregi")
+        body = detail.json()
+        self.assertEqual(body["display_name"], "接口测试队")
+        self.assertEqual(body["team"]["format"], "gen9bssregi")
+        self.assertEqual(len(body["team_zh"]), 1)
+        member_zh = body["team_zh"][0]
+        self.assertIn("species_zh", member_zh)
+        self.assertIn("types_zh", member_zh)
+        self.assertIn("moves_zh", member_zh)
 
         missing = self.client.get("/api/teams/nope")
         self.assertEqual(missing.status_code, 404)
@@ -172,6 +208,48 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(len(history), 2)
         self.assertEqual([item["action"] for item in history], ["generate", "iterate"])
 
+    def test_team_builder_generate_persists_team_for_lab(self):
+        """AI 生成的合法队伍应自动存入 generated/ 目录，实验室/对战可直接选用。"""
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            app = create_app(
+                team_builder=FakeBuilderWithMembers(),
+                lab_runner=FakeLabRunner(),
+                analysis_engine=FakeAnalysisEngine(),
+                battle_runner=fake_battle_runner,
+                teams_root=Path(tmpdir) / "teams",
+            )
+            with TestClient(app) as client:
+                resp = client.post(
+                    "/api/team-builder/generate", json={"requirement": "快攻队：先手压制", "format": "gen9bssregi"}
+                )
+                self.assertEqual(resp.status_code, 200)
+                payload = resp.json()
+                # 中文名被 slug 化成合法文件 ID
+                self.assertEqual(payload["saved_name"], "alpha")
+                # 响应带中文摘要
+                self.assertEqual(payload["team_zh"][0]["species"], "pikachu")
+                self.assertIn("species_zh", payload["team_zh"][0])
+
+                # 队伍已入库：来源 generated，带中文显示名
+                teams = client.get("/api/teams").json()["teams"]
+                entry = next(t for t in teams if t["name"] == "alpha")
+                self.assertEqual(entry["source"], "generated")
+                self.assertTrue(entry["display_name"].startswith("AI 生成·"))
+
+                # 迭代同样入库
+                iterate = client.post(
+                    "/api/team-builder/iterate",
+                    json={"team": payload["team"], "report": {}, "format": "gen9bssregi"},
+                )
+                self.assertEqual(iterate.json()["saved_name"], "v2")
+
+                # 详情接口可查（实验室按名加载的同一通道）
+                detail = client.get("/api/teams/alpha")
+                self.assertEqual(detail.status_code, 200)
+
     def test_battle_job_lifecycle(self):
         resp = self.client.post("/api/battle/start", json={"template": "xiaobian"})
         self.assertEqual(resp.status_code, 200)
@@ -197,6 +275,89 @@ class ApiTests(unittest.TestCase):
         self._wait_job(f"/api/lab/{job_id}/status")
         report = self.client.get(f"/api/lab/{job_id}/report").json()
         self.assertEqual(report["stats"]["win_rate"], 1.0)
+
+    def test_lab_start_without_opponents_uses_lab_defaults(self):
+        # opponents 缺省 = data/teams/lab 全部预设队伍（排除己方）
+        from pokemon_battle_assistant.api.routes.lab import default_lab_opponents
+
+        expected = default_lab_opponents("xiaobian")
+        self.assertNotIn("xiaobian", expected)
+
+        resp = self.client.post("/api/lab/start", json={"team": "xiaobian", "battles_per_opponent": 1})
+        self.assertEqual(resp.status_code, 200)
+        job_id = resp.json()["job_id"]
+        self._wait_job(f"/api/lab/{job_id}/status")
+        report = self.client.get(f"/api/lab/{job_id}/report").json()
+        self.assertEqual(report["stats"]["win_rate"], 1.0)
+
+    def test_build_turn_log_translates_steps(self):
+        from pokemon_battle_assistant.api.routes.battle import build_turn_log
+        from pokemon_battle_assistant.translation import translate_move, translate_pokemon
+
+        record = {
+            "steps": [
+                {
+                    "turn": 0,
+                    "player": "player_1",
+                    "chosen_action": {"kind": "order", "label": "/team 1,2,3", "command": "/team 1,2,3"},
+                    "observation": {},
+                },
+                {
+                    "turn": 1,
+                    "player": "player_1",
+                    "chosen_action": {
+                        "kind": "move",
+                        "label": "flamethrower",
+                        "command": "/choose move flamethrower",
+                    },
+                    "observation": {
+                        "active_pokemon": {"species": "Charizard"},
+                        "opponent_active_pokemon": [{"species": "Blastoise"}],
+                    },
+                },
+                {
+                    "turn": 1,
+                    "player": "player_2",
+                    "chosen_action": {
+                        "kind": "switch",
+                        "label": "pikachu",
+                        "command": "/choose switch pikachu",
+                    },
+                    "observation": {},
+                },
+                {
+                    "turn": 2,
+                    "player": "player_1",
+                    "chosen_action": {
+                        "kind": "order",
+                        "label": "/choose move heatwave -1, move protect",
+                        "command": "/choose move heatwave -1, move protect",
+                    },
+                    "observation": {},
+                },
+                {"turn": 3, "player": "player_1", "chosen_action": None, "observation": {}},
+            ]
+        }
+        log = build_turn_log(record)
+        self.assertEqual(len(log), 4)
+
+        self.assertEqual(log[0]["kind_zh"], "选队")
+        self.assertIn("出场顺序", log[0]["label_zh"])
+        self.assertEqual(log[0]["side"], "己方")
+
+        self.assertEqual(log[1]["kind_zh"], "招式")
+        self.assertEqual(log[1]["label_zh"], translate_move("flamethrower"))
+        self.assertEqual(log[1]["active_zh"], translate_pokemon("Charizard"))
+        self.assertEqual(log[1]["opponent_active_zh"], translate_pokemon("Blastoise"))
+
+        self.assertEqual(log[2]["side"], "对手")
+        self.assertEqual(log[2]["kind_zh"], "换人")
+        self.assertIn(translate_pokemon("pikachu"), log[2]["label_zh"])
+
+        # 双打组合指令按整体翻译，用中文逗号连接
+        self.assertEqual(log[3]["kind_zh"], "指令")
+        self.assertIn(translate_move("heatwave"), log[3]["label_zh"])
+        self.assertIn("，", log[3]["label_zh"])
 
     def test_analysis_submit_and_get(self):
         resp = self.client.post("/api/analysis/battle/bat-x", json={"record": {"battle": {}}})

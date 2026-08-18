@@ -1,5 +1,6 @@
 {
   "name": "BSS Balance",
+  "display_name": "BSS 平衡轴",
   "format": "gen9bssregi",
   "team": [
     {

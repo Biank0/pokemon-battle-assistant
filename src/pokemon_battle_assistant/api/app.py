@@ -133,7 +133,7 @@ def create_app(
         return {"formats": SUPPORTED_FORMATS}
 
     app.include_router(create_teams_router(store))
-    app.include_router(create_team_builder_router(_get_builder))
+    app.include_router(create_team_builder_router(_get_builder, store=store))
     app.include_router(create_battle_router(registry, battle_runner=battle_runner, battle_output_root=battle_output_root))
     app.include_router(create_lab_router(registry, lab_runner_provider=_get_lab_runner))
     app.include_router(create_analysis_router(_get_analysis_engine))

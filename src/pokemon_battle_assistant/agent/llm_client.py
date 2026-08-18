@@ -89,6 +89,14 @@ class ToolCall:
     def to_dict(self) -> dict[str, Any]:
         return {"id": self.id, "name": self.name, "arguments": self.arguments}
 
+    def to_wire_dict(self) -> dict[str, Any]:
+        """回传给 OpenAI 兼容 API 的标准格式（DeepSeek 等严格校验 type 字段）。"""
+        return {
+            "id": self.id,
+            "type": "function",
+            "function": {"name": self.name, "arguments": self.arguments},
+        }
+
 
 @dataclass(frozen=True)
 class LLMResponse:

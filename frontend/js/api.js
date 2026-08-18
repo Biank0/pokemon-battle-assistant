@@ -37,8 +37,8 @@ export async function listTeams() {
   return data.teams
 }
 export async function getTeam(name) {
-  const data = await get(`/api/teams/${name}`)
-  return data.team
+  // 返回完整 payload：{ name, display_name, team, team_zh }
+  return get(`/api/teams/${name}`)
 }
 export async function deleteTeam(name) {
   return del(`/api/teams/${name}`)

@@ -9,14 +9,25 @@ const TypeColors = {
   Steel: '#b7b7ce', Fairy: '#d685ad',
 }
 
+const TypeZhNames = {
+  Normal: '一般', Fire: '火', Water: '水', Electric: '电',
+  Grass: '草', Ice: '冰', Fighting: '格斗', Poison: '毒',
+  Ground: '地面', Flying: '飞行', Psychic: '超能力', Bug: '虫',
+  Rock: '岩石', Ghost: '幽灵', Dragon: '龙', Dark: '恶',
+  Steel: '钢', Fairy: '妖精',
+}
+
 const TypeBadge = {
   props: { type: String },
   computed: {
     color() {
       return TypeColors[this.type] || '#68a090'
     },
+    label() {
+      return TypeZhNames[this.type] || this.type
+    },
   },
-  template: '<span class="type-badge" :style="{ background: color }">{{ type }}</span>',
+  template: '<span class="type-badge" :style="{ background: color }">{{ label }}</span>',
 }
 
 const PokemonCard = {
@@ -26,18 +37,19 @@ const PokemonCard = {
     <el-card class="page-card" shadow="hover">
       <template #header>
         <div class="pkm-head">
-          <span class="pkm-name">{{ member.species }}</span>
+          <span class="pkm-name">{{ member.species_zh || member.species }}</span>
           <span v-if="member.level" class="pkm-level">Lv.{{ member.level }}</span>
         </div>
       </template>
       <div class="pkm-types">
-        <TypeBadge v-for="t in member.types || []" :key="t" :type="t" />
+        <TypeBadge v-for="(t, i) in (member.types || [])" :key="t + i" :type="t" />
       </div>
-      <div class="pkm-line" v-if="member.item"><b>道具：</b>{{ member.item }}</div>
-      <div class="pkm-line" v-if="member.ability"><b>特性：</b>{{ member.ability }}</div>
-      <div class="pkm-line" v-if="member.nature"><b>性格：</b>{{ member.nature }}</div>
-      <div class="pkm-moves" v-if="member.moves && member.moves.length">
-        <el-tag v-for="m in member.moves" :key="m" size="small" effect="plain" class="move-tag">{{ m }}</el-tag>
+      <div class="pkm-line" v-if="member.item_zh || member.item"><b>道具：</b>{{ member.item_zh || member.item }}</div>
+      <div class="pkm-line" v-if="member.ability_zh || member.ability"><b>特性：</b>{{ member.ability_zh || member.ability }}</div>
+      <div class="pkm-line" v-if="member.nature_zh || member.nature"><b>性格：</b>{{ member.nature_zh || member.nature }}</div>
+      <div class="pkm-line" v-if="member.tera_type_zh || member.tera_type"><b>太晶：</b>{{ member.tera_type_zh || member.tera_type }}</div>
+      <div class="pkm-moves" v-if="(member.moves_zh && member.moves_zh.length) || (member.moves && member.moves.length)">
+        <el-tag v-for="m in (member.moves_zh && member.moves_zh.length ? member.moves_zh : member.moves)" :key="m" size="small" effect="plain" class="move-tag">{{ m }}</el-tag>
       </div>
       <slot />
     </el-card>
@@ -68,9 +80,9 @@ const App = {
           :default-active="activeMenu"
           router
           class="side-menu"
-          background-color="#1d2b36"
-          text-color="#c7d3dc"
-          active-text-color="#ffd04b"
+          background-color="#ffffff"
+          text-color="#5a6b7b"
+          active-text-color="#3a8ee6"
         >
           <el-menu-item index="/"><el-icon><HomeFilled /></el-icon><span>首页</span></el-menu-item>
           <el-menu-item index="/team"><el-icon><Collection /></el-icon><span>队伍管理</span></el-menu-item>

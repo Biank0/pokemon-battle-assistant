@@ -9,7 +9,6 @@ export default {
       formats: [],
       form: {
         team: (route.query.team || ''),
-        opponents: [],
         battles_per_opponent: 3,
         format: 'gen9bssregi',
         concurrency: 2,
@@ -26,6 +25,16 @@ export default {
     const stats = computed(() => (state.report && state.report.stats) || {})
     const results = computed(() => (state.report && state.report.results) || [])
 
+    // 预设对手 = lab 目录全部队伍（排除己方），与后端缺省逻辑一致
+    const presetOpponentCount = computed(() =>
+      state.teams.filter(t => t.source === 'lab' && t.name !== state.form.team).length
+    )
+
+    function displayName(name) {
+      const team = state.teams.find(t => t.name === name)
+      return (team && team.display_name) || name
+    }
+
     function progressColor(rate) {
       if (rate >= 0.6) return '#67c23a'
       if (rate >= 0.4) return '#e6a23c'
@@ -37,8 +46,8 @@ export default {
         ElementPlus.ElMessage.warning('请选择己方队伍')
         return
       }
-      if (!state.form.opponents.length) {
-        ElementPlus.ElMessage.warning('请至少选择一个对手')
+      if (presetOpponentCount.value < 1) {
+        ElementPlus.ElMessage.warning('没有可用的预设对手队伍')
         return
       }
       state.starting = true
@@ -47,7 +56,7 @@ export default {
       try {
         const job = await startLab({
           team: state.form.team,
-          opponents: state.form.opponents,
+          opponents: null,
           battles_per_opponent: state.form.battles_per_opponent,
           format: state.form.format,
           concurrency: state.form.concurrency,
@@ -91,55 +100,45 @@ export default {
       if (timer) window.clearTimeout(timer)
     })
 
-    return { state, stats, results, progressColor, onStart }
+    return { state, stats, results, presetOpponentCount, displayName, progressColor, onStart }
   },
   template: `
     <div>
       <el-card class="page-card">
         <h1 class="page-title">实验室控制台</h1>
-        <p class="page-desc">选择队伍与多个对手批量对战，统计总胜率 / 分对手胜率 / 平均回合数。</p>
+        <p class="page-desc">
+          自动与全部预设队伍（{{ presetOpponentCount }} 支）批量对战，统计胜率，不逐场检查细节。
+          自建队伍放入 data/teams/lab/ 即可参与。
+        </p>
         <el-form label-width="110px">
           <el-row :gutter="24">
             <el-col :span="8">
               <el-form-item label="己方队伍">
                 <el-select v-model="state.form.team" filterable>
-                  <el-option v-for="t in state.teams" :key="t.name" :label="t.name" :value="t.name" />
+                  <el-option v-for="t in state.teams" :key="t.name" :label="t.display_name || t.name" :value="t.name" />
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="10">
-              <el-form-item label="对手列表">
-                <el-select v-model="state.form.opponents" multiple filterable>
-                  <el-option
-                    v-for="t in state.teams"
-                    :key="t.name"
-                    :label="t.name"
-                    :value="t.name"
-                    :disabled="t.name === state.form.team"
-                  />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
+            <el-col :span="8">
               <el-form-item label="每对手局数">
                 <el-input-number v-model="state.form.battles_per_opponent" :min="1" :max="20" />
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row :gutter="24">
-            <el-col :span="6">
+            <el-col :span="8">
               <el-form-item label="对战格式">
                 <el-select v-model="state.form.format">
                   <el-option v-for="f in state.formats" :key="f.id" :label="f.name" :value="f.id" />
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="6">
+          </el-row>
+          <el-row :gutter="24">
+            <el-col :span="8">
               <el-form-item label="并发数">
                 <el-input-number v-model="state.form.concurrency" :min="1" :max="8" />
               </el-form-item>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="8">
               <el-form-item label="LLM 后端">
                 <el-select v-model="state.form.backend" clearable placeholder="默认（.env 配置）">
                   <el-option label="OpenAI" value="openai" />
@@ -147,7 +146,7 @@ export default {
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="8">
               <el-form-item label=" ">
                 <el-button type="primary" :loading="state.starting" @click="onStart">开始批量实验</el-button>
               </el-form-item>
@@ -189,7 +188,7 @@ export default {
           <el-col :span="12">
             <div class="stat-label">分对手胜率</div>
             <div v-for="(data, opp) in stats.by_opponent" :key="opp" class="opp-row">
-              <span class="opp-name">{{ opp }}</span>
+              <span class="opp-name">{{ displayName(opp) }}</span>
               <el-progress
                 :percentage="Math.round((data.win_rate || 0) * 100)"
                 :stroke-width="16"
@@ -201,9 +200,10 @@ export default {
           </el-col>
         </el-row>
 
-        <el-table :data="results" border size="small">
-          <el-table-column prop="task_id" label="任务" width="140" />
-          <el-table-column prop="opponent" label="对手" width="140" />
+        <el-table :data="results" size="small">
+          <el-table-column label="对手" min-width="140">
+            <template #default="{ row }">{{ displayName(row.opponent) }}</template>
+          </el-table-column>
           <el-table-column label="结果" width="90" align="center">
             <template #default="{ row }">
               <el-tag v-if="row.error" type="info" size="small">错误</el-tag>
@@ -213,8 +213,6 @@ export default {
             </template>
           </el-table-column>
           <el-table-column prop="turns" label="回合数" width="90" align="center" />
-          <el-table-column prop="battle_tag" label="battle_tag" min-width="160" />
-          <el-table-column prop="record_path" label="记录文件" min-width="240" show-overflow-tooltip />
         </el-table>
       </el-card>
     </div>

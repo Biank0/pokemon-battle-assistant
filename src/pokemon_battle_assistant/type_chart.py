@@ -31,12 +31,40 @@ TYPE_CHART: dict[str, dict[str, float]] = {
 }
 
 
+# 中文属性名 -> 英文属性名（LLM 常用中文调用工具）
+ZH_TYPE_NAMES: dict[str, str] = {
+    "一般": "Normal", "普通": "Normal",
+    "火": "Fire", "水": "Water", "电": "Electric", "草": "Grass", "冰": "Ice",
+    "格斗": "Fighting", "毒": "Poison", "地面": "Ground", "飞行": "Flying",
+    "超能力": "Psychic", "超能": "Psychic", "虫": "Bug", "岩石": "Rock",
+    "幽灵": "Ghost", "鬼": "Ghost", "龙": "Dragon", "恶": "Dark",
+    "钢": "Steel", "妖精": "Fairy",
+}
+
+
 def normalize_type(type_name: str | None) -> str:
-    """Normalize loose user input into title-cased type names."""
+    """Normalize loose user input into title-cased type names.
+
+    依次尝试：英文精确 -> 中文精确 -> 英文子串（容忍 ``Water (Pokemon Type) Object``
+    这类被污染的输入）-> 中文子串（按长度降序，避免"超能力"被"超能"抢先）。
+    """
 
     if not type_name:
         return "Unknown"
-    return str(type_name).strip().title()
+    raw = str(type_name).strip()
+    titled = raw.title()
+    if titled in TYPE_CHART:
+        return titled
+    if raw in ZH_TYPE_NAMES:
+        return ZH_TYPE_NAMES[raw]
+    lowered = raw.lower()
+    for english in TYPE_CHART:
+        if english.lower() in lowered:
+            return english
+    for zh in sorted(ZH_TYPE_NAMES, key=len, reverse=True):
+        if zh in raw:
+            return ZH_TYPE_NAMES[zh]
+    return titled
 
 
 def get_type_multiplier(move_type: str | None, defender_types: list[str]) -> float:

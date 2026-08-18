@@ -1,49 +1,54 @@
 @echo off
-chcp 65001 >nul
-title å®å¯æ¢¦å¯¹æˆ˜åŠ©æ‰‹ - å¯åŠ¨å™¨
+chcp 936 >nul
+title ±¦¿ÉÃÎ¶ÔÕ½ÖúÊÖ - Æô¶¯Æ÷
 cd /d "%~dp0"
 
 if not exist ".venv\Scripts\python.exe" (
-    echo [é”™è¯¯] è¿˜æ²¡å®‰è£…ã€‚è¯·å…ˆåŒå‡» setup.bat å®Œæˆä¸€é”®å®‰è£…ã€‚
+    echo [´íÎó] »¹Ã»°²×°¡£ÇëÏÈË«»÷ setup.bat Íê³ÉÒ»¼ü°²×°¡£
     pause
     exit /b 1
 )
 if not exist "pokemon-showdown\pokemon-showdown" (
-    echo [é”™è¯¯] ç¼ºå°‘å¯¹æˆ˜å¼•æ“Žã€‚è¯·é‡æ–°è¿è¡Œ setup.batã€‚
+    echo [´íÎó] È±ÉÙ¶ÔÕ½ÒýÇæ¡£ÇëÖØÐÂÔËÐÐ setup.bat¡£
     pause
     exit /b 1
 )
 
-echo [1/3] å¯åŠ¨å¯¹æˆ˜å¼•æ“Žï¼ˆShowdownï¼Œæœ€å°åŒ–çª—å£ï¼‰...
-start "Showdown å¯¹æˆ˜å¼•æ“Žï¼ˆå…³é—­æ­¤çª—å£=åœæ­¢å¯¹æˆ˜å¼•æ“Žï¼‰" /min cmd /k "cd /d "%~dp0pokemon-showdown" && node pokemon-showdown start --no-security"
+echo [1/4] ÇåÀí¾É·þÎñ£¨×Ô¶¯½áÊøÕ¼ÓÃ 8000/8300 ¶Ë¿ÚµÄ½ø³Ì£©...
+powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 8000,8300 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Write-Host ('      killed stale process PID=' + $_); Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }"
+ping -n 3 127.0.0.1 >nul
 
-echo       ç­‰å¾…å¼•æ“Žå°±ç»ªï¼ˆæœ€å¤š 180 ç§’ï¼ˆé¦–æ¬¡å¯åŠ¨éœ€ç¼–è¯‘æ•°æ®ï¼Œè¾ƒæ…¢ï¼‰ï¼‰...
+echo [2/4] Æô¶¯¶ÔÕ½ÒýÇæ£¨Showdown£¬×îÐ¡»¯´°¿Ú£©...
+start "Showdown ¶ÔÕ½ÒýÇæ£¨¹Ø±Õ´Ë´°¿Ú=Í£Ö¹¶ÔÕ½ÒýÇæ£©" /min cmd /k "cd /d "%~dp0pokemon-showdown" && node pokemon-showdown start --no-security"
+
+echo      µÈ´ýÒýÇæ¾ÍÐ÷£¨×î¶à 180 Ãë£¨Ê×´ÎÆô¶¯Ðè±àÒëÊý¾Ý£¬½ÏÂý£©£©...
 ".venv\Scripts\python.exe" scripts\wait_port.py 8000 180
 if errorlevel 1 (
-    echo [é”™è¯¯] å¯¹æˆ˜å¼•æ“Žå¯åŠ¨è¶…æ—¶ã€‚è¯·å±•å¼€ä»»åŠ¡æ çš„ Showdown çª—å£æŸ¥çœ‹æŠ¥é”™ã€‚
+    echo [´íÎó] ¶ÔÕ½ÒýÇæÆô¶¯³¬Ê±¡£ÇëÕ¹¿ªÈÎÎñÀ¸µÄ Showdown ´°¿Ú²é¿´±¨´í¡£
     pause
     exit /b 1
 )
 
-echo [2/3] å¯åŠ¨åŠ©æ‰‹åŽç«¯ï¼ˆAPI + ç½‘é¡µï¼Œæœ€å°åŒ–çª—å£ï¼‰...
-start "PBA åŽç«¯ï¼ˆå…³é—­æ­¤çª—å£=åœæ­¢ç½‘é¡µæœåŠ¡ï¼‰" /min cmd /k "cd /d "%~dp0" && .venv\Scripts\python.exe -m pokemon_battle_assistant serve --port 8300"
+echo [3/4] Æô¶¯ÖúÊÖºó¶Ë£¨API + ÍøÒ³£¬×îÐ¡»¯´°¿Ú£©...
+start "PBA ºó¶Ë£¨¹Ø±Õ´Ë´°¿Ú=Í£Ö¹ÍøÒ³·þÎñ£©" /min cmd /k "cd /d "%~dp0" && .venv\Scripts\python.exe -m pokemon_battle_assistant serve --port 8300"
 
-echo       ç­‰å¾…åŽç«¯å°±ç»ªï¼ˆæœ€å¤š 180 ç§’ï¼ˆé¦–æ¬¡å¯åŠ¨éœ€ç¼–è¯‘æ•°æ®ï¼Œè¾ƒæ…¢ï¼‰ï¼‰...
+echo      µÈ´ýºó¶Ë¾ÍÐ÷£¨×î¶à 180 Ãë£¨Ê×´ÎÆô¶¯Ðè±àÒëÊý¾Ý£¬½ÏÂý£©£©...
 ".venv\Scripts\python.exe" scripts\wait_port.py 8300 60
 if errorlevel 1 (
-    echo [é”™è¯¯] åŽç«¯å¯åŠ¨è¶…æ—¶ã€‚è¯·å±•å¼€ä»»åŠ¡æ çš„ PBA åŽç«¯çª—å£æŸ¥çœ‹æŠ¥é”™ã€‚
+    echo [´íÎó] ºó¶ËÆô¶¯³¬Ê±¡£ÇëÕ¹¿ªÈÎÎñÀ¸µÄ PBA ºó¶Ë´°¿Ú²é¿´±¨´í¡£
     pause
     exit /b 1
 )
 
-echo [3/3] æ‰“å¼€æµè§ˆå™¨ ...
+echo [4/4] ´ò¿ªä¯ÀÀÆ÷ ...
 start "" http://127.0.0.1:8300
 
 echo.
 echo ============================================
-echo    å¯åŠ¨æˆåŠŸï¼
-echo    æµè§ˆå™¨æ²¡è‡ªåŠ¨æ‰“å¼€å°±æ‰‹åŠ¨è®¿é—®ï¼šhttp://127.0.0.1:8300
-echo    åœæ­¢æœåŠ¡ï¼šå…³é—­ä»»åŠ¡æ é‡Œä¸¤ä¸ªæœ€å°åŒ–çš„é»‘è‰²çª—å£
+echo    Æô¶¯³É¹¦£¡
+echo    ä¯ÀÀÆ÷Ã»×Ô¶¯´ò¿ª¾ÍÊÖ¶¯·ÃÎÊ£ºhttp://127.0.0.1:8300
+echo    ÖØ¸´ÔËÐÐ±¾½Å±¾¼´¿ÉÖØÆô·þÎñ£¨×Ô¶¯ÇåÀí¾É½ø³Ì£¬ÎÞÐèÏÈ¹Ø´°¿Ú£©
+echo    ³¹µ×Í£Ö¹£º¹Ø±ÕÈÎÎñÀ¸ÀïÁ½¸ö×îÐ¡»¯µÄºÚÉ«´°¿Ú
 echo ============================================
 pause
 exit /b 0

@@ -14,13 +14,22 @@ from ..jobs import JobRegistry
 
 class LabStartRequest(BaseModel):
     team: str
-    opponents: list[str]
+    opponents: list[str] | None = None  # 缺省 = lab 目录下全部预设队伍（排除己方）
     battles_per_opponent: int = 3
     format: str = "gen9bssregi"
     concurrency: int = 2
     backend: str | None = None
     model: str | None = None
     output_root: str = "lab_outputs"
+
+
+def default_lab_opponents(team: str) -> list[str]:
+    """lab 目录下的全部预设队伍名，排除己方队伍。"""
+    from ... import data_paths
+
+    directory = data_paths.TEAMS_DIR / "lab"
+    directory.mkdir(parents=True, exist_ok=True)
+    return sorted(path.stem for path in directory.glob("*.json") if path.stem != team)
 
 
 def create_lab_router(registry: JobRegistry, *, lab_runner_provider: Callable[[], Any]) -> APIRouter:
@@ -35,9 +44,12 @@ def create_lab_router(registry: JobRegistry, *, lab_runner_provider: Callable[[]
             from ...modules.lab.config import BatchConfig
 
             backend = payload.get("backend")
+            opponents = list(payload.get("opponents") or [])
+            if not opponents:
+                opponents = default_lab_opponents(payload["team"])
             config = BatchConfig(
                 team=payload["team"],
-                opponents=list(payload["opponents"]),
+                opponents=opponents,
                 battles_per_opponent=int(payload.get("battles_per_opponent") or 3),
                 battle_format=payload.get("format") or "gen9bssregi",
                 concurrency=int(payload.get("concurrency") or 2),

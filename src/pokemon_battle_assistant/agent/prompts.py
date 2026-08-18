@@ -41,7 +41,11 @@ def render_turn_user_message(
     opponent_summary: dict[str, Any] | None = None,
 ) -> str:
     obs = observation.to_dict() if hasattr(observation, "to_dict") else dict(observation or {})
-    legal_orders = [str(o) for o in obs.get("legal_orders") or []]
+    raw_orders = obs.get("legal_orders") or []
+    legal_orders = [
+        str(o.get("message") if isinstance(o, dict) else getattr(o, "message", o))
+        for o in raw_orders
+    ]
     lines = [
         f"=== 第 {obs.get('turn')} 回合 | {obs.get('phase')} ===",
         f"局面摘要：{obs.get('summary') or '（无）'}",

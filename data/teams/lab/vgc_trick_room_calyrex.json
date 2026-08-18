@@ -1,5 +1,6 @@
 {
   "name": "VGC Trick Room Calyrex",
+  "display_name": "VGC 空间王者",
   "format": "gen9vgc2026regi",
   "team": [
     {
@@ -9,9 +10,28 @@
       "nature": "Brave",
       "tera_type": "Fire",
       "level": 50,
-      "evs": {"hp": 252, "atk": 252, "def": 4, "spa": 0, "spd": 0, "spe": 0},
-      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 0},
-      "moves": ["Glacial Lance", "High Horsepower", "Trick Room", "Protect"]
+      "evs": {
+        "hp": 252,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 0
+      },
+      "moves": [
+        "Glacial Lance",
+        "High Horsepower",
+        "Trick Room",
+        "Protect"
+      ]
     },
     {
       "species": "Farigiraf",
@@ -20,9 +40,28 @@
       "nature": "Sassy",
       "tera_type": "Water",
       "level": 50,
-      "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 0, "spd": 252, "spe": 0},
-      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 0},
-      "moves": ["Trick Room", "Helping Hand", "Psychic", "Protect"]
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 4,
+        "spa": 0,
+        "spd": 252,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 0
+      },
+      "moves": [
+        "Trick Room",
+        "Helping Hand",
+        "Psychic",
+        "Protect"
+      ]
     },
     {
       "species": "Amoonguss",
@@ -31,9 +70,28 @@
       "nature": "Relaxed",
       "tera_type": "Water",
       "level": 50,
-      "evs": {"hp": 252, "atk": 0, "def": 156, "spa": 0, "spd": 100, "spe": 0},
-      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 0},
-      "moves": ["Spore", "Rage Powder", "Pollen Puff", "Protect"]
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 156,
+        "spa": 0,
+        "spd": 100,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 0
+      },
+      "moves": [
+        "Spore",
+        "Rage Powder",
+        "Pollen Puff",
+        "Protect"
+      ]
     },
     {
       "species": "Incineroar",
@@ -42,9 +100,28 @@
       "nature": "Careful",
       "tera_type": "Ghost",
       "level": 50,
-      "evs": {"hp": 252, "atk": 4, "def": 0, "spa": 0, "spd": 252, "spe": 0},
-      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31},
-      "moves": ["Fake Out", "Flare Blitz", "Parting Shot", "Knock Off"]
+      "evs": {
+        "hp": 252,
+        "atk": 4,
+        "def": 0,
+        "spa": 0,
+        "spd": 252,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Fake Out",
+        "Flare Blitz",
+        "Parting Shot",
+        "Knock Off"
+      ]
     },
     {
       "species": "Ursaluna-Bloodmoon",
@@ -53,9 +130,28 @@
       "nature": "Quiet",
       "tera_type": "Normal",
       "level": 50,
-      "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 252, "spd": 0, "spe": 0},
-      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 0},
-      "moves": ["Blood Moon", "Hyper Voice", "Earth Power", "Protect"]
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 4,
+        "spa": 252,
+        "spd": 0,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 0
+      },
+      "moves": [
+        "Blood Moon",
+        "Hyper Voice",
+        "Earth Power",
+        "Protect"
+      ]
     },
     {
       "species": "Rillaboom",
@@ -64,9 +160,28 @@
       "nature": "Brave",
       "tera_type": "Fire",
       "level": 50,
-      "evs": {"hp": 252, "atk": 252, "def": 4, "spa": 0, "spd": 0, "spe": 0},
-      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 0},
-      "moves": ["Fake Out", "Grassy Glide", "Wood Hammer", "U-turn"]
+      "evs": {
+        "hp": 252,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 0
+      },
+      "moves": [
+        "Fake Out",
+        "Grassy Glide",
+        "Wood Hammer",
+        "U-turn"
+      ]
     }
   ]
 }

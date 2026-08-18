@@ -1,5 +1,6 @@
 {
   "name": "Example OU Team",
+  "display_name": "示例队伍",
   "format": "gen9ou",
   "team": [
     {
@@ -9,9 +10,28 @@
       "nature": "Timid",
       "tera_type": "Dragon",
       "level": 100,
-      "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 252, "spd": 4, "spe": 252},
-      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
-      "moves": ["Shadow Ball", "Draco Meteor", "Flamethrower", "U-turn"]
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 4,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Shadow Ball",
+        "Draco Meteor",
+        "Flamethrower",
+        "U-turn"
+      ]
     },
     {
       "species": "Great Tusk",
@@ -20,8 +40,20 @@
       "nature": "Jolly",
       "tera_type": "Ground",
       "level": 100,
-      "evs": {"hp": 252, "atk": 0, "def": 4, "spa": 0, "spd": 0, "spe": 252},
-      "moves": ["Headlong Rush", "Rapid Spin", "Ice Spinner", "Knock Off"]
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "moves": [
+        "Headlong Rush",
+        "Rapid Spin",
+        "Ice Spinner",
+        "Knock Off"
+      ]
     },
     {
       "species": "Gholdengo",
@@ -30,9 +62,28 @@
       "nature": "Timid",
       "tera_type": "Flying",
       "level": 100,
-      "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 252, "spd": 4, "spe": 252},
-      "ivs": {"hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31},
-      "moves": ["Make It Rain", "Shadow Ball", "Nasty Plot", "Recover"]
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "spd": 4,
+        "spe": 252
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Make It Rain",
+        "Shadow Ball",
+        "Nasty Plot",
+        "Recover"
+      ]
     }
   ]
 }

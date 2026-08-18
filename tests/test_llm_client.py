@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import unittest
 
 import httpx
@@ -52,8 +53,15 @@ OLLAMA_CHAT_RESPONSE = {
 
 
 def mock_client(handler) -> LLMClient:
+    # 显式传配置，避免被本地 .env（如 DeepSeek）污染，保证测试可复现
     http = httpx.Client(transport=httpx.MockTransport(handler))
-    return LLMClient(backend="openai", api_key="test-key", http_client=http)
+    return LLMClient(
+        backend="openai",
+        api_key="test-key",
+        base_url="https://api.openai.com/v1",
+        model="gpt-4o-mini",
+        http_client=http,
+    )
 
 
 class TestOpenAIBackend(unittest.TestCase):
@@ -156,10 +164,25 @@ class TestConfig(unittest.TestCase):
                 os.environ["LLM_BACKEND"] = old
 
     def test_default_openai_config(self):
-        client = LLMClient(api_key="k")
-        self.assertEqual(client.backend, "openai")
-        self.assertEqual(client.base_url, "https://api.openai.com/v1")
-        self.assertEqual(client.model, "gpt-4o-mini")
+        from unittest import mock
+
+        keys = ["LLM_BACKEND", "OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_MODEL"]
+        old = {k: os.environ.get(k) for k in keys}
+        for k in keys:
+            os.environ.pop(k, None)
+        try:
+            # 屏蔽 .env 加载，验证无任何配置时的默认值
+            with mock.patch("pokemon_battle_assistant.agent.llm_client._load_dotenv"):
+                client = LLMClient(api_key="k")
+            self.assertEqual(client.backend, "openai")
+            self.assertEqual(client.base_url, "https://api.openai.com/v1")
+            self.assertEqual(client.model, "gpt-4o-mini")
+        finally:
+            for k, v in old.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
 
 
 class TestDataclasses(unittest.TestCase):
