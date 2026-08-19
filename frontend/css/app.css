@@ -1,0 +1,136 @@
+/* 极简风格：白底浅灰背景、细边框、轻阴影 */
+[v-cloak] { display: none; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f6f8; }
+
+.layout { height: 100vh; }
+.aside { background: #fff; border-right: 1px solid #ebeef2; display: flex; flex-direction: column; }
+.logo { padding: 20px 20px 14px; border-bottom: 1px solid #f0f2f5; }
+.logo-title { font-size: 17px; font-weight: 600; color: #303133; }
+.logo-sub { font-size: 11px; color: #a8abb2; margin-top: 3px; }
+.menu { border-right: none; flex: 1; }
+.aside-foot { padding: 14px 20px; border-top: 1px solid #f0f2f5; }
+.foot-item { font-size: 12px; line-height: 22px; }
+.muted { color: #a8abb2; }
+
+.main { padding: 24px 28px; overflow-y: auto; }
+.page-title { font-size: 20px; font-weight: 600; color: #303133; margin: 0 0 4px; }
+.page-desc { color: #909399; font-size: 13px; margin: 0 0 20px; }
+
+/* 属性徽章 */
+.type-badge { display: inline-block; color: #fff; font-size: 12px; line-height: 1;
+  padding: 4px 9px; border-radius: 4px; margin-right: 6px; }
+
+/* 宝可梦卡片 */
+.pc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.pc .el-card__body { padding: 14px 16px; }
+.pc-head { display: flex; align-items: baseline; gap: 8px; }
+.pc-name { font-size: 16px; font-weight: 600; }
+.pc-en { font-size: 12px; color: #a8abb2; flex: 1; }
+.pc-lv { font-size: 12px; color: #606266; }
+.pc-types { margin: 8px 0 10px; }
+.pc-desc { margin-bottom: 10px; }
+.pc-move { margin: 0 6px 6px 0; }
+
+/* 通用 */
+.block { background: #fff; border: 1px solid #ebeef2; border-radius: 8px; padding: 18px 20px; margin-bottom: 16px; }
+.mono { font-family: Consolas, monospace; font-size: 12px; }
+.export-pre { background: #fafafa; border: 1px solid #ebeef2; border-radius: 6px;
+  padding: 12px; white-space: pre-wrap; word-break: break-all; color: #606266; }
+
+/* 首页卡片 */
+.el-card .card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.el-card .card-body { font-size: 13px; color: #909399; line-height: 1.6; margin-bottom: 14px; min-height: 42px; }
+
+/* 建队任务 */
+.job-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  font-size: 13px; color: #606266; }
+.job-logs { background: #fafafa; border: 1px solid #ebeef2; border-radius: 6px;
+  padding: 10px 14px; line-height: 1.9; }
+.job-err { margin-top: 12px; }
+.job-done { margin-top: 14px; }
+.done-name { font-size: 18px; font-weight: 600; }
+.done-strategy { color: #606266; font-size: 13px; margin: 6px 0 4px; }
+.done-meta { font-size: 12px; }
+.done-actions { margin-top: 14px; }
+
+/* 对战实验室 */
+.lab-vs { display: flex; align-items: flex-start; gap: 14px; }
+.lab-vs-side { flex: 1; }
+.lab-vs-mid { padding-top: 32px; font-weight: 600; color: #909399; }
+.lab-rounds { padding: 0 6px; }
+.lab-progress { margin-top: 16px; }
+.lab-progress-text { font-size: 12px; margin: 6px 0 14px; }
+.lab-score { display: flex; align-items: center; justify-content: center; gap: 40px;
+  padding: 18px 0; border-bottom: 1px solid #f0f2f5; margin-bottom: 16px; }
+.lab-score-side { text-align: center; min-width: 160px; }
+.lab-score-name { font-size: 14px; font-weight: 600; color: #303133; }
+.lab-score-num { font-size: 40px; font-weight: 700; line-height: 1.3; }
+.lab-score-mid { text-align: center; font-size: 13px; }
+.lab-score-rate { font-size: 15px; font-weight: 600; color: #409eff; margin-bottom: 4px; }
+.lab-charts { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+.lab-chart-card { flex: 1; min-width: 300px; border: 1px solid #ebeef2; border-radius: 8px;
+  padding: 14px 16px; }
+.lab-chart-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.lab-chart { height: 260px; width: 100%; }
+.lab-win-seq { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 0 12px; }
+.lab-win-dot { width: 16px; height: 16px; border-radius: 4px; cursor: pointer; }
+.lab-win-dot.w-a { background: #67c23a; }
+.lab-win-dot.w-b { background: #f56c6c; }
+.lab-win-dot.w-draw { background: #c0c4cc; }
+.lab-win-dot:hover { transform: scale(1.25); }
+.lab-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+  margin-right: 3px; vertical-align: middle; }
+.lab-legend { font-size: 12px; margin-top: 2px; }
+.lab-table { cursor: default; }
+.lab-actions { margin-top: 16px; }
+.opt-sub { float: right; font-size: 12px; color: #a8abb2; }
+.block-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+
+/* 对战明细 */
+.bd-actor { font-weight: 600; margin-right: 10px; }
+.bd-move { color: #409eff; }
+.bd-switch { color: #e6a23c; }
+
+/* 队伍详情 */
+.back { margin-bottom: 16px; }
+.head-row { display: flex; align-items: center; gap: 10px; }
+.head-name { margin: 0; font-size: 20px; }
+.head-meta { color: #a8abb2; margin-top: 6px; }
+.head-req { margin-top: 12px; }
+.teams-table { cursor: pointer; }
+.team-name { font-weight: 500; }
+
+/* 分析报告 */
+.an-start-row { display: flex; gap: 14px; align-items: flex-start; }
+.an-start-sess { flex: 2; }
+.an-start-focus { flex: 2; }
+.an-start-btn { flex: 0 0 auto; }
+.an-title { font-weight: 500; }
+.an-summary { font-size: 12px; margin-top: 2px; }
+.an-headline { font-size: 15px; font-weight: 600; color: #409eff; margin: 10px 0 4px; }
+.an-text { font-size: 13px; line-height: 1.8; color: #606266; margin: 0 0 8px; white-space: pre-wrap; }
+.an-perf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+.an-perf { border: 1px solid #ebeef2; border-radius: 8px; padding: 12px 14px; border-left-width: 3px; }
+.an-perf.side-a { border-left-color: #67c23a; }
+.an-perf.side-b { border-left-color: #f56c6c; }
+.an-perf-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.an-perf-name { font-size: 15px; font-weight: 600; }
+.an-perf-role { font-size: 12px; }
+.an-perf-moves { margin: 8px 0; }
+.an-move { margin: 0 4px 4px 0; }
+.an-issue { margin-top: 6px; }
+.an-two-col { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.an-two-col .block { flex: 1; min-width: 320px; margin-bottom: 0; }
+.an-line { padding: 7px 0; border-bottom: 1px dashed #f0f2f5; font-size: 13px; display: flex; gap: 10px; align-items: baseline; }
+.an-line:last-child { border-bottom: none; }
+.an-pair { font-weight: 600; white-space: nowrap; }
+.an-hl { display: flex; align-items: center; gap: 8px; padding: 9px 6px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+.an-hl:hover { background: #f5f7fa; }
+.an-hl-turn { font-weight: 600; }
+.an-hl-side.side-a-text { color: #67c23a; }
+.an-hl-side.side-b-text { color: #f56c6c; }
+.an-hl-what { flex: 1; }
+.an-rec { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; border-bottom: 1px dashed #f0f2f5; font-size: 13px; }
+.an-rec:last-child { border-bottom: none; }
+.an-rec-target { font-weight: 600; white-space: nowrap; }

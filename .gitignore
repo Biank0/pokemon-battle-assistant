@@ -40,3 +40,7 @@ data/memory/
 analysis_outputs/
 lab_outputs/
 orchestrator_outputs/
+
+# Runtime logs / temp outputs
+data/lab/*.log
+_*.txt

@@ -1,0 +1,29 @@
+{
+  "_comment": "赛制机器约束（一份两用：拼 prompt 喂 LLM + validator 校验）。人类可读规则文本的权威源是 data/rules/formats.json，本文件只存机器字段。",
+  "formats": {
+    "gen9bssregi": {
+      "display_name": "BSS Regulation I",
+      "game_type": "singles",
+      "team_size": 6,
+      "level": 50,
+      "allow_dup_items": false,
+      "allow_dup_species": false
+    },
+    "gen9vgc2026regi": {
+      "display_name": "VGC 2026 Regulation I",
+      "game_type": "doubles",
+      "team_size": 6,
+      "level": 50,
+      "allow_dup_items": false,
+      "allow_dup_species": false
+    },
+    "gen9ou": {
+      "display_name": "Gen 9 OU",
+      "game_type": "singles",
+      "team_size": 6,
+      "level": 100,
+      "allow_dup_items": true,
+      "allow_dup_species": false
+    }
+  }
+}

@@ -1,0 +1,315 @@
+{
+ "id": "d207e3d8-24e1-419c-b024-8a61147b9636",
+ "report": {
+  "title": "BSS 平衡轴 vs BSS 戏法空间 · 6轮复盘",
+  "headline": "戏法空间压制平衡轴，Calyrex-Shadow 成最大威胁",
+  "rating": "C",
+  "win_loss_read": "BSS 平衡轴以 2-4 落败，胜率仅 33.3%。平均回合数 8.2，最短 5 回合，最长 18 回合，节奏偏快但存在拉锯战。败方在速攻与消耗中均显吃力，尤其面对 Calyrex-Shadow 的星碎压制，多次被迫换人。胜方戏法空间队通过 Calyrex-Shadow、布莉姆温等核心反复施压，平衡轴缺乏有效反制。样本 6 轮，结论有一定参考性。",
+  "pokemon_performance": [
+   {
+    "species_zh": "快龙",
+    "side": "a",
+    "role": "物理输出/联防",
+    "appearance": 5,
+    "moves_used": [
+     {
+      "move_zh": "地震",
+      "count": 7
+     },
+     {
+      "move_zh": "火焰拳",
+      "count": 4
+     }
+    ],
+    "verdict": "出场率最高，但被频繁换下（2次），对位 Calyrex-Shadow 和仆刀将军时吃亏。地震和火焰拳使用合理，但面对飞行系或浮游特性时缺乏打击面。",
+    "issues": [
+     "对 Calyrex-Shadow 无有效反制，多次被星碎击退"
+    ]
+   },
+   {
+    "species_zh": "赛富豪",
+    "side": "a",
+    "role": "特攻输出",
+    "appearance": 4,
+    "moves_used": [
+     {
+      "move_zh": "淘金潮",
+      "count": 7
+     },
+     {
+      "move_zh": "暗影球",
+      "count": 3
+     }
+    ],
+    "verdict": "特攻主力，淘金潮使用频繁，但被败露球菇的终极吸取反复压制（5次对位），换出次数高达4次，生存能力堪忧。",
+    "issues": [
+     "被败露球菇针对，缺乏反制手段"
+    ]
+   },
+   {
+    "species_zh": "火神蛾",
+    "side": "a",
+    "role": "特攻输出",
+    "appearance": 3,
+    "moves_used": [
+     {
+      "move_zh": "喷射火焰",
+      "count": 10
+     }
+    ],
+    "verdict": "喷射火焰使用10次，但被 Calyrex-Shadow 的星碎秒杀，换出3次，生存能力差，未能发挥应有作用。",
+    "issues": [
+     "被 Calyrex-Shadow 压制，无有效应对"
+    ]
+   },
+   {
+    "species_zh": "Rotom-Wash",
+    "side": "a",
+    "role": "特攻输出/联防",
+    "appearance": 2,
+    "moves_used": [
+     {
+      "move_zh": "水炮",
+      "count": 5
+     }
+    ],
+    "verdict": "水炮对多边兽２型造成一定压力，但被三重攻击反制，换出1次，表现中规中矩。",
+    "issues": []
+   },
+   {
+    "species_zh": "古鼎鹿",
+    "side": "a",
+    "role": "坦克/消耗",
+    "appearance": 2,
+    "moves_used": [
+     {
+      "move_zh": "大灾难",
+      "count": 11
+     }
+    ],
+    "verdict": "大灾难使用11次，对布莉姆温造成大量伤害，但自身被魔法火焰持续消耗，最终败北，耐久不足。",
+    "issues": [
+     "被布莉姆温的魔法火焰克制"
+    ]
+   },
+   {
+    "species_zh": "古剑豹",
+    "side": "a",
+    "role": "物理输出",
+    "appearance": 1,
+    "moves_used": [
+     {
+      "move_zh": "冰旋",
+      "count": 1
+     },
+     {
+      "move_zh": "突袭",
+      "count": 1
+     }
+    ],
+    "verdict": "出场仅1次，使用冰旋和突袭各1次，未能造成显著影响。",
+    "issues": []
+   },
+   {
+    "species_zh": "败露球菇",
+    "side": "b",
+    "role": "特攻输出/干扰",
+    "appearance": 4,
+    "moves_used": [
+     {
+      "move_zh": "污泥炸弹",
+      "count": 6
+     },
+     {
+      "move_zh": "终极吸取",
+      "count": 5
+     }
+    ],
+    "verdict": "对赛富豪造成巨大压力，终极吸取多次命中，成功压制对方核心，表现优秀。",
+    "issues": []
+   },
+   {
+    "species_zh": "Calyrex-Shadow",
+    "side": "b",
+    "role": "高速特攻核心",
+    "appearance": 4,
+    "moves_used": [
+     {
+      "move_zh": "星碎",
+      "count": 8
+     },
+     {
+      "move_zh": "花粉团",
+      "count": 1
+     }
+    ],
+    "verdict": "星碎使用8次，多次击退快龙、赛富豪、火神蛾，是胜方最大功臣，几乎无法被反制。",
+    "issues": []
+   },
+   {
+    "species_zh": "仆刀将军",
+    "side": "b",
+    "role": "物理输出",
+    "appearance": 3,
+    "moves_used": [
+     {
+      "move_zh": "仆刀",
+      "count": 6
+     }
+    ],
+    "verdict": "仆刀对快龙和火神蛾造成有效伤害，配合 Calyrex-Shadow 形成双核心压制。",
+    "issues": []
+   },
+   {
+    "species_zh": "布莉姆温",
+    "side": "b",
+    "role": "特攻输出/空间手",
+    "appearance": 2,
+    "moves_used": [
+     {
+      "move_zh": "魔法火焰",
+      "count": 10
+     },
+     {
+      "move_zh": "精神强念",
+      "count": 1
+     }
+    ],
+    "verdict": "魔法火焰对古鼎鹿造成持续伤害，在长盘对局中发挥关键作用，是消耗战的核心。",
+    "issues": []
+   },
+   {
+    "species_zh": "多边兽２型",
+    "side": "b",
+    "role": "特攻输出/空间手",
+    "appearance": 2,
+    "moves_used": [
+     {
+      "move_zh": "三重攻击",
+      "count": 8
+     },
+     {
+      "move_zh": "冰冻光束",
+      "count": 1
+     }
+    ],
+    "verdict": "三重攻击对 Rotom-Wash 造成压力，冰冻光束对赛富豪有效，表现稳定。",
+    "issues": []
+   },
+   {
+    "species_zh": "月月熊",
+    "side": "b",
+    "role": "物理输出",
+    "appearance": 1,
+    "moves_used": [
+     {
+      "move_zh": "突飞猛扑",
+      "count": 2
+     }
+    ],
+    "verdict": "出场仅1次，突飞猛扑对古鼎鹿造成伤害，但未能持续发挥。",
+    "issues": []
+   }
+  ],
+  "matchups": [
+   {
+    "attacker_zh": "Calyrex-Shadow",
+    "defender_zh": "快龙",
+    "read": "Calyrex-Shadow 的星碎多次命中快龙，快龙被迫换下，对位明显吃亏。"
+   },
+   {
+    "attacker_zh": "败露球菇",
+    "defender_zh": "赛富豪",
+    "read": "败露球菇的终极吸取多次命中赛富豪，赛富豪被压制，换出4次，对位劣势。"
+   },
+   {
+    "attacker_zh": "布莉姆温",
+    "defender_zh": "古鼎鹿",
+    "read": "布莉姆温的魔法火焰对古鼎鹿造成持续伤害，古鼎鹿虽用大灾难反击，但最终被消耗致死。"
+   },
+   {
+    "attacker_zh": "多边兽２型",
+    "defender_zh": "Rotom-Wash",
+    "read": "多边兽２型的三重攻击对 Rotom-Wash 造成压力，Rotom-Wash 用水炮反击，互有往来。"
+   }
+  ],
+  "threats": [
+   {
+    "from_zh": "Calyrex-Shadow",
+    "why": "星碎使用8次，多次击退快龙、赛富豪、火神蛾，出场率67%，是胜方核心威胁。",
+    "counter": "建议使用恶系或幽灵系宝可梦进行反制，或携带气势披带等道具抵挡一击。"
+   },
+   {
+    "from_zh": "败露球菇",
+    "why": "终极吸取对赛富豪造成巨大压力，出场率67%，是败方核心威胁。",
+    "counter": "建议使用飞行系或火系招式反制，或换入特防较高的宝可梦。"
+   },
+   {
+    "from_zh": "布莉姆温",
+    "why": "魔法火焰对古鼎鹿造成持续伤害，在长盘对局中表现突出。",
+    "counter": "建议使用毒系或钢系宝可梦抵抗，或携带防特攻下降的树果。"
+   }
+  ],
+  "highlights": [
+   {
+    "round_no": 1,
+    "turn": 3,
+    "side": "a",
+    "what": "火神蛾换下换上赛富豪，试图应对 Calyrex-Shadow，但随后被星碎击退。"
+   },
+   {
+    "round_no": 5,
+    "turn": 2,
+    "side": "a",
+    "what": "古鼎鹿使用大灾难对 Calyrex-Shadow 造成伤害，但随后被月月熊压制。"
+   },
+   {
+    "round_no": 4,
+    "turn": 10,
+    "side": "a",
+    "what": "赛富豪换下换上古鼎鹿，古鼎鹿开始对布莉姆温使用大灾难，但被魔法火焰持续消耗。"
+   }
+  ],
+  "recommendations": [
+   {
+    "priority": "高",
+    "target": "快龙",
+    "change": "考虑携带神速或冰冻拳，增加对 Calyrex-Shadow 的反制能力。",
+    "reason": "快龙被 Calyrex-Shadow 的星碎多次击退，对位劣势明显。"
+   },
+   {
+    "priority": "高",
+    "target": "赛富豪",
+    "change": "携带气势披带或替换为特防更高的宝可梦，减少被败露球菇的终极吸取压制。",
+    "reason": "赛富豪被败露球菇压制，换出4次，生存能力不足。"
+   },
+   {
+    "priority": "中",
+    "target": "火神蛾",
+    "change": "考虑携带气腰或替换为更耐打的宝可梦，避免被 Calyrex-Shadow 秒杀。",
+    "reason": "火神蛾被星碎秒杀，出场3次换出3次，生存能力差。"
+   },
+   {
+    "priority": "中",
+    "target": "首发策略",
+    "change": "调整首发，避免让火神蛾或赛富豪直接面对 Calyrex-Shadow。",
+    "reason": "首发对位不利导致早期被动，Calyrex-Shadow 多次首发压制。"
+   }
+  ]
+ },
+ "session_meta": {
+  "session_id": "754dd410-d6ce-411a-8b64-e78e535d3c72",
+  "team_a": "BSS 平衡轴",
+  "team_b": "BSS 戏法空间",
+  "format": "gen9bssregi",
+  "rounds": 6,
+  "score": "2-4",
+  "team_a_wins": 2,
+  "team_b_wins": 4,
+  "team_a_win_rate": 33.3,
+  "avg_turns": 8.2,
+  "min_turns": 5,
+  "max_turns": 18
+ },
+ "generated_at": "2026-08-19T15:26:35+00:00"
+}

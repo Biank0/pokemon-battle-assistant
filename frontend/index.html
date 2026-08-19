@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宝可梦对战助手</title>
+<link rel="stylesheet" href="/vendor/element-plus.css">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div id="app" v-cloak>
+  <el-container class="layout">
+    <el-aside width="216px" class="aside">
+      <div class="logo">
+        <div class="logo-title">宝可梦对战助手</div>
+        <div class="logo-sub">Pokemon Battle Assistant</div>
+      </div>
+      <el-menu :default-active="active" router class="menu">
+        <el-menu-item index="/">首页</el-menu-item>
+        <el-menu-item index="/generate">AI 建队</el-menu-item>
+        <el-menu-item index="/teams">队伍库</el-menu-item>
+        <el-menu-item index="/lab">对战实验室</el-menu-item>
+        <el-menu-item index="/analyses">分析报告</el-menu-item>
+      </el-menu>
+      <div class="aside-foot">
+        <div class="foot-item muted">数据洞察 · 持续复盘</div>
+      </div>
+    </el-aside>
+    <el-main class="main">
+      <router-view></router-view>
+    </el-main>
+  </el-container>
+</div>
+
+<script src="/vendor/vue.global.prod.js"></script>
+<script src="/vendor/vue-router.global.prod.js"></script>
+<script src="/vendor/element-plus.full.min.js"></script>
+<script src="/vendor/element-plus-zh-cn.min.js"></script>
+<script src="/vendor/echarts.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="/js/views/HomeView.js?v=2"></script>
+<script src="/js/views/GenerateView.js?v=2"></script>
+<script src="/js/views/TeamsView.js?v=2"></script>
+<script src="/js/views/TeamDetailView.js?v=2"></script>
+<script src="/js/views/LabView.js?v=4"></script>
+<script src="/js/views/BattleDetailView.js?v=2"></script>
+<script src="/js/views/AnalysesView.js?v=1"></script>
+<script src="/js/views/AnalysisDetailView.js?v=1"></script>
+<script src="/js/app.js?v=3"></script>
+</body>
+</html>
