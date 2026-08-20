@@ -13,13 +13,16 @@
   GET  /api/analyze/{id}     轮询分析任务进度/结果
   GET  /api/analyses         分析报告列表
   GET  /api/analyses/{id}    分析报告详情（结构化 + 高光跳转）
+  GET  /api/settings         LLM 连接配置（key 打码）
+  POST /api/settings         更新配置（写 .env，立即生效）
+  POST /api/settings/test    连接测试（最小 LLM 调用）
 """
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from .routes import analyze, generate, lab, teams
+from .routes import analyze, generate, lab, settings, teams
 
 ROOT = Path(__file__).resolve().parents[3]
 FRONTEND_DIR = ROOT / "frontend"
@@ -29,6 +32,7 @@ app.include_router(teams.router, prefix="/api")
 app.include_router(generate.router, prefix="/api")
 app.include_router(lab.router, prefix="/api")
 app.include_router(analyze.router, prefix="/api")
+app.include_router(settings.router, prefix="/api")
 
 
 @app.middleware("http")

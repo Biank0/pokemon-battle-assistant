@@ -1,0 +1,8 @@
+# 运行时依赖（Python 3.10+，版本为实测锁定版本）
+fastapi==0.141.1
+uvicorn==0.52.3
+httpx==0.28.1
+pydantic==2.13.4
+poke-env==0.15.0
+websockets==16.0
+numpy==2.5.2

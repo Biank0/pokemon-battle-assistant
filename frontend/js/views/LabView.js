@@ -12,8 +12,8 @@ const LabView = {
             <el-select v-model="teamA" placeholder="选择队伍" style="width: 100%"
                        @change="syncFormat('a')">
               <el-option v-for="t in teams" :key="t.name"
-                         :label="t.display_name + '（' + formatName(t.format) + '·' + sourceName(t.source) + '）'"
-                         :value="t.name"></el-option>
+                         :label="teamLabel(t)"
+                         :value="t.name" :disabled="!isSingles(t.format)"></el-option>
             </el-select>
           </el-form-item>
           <div class="lab-vs-mid">VS</div>
@@ -21,15 +21,15 @@ const LabView = {
             <el-select v-model="teamB" placeholder="选择队伍" style="width: 100%"
                        @change="syncFormat('b')">
               <el-option v-for="t in teams" :key="t.name"
-                         :label="t.display_name + '（' + formatName(t.format) + '·' + sourceName(t.source) + '）'"
-                         :value="t.name" :disabled="t.name === teamA"></el-option>
+                         :label="teamLabel(t)"
+                         :value="t.name"
+                         :disabled="t.name === teamA || !isSingles(t.format)"></el-option>
             </el-select>
           </el-form-item>
         </div>
-        <el-form-item label="对战赛制">
+        <el-form-item label="对战赛制（第一期仅单打）">
           <el-radio-group v-model="format">
             <el-radio value="gen9bssregi">BSS（6选3单打 Lv50）</el-radio>
-            <el-radio value="gen9vgc2026regi">VGC（6选4双打 Lv50）</el-radio>
             <el-radio value="gen9ou">OU（6v6 单打 Lv100）</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -162,10 +162,15 @@ const LabView = {
   beforeUnmount() { this.stopPoll(); if (this.chart) this.chart.dispose(); },
   methods: {
     formatName(f) { return ({ gen9bssregi: "BSS", gen9vgc2026regi: "VGC", gen9ou: "OU" })[f] || f; },
+    isSingles(f) { return f === "gen9bssregi" || f === "gen9ou"; },
+    teamLabel(t) {
+      const base = t.display_name + "（" + this.formatName(t.format) + "·" + this.sourceName(t.source) + "）";
+      return this.isSingles(t.format) ? base : base + " 双打·暂不支持";
+    },
     sourceName(s) { return ({ preset: "预设", ai: "AI 生成", manual: "手动" })[s] || s; },
     syncFormat(side) {
       const t = this.teams.find((x) => x.name === (side === "a" ? this.teamA : this.teamB));
-      if (t) this.format = t.format;
+      if (t && this.isSingles(t.format)) this.format = t.format;
     },
     async start() {
       this.starting = true;

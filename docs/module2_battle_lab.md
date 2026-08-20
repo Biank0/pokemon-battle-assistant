@@ -54,6 +54,16 @@ BSS 队伍（Lv50）拿去打 OU（Lv100）会被服务器拒队、bot 挂死等
 `POST /api/lab/start` 先比对两队 format 与请求赛制，不一致直接 400，错误信息中文可读。
 （开发中实测：xiaobian 标错 gen9ou 导致拒队，顺手修正了 teams.db 的 format 字段。）
 
+### 2.5 第一期仅支持单打（BSS / OU）
+VGC 双打路径未适配，实测会卡死：
+- poke-env 的 `DoubleBattle.active_pokemon` 返回**列表**（两只在场），
+  CollectorBot 的单打采集假设会抛 AttributeError 被 `except: pass` 吞掉 → 明细/热榜/分析全空
+- 双打是 6 选 4 + 双指令组合（`DoubleBattleOrder`）+ 保护/目标选择，采集与决策都要单写
+
+处理：`POST /api/lab/start` 白名单（`SUPPORTED_FORMATS = {gen9bssregi, gen9ou}`），
+前端赛制只留单打两项、双打队伍下拉禁用并标注"暂不支持"；AI 建队仍可建 VGC 队
+（标注"暂不能进实验室"），二期适配双打采集后再放开。
+
 ## 3. 产出数据（battles.db 三层）
 
 - **battle_sessions**：一任务一行，`rounds_done` 供轮询，`stats_json` 存聚合

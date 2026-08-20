@@ -134,3 +134,9 @@ body { margin: 0; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; backgr
 .an-rec { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; border-bottom: 1px dashed #f0f2f5; font-size: 13px; }
 .an-rec:last-child { border-bottom: none; }
 .an-rec-target { font-weight: 600; white-space: nowrap; }
+
+/* 设置 */
+.set-key-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+.set-actions { margin-top: 4px; }
+.set-result { margin-top: 14px; }
+.set-help { font-size: 13px; line-height: 1.8; }

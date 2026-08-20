@@ -14,7 +14,9 @@ const GenerateView = {
         <el-form-item label="赛制">
           <el-radio-group v-model="format">
             <el-radio value="gen9bssregi">BSS（6选3单打 Lv50）</el-radio>
-            <el-radio value="gen9vgc2026regi">VGC（6选4双打 Lv50）</el-radio>
+            <el-radio value="gen9vgc2026regi">VGC（6选4双打 Lv50）
+              <span class="muted" style="font-size:12px">（暂不能进实验室）</span>
+            </el-radio>
             <el-radio value="gen9ou">OU（6v6 单打 Lv100）</el-radio>
           </el-radio-group>
         </el-form-item>

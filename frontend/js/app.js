@@ -11,6 +11,7 @@ const routes = [
   { path: "/lab/battle/:id", component: BattleDetailView, props: true },
   { path: "/analyses", component: AnalysesView },
   { path: "/analyses/:id", component: AnalysisDetailView, props: true },
+  { path: "/settings", component: SettingsView },
 ];
 
 const router = createRouter({ history: createWebHashHistory(), routes });
@@ -22,6 +23,7 @@ const app = createApp({
       if (route.path.startsWith("/teams")) return "/teams";
       if (route.path.startsWith("/lab")) return "/lab";
       if (route.path.startsWith("/analyses")) return "/analyses";
+      if (route.path.startsWith("/settings")) return "/settings";
       return route.path;
     });
     return { active };

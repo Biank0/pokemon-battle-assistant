@@ -1,0 +1,346 @@
+{
+ "id": "ef927761-369b-45da-8270-29b72c79a753",
+ "report": {
+  "title": "雪幕极光队 vs BSS 戏法空间 · 20轮复盘",
+  "headline": "BSS戏法空间以12-8胜出，雪幕极光队节奏被压制",
+  "rating": "B",
+  "win_loss_read": "20轮对战中，雪幕极光队以8胜12负（40%胜率）告负，BSS戏法空间占据上风。平均回合数7.0，最短4回合，最长13回合，表明对局以中速攻防为主，但存在速攻压制（如第4轮4回合结束）和持久消耗（第9轮13回合）两种极端。整体节奏偏向BSS的控场与空间战术，A队虽偶有爆发但稳定性不足。样本20轮，结论具有参考价值。",
+  "pokemon_performance": [
+   {
+    "species_zh": "戟脊龙",
+    "side": "a",
+    "role": "物理输出核心",
+    "appearance": 15,
+    "moves_used": [
+     {
+      "move_zh": "巨剑突击",
+      "count": 14
+     },
+     {
+      "move_zh": "冰锥",
+      "count": 11
+     },
+     {
+      "move_zh": "地震",
+      "count": 3
+     }
+    ],
+    "verdict": "出场率75%，是A队最依赖的物理输出，巨剑突击和冰锥使用频繁，但被频繁换下（10次）说明对位常处于劣势，尤其在面对BSS的钢系和超能系时。地震使用较少，可能因命中或环境限制。",
+    "issues": [
+     "换下次数多，对位生存能力不足"
+    ]
+   },
+   {
+    "species_zh": "水君",
+    "side": "a",
+    "role": "特殊输出与联防",
+    "appearance": 12,
+    "moves_used": [
+     {
+      "move_zh": "热水",
+      "count": 31
+     },
+     {
+      "move_zh": "冰冻光束",
+      "count": 13
+     }
+    ],
+    "verdict": "水君是A队特殊输出的中坚，热水使用31次，冰冻光束13次，对BSS的败露球菇、布莉姆温等造成压力，但被换下8次，面对Calyrex-Shadow和布莉姆温时可能吃亏。",
+    "issues": [
+     "面对高特攻对手时生存压力大"
+    ]
+   },
+   {
+    "species_zh": "Calyrex-Shadow",
+    "side": "b",
+    "role": "高速特攻核心",
+    "appearance": 11,
+    "moves_used": [
+     {
+      "move_zh": "星碎",
+      "count": 27
+     }
+    ],
+    "verdict": "BSS的绝对核心，星碎使用27次，对A队造成巨大威胁，出场率55%且换下仅3次，说明其压制力强，A队难以反制。",
+    "issues": []
+   },
+   {
+    "species_zh": "多边兽２型",
+    "side": "b",
+    "role": "空间手与特攻输出",
+    "appearance": 9,
+    "moves_used": [
+     {
+      "move_zh": "三重攻击",
+      "count": 25
+     },
+     {
+      "move_zh": "冰冻光束",
+      "count": 3
+     }
+    ],
+    "verdict": "多边兽２型是BSS的空间启动手，三重攻击使用25次，对A队造成持续伤害，但换下6次，可能因A队的冰系攻击而需要规避。",
+    "issues": []
+   },
+   {
+    "species_zh": "铁包袱",
+    "side": "a",
+    "role": "高速特攻手",
+    "appearance": 8,
+    "moves_used": [
+     {
+      "move_zh": "冰冻光束",
+      "count": 15
+     },
+     {
+      "move_zh": "水炮",
+      "count": 2
+     }
+    ],
+    "verdict": "铁包袱作为高速特攻手，冰冻光束使用15次，但水炮仅2次，可能因命中或环境限制。换下5次，面对Calyrex-Shadow时被压制（对位6次）。",
+    "issues": [
+     "面对Calyrex-Shadow时劣势明显"
+    ]
+   },
+   {
+    "species_zh": "Ninetales-Alola",
+    "side": "a",
+    "role": "雪天启动手与特攻",
+    "appearance": 8,
+    "moves_used": [
+     {
+      "move_zh": "冰冻光束",
+      "count": 19
+     }
+    ],
+    "verdict": "Ninetales-Alola作为雪天启动手，冰冻光束使用19次，对多边兽２型有压制（对位12次），但面对BSS的钢系和超能系时可能乏力。",
+    "issues": [
+     "招式单一，缺乏应对钢系手段"
+    ]
+   },
+   {
+    "species_zh": "仆刀将军",
+    "side": "b",
+    "role": "物理输出与联防",
+    "appearance": 8,
+    "moves_used": [
+     {
+      "move_zh": "仆刀",
+      "count": 13
+     },
+     {
+      "move_zh": "铁头",
+      "count": 4
+     }
+    ],
+    "verdict": "仆刀将军是BSS的物理输出，仆刀使用13次，铁头4次，对A队的多龙巴鲁托和戟脊龙造成威胁，但换下4次，可能因A队的火系或格斗系攻击。",
+    "issues": []
+   },
+   {
+    "species_zh": "多龙巴鲁托",
+    "side": "a",
+    "role": "高速特攻手",
+    "appearance": 7,
+    "moves_used": [
+     {
+      "move_zh": "暗影球",
+      "count": 8
+     },
+     {
+      "move_zh": "十万伏特",
+      "count": 4
+     },
+     {
+      "move_zh": "流星群",
+      "count": 4
+     }
+    ],
+    "verdict": "多龙巴鲁托出场率35%，但换下7次，说明对位常处于劣势。暗影球使用8次，但面对BSS的败露球菇时，流星群连续使用（第17轮）却未能有效突破。",
+    "issues": [
+     "换下频繁，对位生存能力差"
+    ]
+   },
+   {
+    "species_zh": "铝钢桥龙",
+    "side": "a",
+    "role": "物理防御与输出",
+    "appearance": 7,
+    "moves_used": [
+     {
+      "move_zh": "扑击",
+      "count": 10
+     },
+     {
+      "move_zh": "龙之波动",
+      "count": 6
+     }
+    ],
+    "verdict": "铝钢桥龙作为物理防御，扑击使用10次，龙之波动6次，对布莉姆温和月月熊有对位，但面对Calyrex-Shadow时被星碎压制（第17轮）。",
+    "issues": [
+     "面对高特攻时防御不足"
+    ]
+   },
+   {
+    "species_zh": "月月熊",
+    "side": "b",
+    "role": "物理输出",
+    "appearance": 7,
+    "moves_used": [
+     {
+      "move_zh": "突飞猛扑",
+      "count": 17
+     }
+    ],
+    "verdict": "月月熊是BSS的物理输出，突飞猛扑使用17次，但换下6次，可能因A队的冰系或水系攻击而需要规避。",
+    "issues": []
+   },
+   {
+    "species_zh": "败露球菇",
+    "side": "b",
+    "role": "特殊输出与消耗",
+    "appearance": 7,
+    "moves_used": [
+     {
+      "move_zh": "终极吸取",
+      "count": 17
+     },
+     {
+      "move_zh": "污泥炸弹",
+      "count": 8
+     }
+    ],
+    "verdict": "败露球菇是BSS的消耗核心，终极吸取17次，污泥炸弹8次，对A队的水君和多龙巴鲁托造成持续压力，但换下6次，可能因A队的冰系攻击。",
+    "issues": []
+   },
+   {
+    "species_zh": "布莉姆温",
+    "side": "b",
+    "role": "空间手与特攻输出",
+    "appearance": 7,
+    "moves_used": [
+     {
+      "move_zh": "精神强念",
+      "count": 18
+     },
+     {
+      "move_zh": "魔法火焰",
+      "count": 8
+     }
+    ],
+    "verdict": "布莉姆温是BSS的空间手，精神强念18次，魔法火焰8次，对A队的水君和铝钢桥龙造成威胁，但换下4次，可能因A队的物理攻击。",
+    "issues": []
+   }
+  ],
+  "matchups": [
+   {
+    "attacker_zh": "败露球菇",
+    "defender_zh": "水君",
+    "read": "双方互有攻防（13次），败露球菇的终极吸取对水君造成持续消耗，但水君的热水也能反制，对位均势。"
+   },
+   {
+    "attacker_zh": "Ninetales-Alola",
+    "defender_zh": "多边兽２型",
+    "read": "Ninetales-Alola的冰冻光束对多边兽２型有压制（12次），但多边兽２型的三重攻击也能反击，对位略占优。"
+   },
+   {
+    "attacker_zh": "布莉姆温",
+    "defender_zh": "水君",
+    "read": "布莉姆温的精神强念对水君造成威胁（11次），水君的热水也能反制，但布莉姆温在空间下可能更快，对位略占优。"
+   },
+   {
+    "attacker_zh": "戟脊龙",
+    "defender_zh": "多边兽２型",
+    "read": "戟脊龙的巨剑突击对多边兽２型有压制（9次），但多边兽２型的三重攻击也能反击，对位均势。"
+   },
+   {
+    "attacker_zh": "Calyrex-Shadow",
+    "defender_zh": "水君",
+    "read": "Calyrex-Shadow的星碎对水君造成巨大威胁（8次），水君的热水虽能反击，但Calyrex-Shadow速度更快，对位明显压制。"
+   }
+  ],
+  "threats": [
+   {
+    "from_zh": "Calyrex-Shadow",
+    "why": "出场率55%，星碎使用27次，对A队造成大量失分，换下仅3次，压制力极强。",
+    "counter": "A队需准备高速特攻手或优先处理，如铁包袱的冰冻光束，但需注意速度线。"
+   },
+   {
+    "from_zh": "布莉姆温",
+    "why": "出场率35%，精神强念18次，对水君和铝钢桥龙造成威胁，空间下速度优势明显。",
+    "counter": "A队可用物理攻击手如戟脊龙优先压制，或使用恶系招式。"
+   },
+   {
+    "from_zh": "败露球菇",
+    "why": "出场率35%，终极吸取17次，对水君和多龙巴鲁托造成持续消耗，污泥炸弹也有威胁。",
+    "counter": "A队可用冰系或飞行系招式反制，如Ninetales-Alola的冰冻光束。"
+   }
+  ],
+  "highlights": [
+   {
+    "round_no": 4,
+    "turn": 4,
+    "side": "b",
+    "what": "仆刀将军使用铁头击败戟脊龙，BSS以4回合速胜，展现空间下的压制力。"
+   },
+   {
+    "round_no": 17,
+    "turn": 6,
+    "side": "b",
+    "what": "Calyrex-Shadow使用星碎击败戟脊龙，随后铝钢桥龙也被星碎击败，BSS锁定胜局。"
+   },
+   {
+    "round_no": 9,
+    "turn": 13,
+    "side": "a",
+    "what": "戟脊龙使用冰锥击败布莉姆温，A队以13回合长盘逆转获胜，展现持久战能力。"
+   }
+  ],
+  "recommendations": [
+   {
+    "priority": "高",
+    "target": "戟脊龙",
+    "change": "考虑携带气势披带或增加速度努力值，减少被换下次数，提升对位生存能力。",
+    "reason": "出场率75%但换下10次，巨剑突击虽强但需保证出手。"
+   },
+   {
+    "priority": "高",
+    "target": "铁包袱",
+    "change": "增加水炮使用频率或更换为冰冻光束+水炮双攻，以应对Calyrex-Shadow。",
+    "reason": "面对Calyrex-Shadow对位6次，但水炮仅2次，缺乏有效反制。"
+   },
+   {
+    "priority": "中",
+    "target": "Ninetales-Alola",
+    "change": "增加一个非冰系招式如魔法闪耀，以应对钢系和超能系。",
+    "reason": "招式单一，仅冰冻光束，面对BSS的钢系和超能系乏力。"
+   },
+   {
+    "priority": "中",
+    "target": "多龙巴鲁托",
+    "change": "减少流星群的使用，增加暗影球或十万伏特的频率，以稳定输出。",
+    "reason": "换下7次，流星群在关键对位中未能突破败露球菇。"
+   },
+   {
+    "priority": "低",
+    "target": "首发策略",
+    "change": "考虑以Ninetales-Alola或水君首发，利用雪天或热水压制BSS的空间手。",
+    "reason": "BSS的空间启动手多边兽２型和布莉姆温威胁大，提前压制可降低其节奏。"
+   }
+  ]
+ },
+ "session_meta": {
+  "session_id": "3dfc79dd-427e-4852-aea7-f5e2f9168eb7",
+  "team_a": "雪幕极光队",
+  "team_b": "BSS 戏法空间",
+  "format": "gen9bssregi",
+  "rounds": 20,
+  "score": "8-12",
+  "team_a_wins": 8,
+  "team_b_wins": 12,
+  "team_a_win_rate": 40.0,
+  "avg_turns": 7.0,
+  "min_turns": 4,
+  "max_turns": 13
+ },
+ "generated_at": "2026-08-19T16:30:07+00:00"
+}

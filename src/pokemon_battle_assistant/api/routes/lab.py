@@ -22,6 +22,9 @@ DEX_DB = ROOT / "data" / "dex" / "dex.db"
 
 router = APIRouter(prefix="/lab", tags=["lab"])
 
+# 第一期实验室仅支持单打（VGC 双打的采集与决策路径未适配，实测会卡死）
+SUPPORTED_FORMATS = {"gen9bssregi", "gen9ou"}
+
 
 class LabStartRequest(BaseModel):
     team_a: str
@@ -32,6 +35,11 @@ class LabStartRequest(BaseModel):
 
 @router.post("/start")
 def start_lab(req: LabStartRequest):
+    # 赛制白名单：第一期仅单打
+    if req.format not in SUPPORTED_FORMATS:
+        raise HTTPException(400, (
+            f"对战赛制 {req.format} 暂不支持：实验室第一期仅支持单打"
+            f"（gen9bssregi / gen9ou）"))
     # 赛制一致性校验：两队 format 必须与对战赛制一致（拒队风险前置暴露）
     try:
         for side in ("team_a", "team_b"):
