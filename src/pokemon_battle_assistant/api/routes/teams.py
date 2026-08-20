@@ -1,4 +1,4 @@
-"""队伍查询 API：列表 + 详情（服务端 JOIN dex 出全中文）。"""
+"""队伍 API：查询（JOIN dex 全中文）+ 管理（导入/调整/删除）。"""
 from __future__ import annotations
 
 import json
@@ -6,6 +6,10 @@ import sqlite3
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
+from ...team_builder import importer, repository as team_repo, validator
+from ...skills.team_building import skill as skill_pkg
 
 ROOT = Path(__file__).resolve().parents[4]
 TEAMS_DB = ROOT / "data" / "teams" / "teams.db"
@@ -25,6 +29,24 @@ FORMAT_ZH = {
     "gen9ou": "OU（6v6 单打 Lv100）",
 }
 SOURCE_ZH = {"preset": "预设", "ai": "AI 生成", "manual": "手工"}
+
+_SKILL_VERSION = "v1"
+
+
+def _migrate() -> None:
+    """启动时幂等补列：team_members.stat_reason（repository 写路径同样兜底）。"""
+    try:
+        conn = sqlite3.connect(TEAMS_DB)
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(team_members)")}
+        if "stat_reason" not in cols:
+            conn.execute("ALTER TABLE team_members ADD COLUMN stat_reason TEXT")
+            conn.commit()
+        conn.close()
+    except sqlite3.Error:
+        pass
+
+
+_migrate()
 
 
 def _conn() -> sqlite3.Connection:
@@ -74,7 +96,8 @@ def team_detail(name: str):
         for r in conn.execute(
                 "SELECT m.slot, m.species_id, s.name_zh, s.name_en, s.type1, s.type2, "
                 "m.level, m.nature, n.name_zh, m.ability, ab.name_zh, "
-                "m.item, it.name_zh, it.name_en, m.tera_type, m.moves, m.evs, m.ivs "
+                "m.item, it.name_zh, it.name_en, m.tera_type, m.moves, m.evs, m.ivs, "
+                "m.stat_reason, s.hp, s.atk, s.def, s.spa, s.spd, s.spe, s.bst "
                 "FROM team_members m "
                 "JOIN dex.species s ON s.id = m.species_id "
                 "LEFT JOIN dex.natures n ON n.id = m.nature "
@@ -97,6 +120,9 @@ def team_detail(name: str):
                 "moves": moves,
                 "evs": json.loads(r[16]) if r[16] else None,
                 "ivs": json.loads(r[17]) if r[17] else None,
+                "stat_reason": r[18],
+                "stats": {"hp": r[19], "atk": r[20], "def": r[21],
+                          "spa": r[22], "spd": r[23], "spe": r[24], "bst": r[25]},
             })
 
         return {
@@ -109,3 +135,75 @@ def team_detail(name: str):
         }
     finally:
         conn.close()
+
+
+# ---------------------------------------------------------------
+# 队伍管理：导入（Showdown 串）/ 调整 / 删除
+# ---------------------------------------------------------------
+
+class TeamCreateIn(BaseModel):
+    display_name: str
+    format: str
+    export_text: str
+
+
+class TeamUpdateIn(BaseModel):
+    display_name: str | None = None
+    export_text: str | None = None
+
+
+def _parse_and_validate(export_text: str, format_id: str) -> list[dict]:
+    """导出串 → 成员（解析 400 / 赛制校验 422，错误中文可直接展示）。"""
+    skill = skill_pkg.load(_SKILL_VERSION)
+    try:
+        c = skill.constraints(format_id)
+    except KeyError as e:
+        raise HTTPException(400, str(e))
+    try:
+        members = importer.parse_paste(export_text, default_level=c["level"])
+    except importer.ImportParseError as e:
+        raise HTTPException(400, str(e))
+    errors = validator.validate(
+        {"display_name": "临时队伍", "name_en": "manual_team", "members": members},
+        format_id, skill)
+    if errors:
+        raise HTTPException(422, "校验未通过：\n- " + "\n- ".join(errors))
+    return members
+
+
+@router.post("/teams", status_code=201)
+def create_team(body: TeamCreateIn):
+    display_name = body.display_name.strip()
+    if not display_name:
+        raise HTTPException(400, "队伍名不能为空")
+    if not body.export_text.strip():
+        raise HTTPException(400, "请粘贴 Showdown 队伍导出串")
+    members = _parse_and_validate(body.export_text, body.format)
+    return team_repo.save_manual_team(display_name, body.format, members)
+
+
+@router.put("/teams/{name}")
+def update_team(name: str, body: TeamUpdateIn):
+    members = None
+    if body.export_text is not None:
+        conn = _conn()
+        try:
+            row = conn.execute("SELECT format FROM teams WHERE name=?", (name,)).fetchone()
+        finally:
+            conn.close()
+        if not row:
+            raise HTTPException(404, f"队伍不存在: {name}")
+        members = _parse_and_validate(body.export_text, row[0])
+    display_name = (body.display_name or "").strip() or None
+    if display_name is None and members is None:
+        raise HTTPException(400, "没有要修改的内容")
+    if not team_repo.update_team(name, display_name=display_name, members=members):
+        raise HTTPException(404, f"队伍不存在: {name}")
+    return {"ok": True}
+
+
+@router.delete("/teams/{name}")
+def remove_team(name: str):
+    if not team_repo.delete_team(name):
+        raise HTTPException(404, f"队伍不存在: {name}")
+    return {"ok": True}

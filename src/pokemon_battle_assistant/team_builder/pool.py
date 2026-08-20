@@ -94,6 +94,7 @@ def build_pool(conn: sqlite3.Connection, slot: dict) -> list[dict]:
             "name_zh": r["name_zh"] or r["name_en"],
             "types": "/".join(t for t in (r["type1"], r["type2"]) if t),
             "stats": {k: r[k] for k in ("hp", "atk", "def", "spa", "spd", "spe")},
+            "bst": r["bst"],
             "abilities": sorted({slugify(a) for a in abilities.values() if a}),
             "top_moves": [(m[0], m[1] or m[2], m[3]) for m in _top_moves(conn, r["id"])],
         })
@@ -118,7 +119,8 @@ def render_pools(blueprint: dict, pools: list[list[dict]]) -> str:
             moves_s = ", ".join(f"{s}({n},{bp})" for s, n, bp in p["top_moves"])
             lines.append(
                 f"- {p['species']} {p['name_zh']} ｜ {p['types']} ｜ "
-                f"种族值 HP/{stats_s} ｜ 特性: {', '.join(p['abilities'])} ｜ "
+                f"种族值 {stats_s}（HP/攻/防/特攻/特防/速，总和 {p['bst']}） ｜ "
+                f"特性: {', '.join(p['abilities'])} ｜ "
                 f"代表招: {moves_s}")
         parts.append("\n".join(lines))
     return "\n\n".join(parts)

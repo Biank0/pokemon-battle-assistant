@@ -22,7 +22,8 @@
       "level": 50,
       "moves": ["move_slug1", "move_slug2", "move_slug3", "move_slug4"],
       "evs": {"hp": 0, "atk": 252, "def": 0, "spa": 0, "spd": 4, "spe": 252},
-      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31}
+      "ivs": {"hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31},
+      "stat_reason": "一句中文：基于种族值的定位依据"
     }
   ]
 }
@@ -38,6 +39,7 @@
 - `tera_type`：18 属性之一（英文首字母大写，如 "Ghost"）；
 - `level`：按赛制（BSS/VGC=50，OU=100）；
 - `evs`：六维齐全、单项 0~252、总和 ≤510；`ivs` 六维齐全、0~31（不投的物理项可写 0）；
+- `stat_reason`：必填，一句中文（≤40 字），说明该配置如何从种族值推出——如"速度 145 压环境主流，极速保先手；特攻 150 远高于攻击，纯特攻向"。不许写空话（"很强""好用"类一律不合格）；
 - `members` 恰好 6 只，slot_role 覆盖蓝图各角色位；
 - `name_en`：小写英文+下划线（如 sun_hyper_offense），是队伍的文件标识；
 - `display_name`：中文队名（如"晴之疾风·特攻压制队"）。

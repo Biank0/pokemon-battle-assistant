@@ -76,10 +76,10 @@ body { margin: 0; font-family: var(--font-ui); background: var(--pk-bg);
 .foot-item { font-size: 11px; line-height: 20px; }
 .muted { color: var(--pk-muted); }
 
-.main { padding: 24px 28px; overflow-y: auto; }
+.main { padding: 20px 24px; overflow-y: auto; }
 .page-title { font-size: 20px; font-weight: 700; color: var(--pk-ink);
   margin: 0 0 4px; padding-left: 12px; border-left: 4px solid var(--pk-red); }
-.page-desc { color: #909399; font-size: 13px; margin: 0 0 20px 16px; }
+.page-desc { color: #909399; font-size: 13px; margin: 0 0 16px 16px; }
 
 /* ---------- 像素精灵图通用 ---------- */
 .sprite { image-rendering: pixelated; image-rendering: crisp-edges; }
@@ -106,6 +106,20 @@ body { margin: 0; font-family: var(--font-ui); background: var(--pk-bg);
 .pc-sprite-box { display: flex; justify-content: center; margin: 4px 0 10px;
   background: repeating-linear-gradient(45deg, #FAFBFC 0 8px, #F2F4F8 8px 16px);
   border: 1px solid var(--pk-border); border-radius: var(--radius); padding: 10px; }
+
+/* 种族值条（经典宝可梦六维） */
+.pc-stats { margin: 4px 0 10px; display: flex; flex-direction: column; gap: 4px; }
+.pc-stat-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+.pc-stat-label { width: 28px; flex: none; color: var(--pk-muted); }
+.pc-stat-val { width: 28px; flex: none; text-align: right; font-weight: 700;
+  color: var(--pk-ink); font-variant-numeric: tabular-nums; }
+.pc-stat-bar { flex: 1; height: 6px; background: #EBEEF5; border-radius: 3px;
+  overflow: hidden; }
+.pc-stat-bar i { display: block; height: 100%; }
+.pc-stat-bst { margin-top: 3px; text-align: right; font-size: 11px; color: #909399; }
+.pc-stat-reason { margin: 0 0 10px; padding: 6px 9px; font-size: 12px;
+  color: #606266; line-height: 1.6; background: #F7F9FC;
+  border-left: 3px solid var(--pk-yellow); border-radius: 2px; }
 
 /* ---------- 通用卡片 ---------- */
 .block { background: var(--pk-card); border: 1px solid var(--pk-border);
@@ -224,7 +238,7 @@ body { margin: 0; font-family: var(--font-ui); background: var(--pk-bg);
   padding: 6px 10px; border: 1px dashed var(--pk-border); border-radius: var(--radius);
   background: repeating-linear-gradient(45deg, #FAFBFC 0 8px, #F2F4F8 8px 16px);
   font-size: 12px; }
-.lab-rounds { padding: 0 6px; }
+.lab-rounds { padding: 0 6px; margin-bottom: 26px; }  /* 给刻度数字留位，避免压住下方按钮 */
 .lab-progress { margin-top: 16px; }
 .lab-progress-text { font-size: 12px; margin: 6px 0 14px; }
 
@@ -276,7 +290,15 @@ body { margin: 0; font-family: var(--font-ui); background: var(--pk-bg);
 .back { margin-bottom: 16px; }
 .head-row { display: flex; align-items: center; gap: 10px; }
 .head-name { margin: 0; font-size: 20px; font-weight: 700; }
+.head-actions { margin-left: auto; display: flex; gap: 8px; }
 .head-meta { color: var(--pk-muted); margin-top: 6px; }
+
+/* 队伍管理 */
+.teams-toolbar { display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 14px; }
+.mono-area textarea { font-family: var(--font-mono); font-size: 12px; line-height: 1.6; }
+.pre-line .el-alert__content, .pre-line .el-alert__title { white-space: pre-line;
+  word-break: break-all; }
 .head-req { margin-top: 12px; }
 .teams-table { cursor: pointer; }
 .team-name { font-weight: 500; }

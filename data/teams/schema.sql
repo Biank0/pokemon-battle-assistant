@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS team_members (
     moves      TEXT NOT NULL,             -- 招式 slug JSON 数组（1~4 个），如 '["weatherball","encore"]'
     evs        TEXT,                      -- 努力值 JSON：{"hp":12,"atk":0,...}（六维齐全）
     ivs        TEXT,                      -- 个体值 JSON：{"hp":31,...}（六维齐全）
+    stat_reason TEXT,                     -- AI 基于种族值的配置依据（建队契约字段；preset/manual 为 NULL）
     PRIMARY KEY (team_id, slot)
 );
 
