@@ -123,17 +123,49 @@ body { margin: 0; font-family: var(--font-ui); background: var(--pk-bg);
 .el-card .card-body { font-size: 13px; color: #909399; line-height: 1.6;
   margin-bottom: 14px; min-height: 42px; }
 
+/* GBA 标题画面 Hero */
+.hero { position: relative; display: flex; align-items: center;
+  justify-content: space-between; gap: 24px; padding: 30px 32px 26px;
+  margin-bottom: 16px; background: linear-gradient(180deg, #FFFFFF, #FBFCFE);
+  border: 1px solid var(--pk-border); border-radius: var(--radius);
+  box-shadow: var(--shadow-px-lg); overflow: hidden; }
+.hero::before { content: ""; position: absolute; top: 0; left: 0; right: 0;
+  height: 4px; background: repeating-linear-gradient(90deg,
+    var(--pk-red) 0 16px, var(--pk-yellow) 16px 32px); }
+.hero-title { font-family: var(--font-pixel); font-size: 24px; line-height: 1.6;
+  color: var(--pk-ink); letter-spacing: 2px; }
+.hero-sub { margin-top: 12px; color: #606266; font-size: 13px; }
+.hero-start { display: inline-block; margin-top: 18px; padding: 4px 2px;
+  font-family: var(--font-pixel); font-size: 12px; letter-spacing: 1px;
+  color: var(--pk-red); cursor: pointer;
+  animation: hero-blink 1.1s steps(2, end) infinite; }
+.hero-start:hover { color: var(--pk-red-dark); }
+@keyframes hero-blink { 50% { opacity: 0; } }
+
+/* 随机遭遇（GBA 开场：二帧点头） */
+.hero-wild { text-align: center; flex: none; }
+.hero-wild-stage { display: inline-block; padding: 8px 18px 4px;
+  background: repeating-linear-gradient(45deg, #FAFBFC 0 8px, #F2F4F8 8px 16px);
+  border: 1px solid var(--pk-border); border-radius: var(--radius); }
+.hero-wild-sprite { width: 112px; height: 112px;
+  animation: wild-bob 0.9s steps(2, end) infinite; }
+@keyframes wild-bob { 50% { transform: translateY(-6px); } }
+.hero-wild-text { margin-top: 8px; font-size: 13px; color: #606266; }
+.hero-wild-text b { color: var(--pk-ink); }
+
 /* 数据看板 */
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
   margin-bottom: 16px; }
 .stat-card { background: var(--pk-card); border: 1px solid var(--pk-border);
   border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow-px);
-  position: relative; overflow: hidden; }
+  position: relative; overflow: hidden;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out; }
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-px-lg); }
 .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0;
   height: 4px; background: var(--stat-accent, var(--pk-blue)); }
 .stat-label { font-size: 12px; color: var(--pk-muted); letter-spacing: 1px; }
 .stat-value { font-family: var(--font-pixel); font-size: 30px; line-height: 1.2;
-  color: var(--pk-ink); margin: 10px 0 6px; }
+  color: var(--pk-ink); margin: 10px 0 6px; font-variant-numeric: tabular-nums; }
 .stat-foot { font-size: 12px; color: #909399; }
 .stat-card.c-red   { --stat-accent: var(--pk-red); }
 .stat-card.c-green { --stat-accent: var(--pk-green); }
@@ -142,11 +174,31 @@ body { margin: 0; font-family: var(--font-ui); background: var(--pk-bg);
 
 .home-latest { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 .home-mini { border: 1px solid var(--pk-border); border-radius: var(--radius);
-  padding: 14px 16px; background: var(--pk-card); }
+  padding: 14px 16px; background: var(--pk-card);
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out,
+              border-color 0.15s ease-out; }
+.home-mini.clickable:hover { transform: translateY(-2px);
+  box-shadow: var(--shadow-px); border-color: var(--pk-border-dk); }
 .home-mini-title { font-size: 12px; color: var(--pk-muted); letter-spacing: 1px;
   margin-bottom: 8px; }
 .home-mini-main { font-size: 14px; font-weight: 600; }
-.home-mini-sub { font-size: 12px; color: #909399; margin-top: 4px; }
+.home-mini-sub { font-size: 12px; color: #909399; margin-top: 4px;
+  display: flex; align-items: center; gap: 6px; }
+
+/* 迷你对阵（最近跑量） */
+.mini-vs { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; }
+.mini-vs-score { font-family: var(--font-pixel); font-size: 14px;
+  color: var(--pk-ink); }
+
+/* 模块入口卡 hover */
+.entry-card { transition: transform 0.15s ease-out, box-shadow 0.15s ease-out; }
+.entry-card:hover { transform: translateY(-3px); }
+
+/* 动效降级：系统减弱动态时全部落定 */
+@media (prefers-reduced-motion: reduce) {
+  .hero-start, .hero-wild-sprite { animation: none; }
+  .stat-card, .home-mini, .entry-card { transition: none; }
+}
 
 /* ---------- 建队任务 ---------- */
 .job-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
