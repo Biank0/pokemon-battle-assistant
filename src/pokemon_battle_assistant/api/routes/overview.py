@@ -1,0 +1,82 @@
+"""首页总览 API：GET /api/overview 聚合跨库统计。
+
+一个请求拼好首页看板所需全部数据（避免前端连发 4 个请求）：
+- 队伍总数 / 最近 AI 建队
+- 对战场次总数 / 最近完成会话（含比分与胜率）
+- 分析报告数 / 最近报告标题
+- 图中鉴宝可梦总数（供图鉴感展示）
+"""
+from __future__ import annotations
+
+import json
+import sqlite3
+from pathlib import Path
+
+from fastapi import APIRouter
+
+ROOT = Path(__file__).resolve().parents[4]
+TEAMS_DB = ROOT / "data" / "teams" / "teams.db"
+BATTLES_DB = ROOT / "data" / "battles" / "battles.db"
+ANALYSIS_DB = ROOT / "data" / "analysis" / "analysis.db"
+DEX_DB = ROOT / "data" / "dex" / "dex.db"
+
+router = APIRouter()
+
+
+def _ro(db: Path) -> sqlite3.Connection:
+    conn = sqlite3.connect(f"file:{db.as_posix()}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+@router.get("/overview")
+def overview():
+    out: dict = {}
+
+    # ---- 队伍 ----
+    conn = _ro(TEAMS_DB)
+    total = conn.execute("SELECT COUNT(*) FROM teams").fetchone()[0]
+    latest = conn.execute(
+        "SELECT display_name, name, source, created_at FROM teams "
+        "ORDER BY created_at DESC LIMIT 1").fetchone()
+    conn.close()
+    out["teams"] = {
+        "total": total,
+        "latest": dict(latest) if latest else None,
+    }
+
+    # ---- 对战 ----
+    conn = _ro(BATTLES_DB)
+    battles_total = conn.execute("SELECT COUNT(*) FROM battles").fetchone()[0]
+    sess = conn.execute(
+        "SELECT id, format, rounds_done, rounds_total, stats_json "
+        "FROM battle_sessions WHERE status='completed' "
+        "ORDER BY finished_at DESC LIMIT 1").fetchone()
+    conn.close()
+    out["battles"] = {"total": battles_total, "latest_session": None}
+    if sess:
+        s = dict(sess)
+        stats = json.loads(s.pop("stats_json") or "{}")
+        out["battles"]["latest_session"] = {
+            **s,
+            # 队伍显示名/比分在 stats_json（与 lab 会话接口同源）
+            "team_a": stats.get("team_a_display", "A 队"),
+            "team_b": stats.get("team_b_display", "B 队"),
+            "score": f"{stats.get('team_a_wins', 0)}:{stats.get('team_b_wins', 0)}",
+            "team_a_win_rate": stats.get("team_a_win_rate", 0),
+        }
+
+    # ---- 分析报告 ----
+    conn = _ro(ANALYSIS_DB)
+    atotal = conn.execute("SELECT COUNT(*) FROM analyses").fetchone()[0]
+    la = conn.execute(
+        "SELECT id, title, rating FROM analyses "
+        "ORDER BY created_at DESC LIMIT 1").fetchone()
+    conn.close()
+    out["analyses"] = {"total": atotal, "latest": dict(la) if la else None}
+
+    # ---- 图鉴 ----
+    conn = _ro(DEX_DB)
+    out["dex_species"] = conn.execute("SELECT COUNT(*) FROM species").fetchone()[0]
+    conn.close()
+    return out

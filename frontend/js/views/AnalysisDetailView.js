@@ -1,13 +1,14 @@
 /* 分析报告详情：结构化渲染 JSON 报告 + 高光回合跳转到对战明细 */
 const AnalysisDetailView = {
+  components: { PokeSprite },
   template: `
   <div v-if="doc">
     <el-button link class="back" @click="$router.push('/analyses')">← 返回报告列表</el-button>
 
     <div class="block an-head">
       <div class="head-row">
+        <span v-if="report.rating" class="rating-stamp" :class="'rating-' + report.rating">{{ report.rating }}</span>
         <h2 class="head-name">{{ report.title }}</h2>
-        <el-tag :type="ratingType(report.rating)" effect="dark">{{ report.rating }}</el-tag>
       </div>
       <div class="an-headline">{{ report.headline }}</div>
       <div class="muted head-meta">
@@ -28,6 +29,7 @@ const AnalysisDetailView = {
         <div v-for="(p, i) in report.pokemon_performance" :key="i" class="an-perf"
              :class="'side-' + p.side">
           <div class="an-perf-head">
+            <poke-sprite v-if="p.species" :slug="p.species" size="md" class="an-perf-sprite"></poke-sprite>
             <span class="an-perf-name">{{ p.species_zh }}</span>
             <el-tag size="small" :type="p.side === 'a' ? 'success' : 'danger'">
               {{ p.side === 'a' ? 'A 队' : 'B 队' }}
@@ -110,9 +112,6 @@ const AnalysisDetailView = {
     }
   },
   methods: {
-    ratingType(r) {
-      return ({ S: "danger", A: "success", B: "primary", C: "warning", D: "info" })[r] || "info";
-    },
     prioType(p) {
       return ({ 高: "danger", 中: "warning", 低: "info" })[p] || "info";
     },

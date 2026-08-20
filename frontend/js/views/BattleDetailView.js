@@ -1,5 +1,6 @@
-/* 单场对战明细：逐回合动作时间线（己方/对手 双色） */
+/* 单场对战明细：逐回合动作时间线（己方/对手 双色 + 精灵头像） */
 const BattleDetailView = {
+  components: { PokeSprite },
   template: `
   <div v-if="battle">
     <h2 class="page-title">对战明细 · 第 {{ battle.round_no }} 场</h2>
@@ -15,8 +16,12 @@ const BattleDetailView = {
                           :hollow="t.side === 'b'"
                           :timestamp="'回合 ' + t.turn + (t.side === 'a' ? ' · A 队' : ' · B 队')"
                           placement="top">
+          <poke-sprite v-if="t.actor" :slug="t.actor" size="sm" class="bd-sprite"></poke-sprite>
           <span class="bd-actor">{{ t.actor_zh }}</span>
-          <span v-if="t.action_type === 'move'" class="bd-move">使用 {{ t.move_zh }} → {{ t.target_zh }}</span>
+          <span v-if="t.action_type === 'move'" class="bd-move">使用 {{ t.move_zh }} → </span>
+          <template v-if="t.action_type === 'move' && t.target">
+            <poke-sprite :slug="t.target" size="sm" class="bd-sprite"></poke-sprite><span>{{ t.target_zh }}</span>
+          </template>
           <span v-else-if="t.action_type === 'switch'" class="bd-switch">换上 {{ t.target_zh }}</span>
           <span v-else class="bd-order muted">选择出场顺序：{{ t.move_zh || t.actor_zh }}</span>
         </el-timeline-item>

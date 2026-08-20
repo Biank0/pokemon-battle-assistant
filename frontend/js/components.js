@@ -1,4 +1,4 @@
-/* 全局公共组件：TypeBadge / PokemonCard */
+/* 全局公共组件：TypeBadge / PokeSprite / PokemonCard */
 
 const TypeColors = {
   Normal: "#A8A77A", Fire: "#EE8130", Water: "#6390F0", Electric: "#F7D02C",
@@ -14,8 +14,23 @@ const TypeBadge = {
   template: `<span class="type-badge" :style="{ background: color }">{{ type.zh }}</span>`,
 };
 
+/* 官方像素精灵图：/sprites/{slug}.png（本地 vendor，下载管线见 scripts/download_sprites.py）。
+   缺图时隐藏元素（入场包已覆盖全部队伍/对战物种；新建队伍物种由增量下载补齐）。 */
+const PokeSprite = {
+  props: {
+    slug: { type: String, required: true },
+    size: { type: String, default: "md" },          // sm(32) / md(56) / lg(96)
+  },
+  computed: {
+    src() { return "/sprites/" + this.slug + ".png"; },
+    cls() { return "sprite sprite-" + this.size; },
+  },
+  template: `<img :src="src" :class="cls" :alt="slug" loading="lazy"
+                 @error="$event.target.style.visibility='hidden'">`,
+};
+
 const PokemonCard = {
-  components: { TypeBadge },
+  components: { TypeBadge, PokeSprite },
   props: { member: { type: Object, required: true } },
   template: `
   <el-card class="pc" shadow="never">
@@ -23,6 +38,9 @@ const PokemonCard = {
       <span class="pc-name">{{ member.name_zh }}</span>
       <span class="pc-en">{{ member.name_en }}</span>
       <span class="pc-lv">Lv{{ member.level }}</span>
+    </div>
+    <div class="pc-sprite-box">
+      <poke-sprite :slug="member.species" size="lg"></poke-sprite>
     </div>
     <div class="pc-types">
       <type-badge v-for="t in member.types" :key="t.en" :type="t"></type-badge>

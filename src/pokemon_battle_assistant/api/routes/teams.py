@@ -38,14 +38,18 @@ def list_teams():
     conn = _conn()
     try:
         rows = conn.execute(
-            "SELECT id, name, display_name, format, source, requirement_prompt, "
-            "created_at, updated_at FROM teams ORDER BY created_at DESC, name"
+            "SELECT t.id, t.name, t.display_name, t.format, t.source, "
+            "t.requirement_prompt, t.created_at, t.updated_at, "
+            "(SELECT m.species_id FROM team_members m "
+            " WHERE m.team_id = t.id ORDER BY m.slot LIMIT 1) AS ace "
+            "FROM teams t ORDER BY t.created_at DESC, t.name"
         ).fetchall()
         return [{
             "id": r[0], "name": r[1], "display_name": r[2],
             "format": r[3], "format_zh": FORMAT_ZH.get(r[3], r[3]),
             "source": r[4], "source_zh": SOURCE_ZH.get(r[4], r[4]),
             "requirement_prompt": r[5], "created_at": r[6], "updated_at": r[7],
+            "ace_sprite": r[8],   # 首发位精灵 slug（前端列表/选人预览图）
         } for r in rows]
     finally:
         conn.close()

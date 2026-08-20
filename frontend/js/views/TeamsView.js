@@ -1,5 +1,6 @@
 /* 队伍库：列表 + 筛选 */
 const TeamsView = {
+  components: { PokeSprite },
   template: `
   <div>
     <h2 class="page-title">队伍库</h2>
@@ -12,6 +13,7 @@ const TeamsView = {
                 class="teams-table" :header-cell-style="{ background: '#fafafa' }">
         <el-table-column prop="display_name" label="队伍" min-width="160">
           <template #default="{ row }">
+            <poke-sprite v-if="row.ace_sprite" :slug="row.ace_sprite" size="sm" class="cell-sprite"></poke-sprite>
             <span class="team-name">{{ row.display_name }}</span>
           </template>
         </el-table-column>

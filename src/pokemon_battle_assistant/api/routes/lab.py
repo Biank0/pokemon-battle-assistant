@@ -19,6 +19,7 @@ from ...lab import session as session_mod
 ROOT = Path(__file__).resolve().parents[4]
 BATTLES_DB = ROOT / "data" / "battles" / "battles.db"
 DEX_DB = ROOT / "data" / "dex" / "dex.db"
+TEAMS_DB = ROOT / "data" / "teams" / "teams.db"
 
 router = APIRouter(prefix="/lab", tags=["lab"])
 
@@ -104,6 +105,8 @@ def get_session(session_id: str):
             "id": r[0], "format": r[3], "rounds_total": r[4], "rounds_done": r[5],
             "status": r[6], "error": r[7], "started_at": r[8], "finished_at": r[9],
             "stats": json.loads(r[10]) if r[10] else None,
+            # 两队首发位精灵 slug（比分板精灵图）
+            "team_a_sprite": _team_ace(r[1]), "team_b_sprite": _team_ace(r[2]),
             "battles": [{"id": b[0], "round_no": b[1], "winner": b[2],
                          "end_turn": b[3]} for b in battles],
         }
@@ -167,6 +170,19 @@ def _zh_maps() -> dict:
 def _team_display(team_id: str) -> str:
     from ...lab.session import _team_name
     return _team_name(team_id)["display"]
+
+
+def _team_ace(team_id: str) -> str | None:
+    """队伍首发位（slot 最小）精灵 slug，供前端比分板展示。"""
+    try:
+        conn = sqlite3.connect(f"file:{TEAMS_DB}?mode=ro", uri=True)
+        r = conn.execute(
+            "SELECT species_id FROM team_members WHERE team_id=? "
+            "ORDER BY slot LIMIT 1", (team_id,)).fetchone()
+        conn.close()
+        return r[0] if r else None
+    except sqlite3.Error:
+        return None
 
 
 def _noop(*_a, **_kw) -> None:

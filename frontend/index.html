@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>宝可梦对战助手</title>
 <link rel="stylesheet" href="/vendor/element-plus.css">
-<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/app.css?v=3">
 </head>
 <body>
 <div id="app" v-cloak>
@@ -16,12 +16,12 @@
         <div class="logo-sub">Pokemon Battle Assistant</div>
       </div>
       <el-menu :default-active="active" router class="menu">
-        <el-menu-item index="/">首页</el-menu-item>
-        <el-menu-item index="/generate">AI 建队</el-menu-item>
-        <el-menu-item index="/teams">队伍库</el-menu-item>
-        <el-menu-item index="/lab">对战实验室</el-menu-item>
-        <el-menu-item index="/analyses">分析报告</el-menu-item>
-        <el-menu-item index="/settings">设置</el-menu-item>
+        <el-menu-item index="/"><span class="menu-ico">▣</span>首页</el-menu-item>
+        <el-menu-item index="/generate"><span class="menu-ico">✦</span>AI 建队</el-menu-item>
+        <el-menu-item index="/teams"><span class="menu-ico">▤</span>队伍库</el-menu-item>
+        <el-menu-item index="/lab"><span class="menu-ico">⚔</span>对战实验室</el-menu-item>
+        <el-menu-item index="/analyses"><span class="menu-ico">◈</span>分析报告</el-menu-item>
+        <el-menu-item index="/settings"><span class="menu-ico">⚙</span>设置</el-menu-item>
       </el-menu>
       <div class="aside-foot">
         <div class="foot-item muted">数据洞察 · 持续复盘</div>
@@ -39,15 +39,15 @@
 <script src="/vendor/element-plus-zh-cn.min.js"></script>
 <script src="/vendor/echarts.min.js"></script>
 <script src="/js/api.js"></script>
-<script src="/js/components.js"></script>
-<script src="/js/views/HomeView.js?v=2"></script>
+<script src="/js/components.js?v=2"></script>
+<script src="/js/views/HomeView.js?v=3"></script>
 <script src="/js/views/GenerateView.js?v=2"></script>
-<script src="/js/views/TeamsView.js?v=2"></script>
+<script src="/js/views/TeamsView.js?v=3"></script>
 <script src="/js/views/TeamDetailView.js?v=2"></script>
-<script src="/js/views/LabView.js?v=5"></script>
-<script src="/js/views/BattleDetailView.js?v=2"></script>
-<script src="/js/views/AnalysesView.js?v=1"></script>
-<script src="/js/views/AnalysisDetailView.js?v=1"></script>
+<script src="/js/views/LabView.js?v=6"></script>
+<script src="/js/views/BattleDetailView.js?v=3"></script>
+<script src="/js/views/AnalysesView.js?v=2"></script>
+<script src="/js/views/AnalysisDetailView.js?v=2"></script>
 <script src="/js/views/SettingsView.js?v=1"></script>
 <script src="/js/app.js?v=4"></script>
 </body>

@@ -7,6 +7,7 @@
 """
 from __future__ import annotations
 
+import sqlite3
 import threading
 import uuid
 from datetime import datetime, timezone
@@ -77,7 +78,30 @@ def get_report(analysis_id: str):
         raise HTTPException(410, str(e))
     if doc is None:
         raise HTTPException(404, "分析报告不存在")
+    _enrich_species_slug(doc)
     return doc
+
+
+def _enrich_species_slug(doc: dict) -> None:
+    """就地补充 pokemon_performance[].species（slug，供前端精灵图）。
+
+    分析文档由模型生成、只含中文名；slug 映射放读取侧补齐，
+    存量文档无需重跑，skill 迭代也不受影响。
+    """
+    perf = (doc.get("report") or {}).get("pokemon_performance") or []
+    if not perf:
+        return
+    dex_db = ROOT_DIR / "data" / "dex" / "dex.db"
+    conn = sqlite3.connect(f"file:{dex_db}?mode=ro", uri=True)
+    try:
+        zh2slug = {r[1]: r[0] for r in conn.execute(
+            "SELECT id, name_zh FROM species WHERE name_zh IS NOT NULL")}
+    finally:
+        conn.close()
+    for p in perf:
+        slug = zh2slug.get(p.get("species_zh", ""))
+        if slug:
+            p["species"] = slug
 
 
 def _run_job(job_id: str, req: AnalyzeRequest, harness: LLMHarness) -> None:

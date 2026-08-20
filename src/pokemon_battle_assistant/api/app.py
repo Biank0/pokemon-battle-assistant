@@ -22,7 +22,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from .routes import analyze, generate, lab, settings, teams
+from .routes import analyze, generate, lab, overview, settings, teams
 
 ROOT = Path(__file__).resolve().parents[3]
 FRONTEND_DIR = ROOT / "frontend"
@@ -33,6 +33,7 @@ app.include_router(generate.router, prefix="/api")
 app.include_router(lab.router, prefix="/api")
 app.include_router(analyze.router, prefix="/api")
 app.include_router(settings.router, prefix="/api")
+app.include_router(overview.router, prefix="/api")
 
 
 @app.middleware("http")
@@ -42,6 +43,11 @@ async def no_cache_html(request, call_next):
     if "text/html" in resp.headers.get("content-type", ""):
         resp.headers["Cache-Control"] = "no-cache"
     return resp
+
+# 像素精灵图静态目录（随仓库带入场包，scripts/download_sprites.py 可补齐全量）
+SPRITES_DIR = ROOT / "frontend" / "vendor" / "sprites"
+if SPRITES_DIR.exists():
+    app.mount("/sprites", StaticFiles(directory=SPRITES_DIR), name="sprites")
 
 # 前端静态托管（html=True：访问 / 返回 index.html）
 if FRONTEND_DIR.exists():

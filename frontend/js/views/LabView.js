@@ -1,5 +1,6 @@
 /* 对战实验室：选两队 → 跑量 → 进度 → 统计图表 + 逐场明细入口 */
 const LabView = {
+  components: { PokeSprite },
   template: `
   <div>
     <h2 class="page-title">对战实验室</h2>
@@ -15,6 +16,10 @@ const LabView = {
                          :label="teamLabel(t)"
                          :value="t.name" :disabled="!isSingles(t.format)"></el-option>
             </el-select>
+            <div class="lab-pick" v-if="selTeamA">
+              <poke-sprite v-if="selTeamA.ace_sprite" :slug="selTeamA.ace_sprite" size="md"></poke-sprite>
+              <span class="muted">首发位预览</span>
+            </div>
           </el-form-item>
           <div class="lab-vs-mid">VS</div>
           <el-form-item label="B 队（对手）" class="lab-vs-side">
@@ -25,6 +30,10 @@ const LabView = {
                          :value="t.name"
                          :disabled="t.name === teamA || !isSingles(t.format)"></el-option>
             </el-select>
+            <div class="lab-pick" v-if="selTeamB">
+              <poke-sprite v-if="selTeamB.ace_sprite" :slug="selTeamB.ace_sprite" size="md"></poke-sprite>
+              <span class="muted">首发位预览</span>
+            </div>
           </el-form-item>
         </div>
         <el-form-item label="对战赛制（第一期仅单打）">
@@ -58,17 +67,24 @@ const LabView = {
 
       <template v-if="session.status === 'completed' && session.stats">
         <div class="lab-score">
-          <div class="lab-score-side">
+          <div class="lab-score-side" :class="{ 'win-a': session.stats.team_a_wins >= session.stats.team_b_wins }">
+            <div class="lab-score-sprite">
+              <poke-sprite v-if="session.team_a_sprite" :slug="session.team_a_sprite" size="lg"></poke-sprite>
+            </div>
             <div class="lab-score-name">{{ session.stats.team_a_display }}</div>
             <div class="lab-score-num">{{ session.stats.team_a_wins }}</div>
           </div>
           <div class="lab-score-mid">
+            <div class="lab-score-vs">VS</div>
             <div class="lab-score-rate" v-if="session.stats.team_a_win_rate !== null">
               A 队胜率 {{ session.stats.team_a_win_rate }}%
             </div>
             <div class="muted">平均 {{ session.stats.avg_turns ?? '-' }} 回合/场</div>
           </div>
-          <div class="lab-score-side">
+          <div class="lab-score-side" :class="{ 'win-b': session.stats.team_b_wins >= session.stats.team_a_wins }">
+            <div class="lab-score-sprite">
+              <poke-sprite v-if="session.team_b_sprite" :slug="session.team_b_sprite" size="lg"></poke-sprite>
+            </div>
             <div class="lab-score-name">{{ session.stats.team_b_display }}</div>
             <div class="lab-score-num">{{ session.stats.team_b_wins }}</div>
           </div>
@@ -150,6 +166,8 @@ const LabView = {
       if (!this.session || !this.session.rounds_total) return 0;
       return Math.round(this.session.rounds_done / this.session.rounds_total * 100);
     },
+    selTeamA() { return this.teams.find((t) => t.name === this.teamA) || null; },
+    selTeamB() { return this.teams.find((t) => t.name === this.teamB) || null; },
   },
   async mounted() {
     try {

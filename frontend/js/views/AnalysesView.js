@@ -66,7 +66,8 @@ const AnalysesView = {
         </el-table-column>
         <el-table-column label="评分" width="70" align="center">
           <template #default="{ row }">
-            <el-tag :type="ratingType(row.rating)" size="small" effect="dark">{{ row.rating || '-' }}</el-tag>
+            <span v-if="row.rating" class="rating-stamp sm" :class="'rating-' + row.rating">{{ row.rating }}</span>
+            <span v-else>-</span>
           </template>
         </el-table-column>
         <el-table-column label="比分" width="90" align="center">
@@ -95,9 +96,6 @@ const AnalysesView = {
       const vs = sum ? `${sum.team_a_display} vs ${sum.team_b_display}（${sum.team_a_wins}:${sum.team_b_wins}）`
                      : s.id.slice(0, 8);
       return `${vs} · ${s.rounds_total} 轮 · ${s.started_at}`;
-    },
-    ratingType(r) {
-      return ({ S: "danger", A: "success", B: "primary", C: "warning", D: "info" })[r] || "info";
     },
     async loadSessions() {
       try {
